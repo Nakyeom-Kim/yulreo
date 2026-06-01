@@ -1,26 +1,75 @@
+@import url("https://fonts.googleapis.com/css2?family=Baskervville:ital,wght@0,400..700;1,400..700&display=swap");
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Pretendard Variable';
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  src: url('/woff2/PretendardVariable.woff2') format('woff2-variations');
+}
+
+@font-face {
+  font-family: 'onul-heukdan';
+
+  src: url('/font/OnulHeugdan-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #ffffff !important;
+  --foreground: #3f3a2e !important; /* 차분한 어두운 텍스트 */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  
+  /* 1.333 타이포그래피 스케일 (Perfect Fourth) */
+  --text-base: 1rem;
+  --text-base--line-height: 1.6;
+  --text-lg: 1.333rem;
+  --text-lg--line-height: 1.5;
+  --text-xl: 1.777rem;
+  --text-xl--line-height: 1.4;
+  --text-2xl: 2.369rem;
+  --text-2xl--line-height: 1.3;
+  --text-3xl: 3.157rem;
+  --text-3xl--line-height: 1.2;
+  --text-4xl: 4.209rem;
+  --text-4xl--line-height: 1.1;
+  --text-5xl: 5.610rem;
+  --text-5xl--line-height: 1.1;
+  --text-6xl: 7.478rem;
+  --text-6xl--line-height: 1.1;
+
+  /* 폰트 패밀리 정의 */
+  /* 본문/소제목: 영문/기호는 바스커빌, 국문은 프리텐다드 */
+  --font-sans: "Baskervville", "Pretendard Variable", ui-sans-serif, system-ui, sans-serif;
+  /* 제목: onul흑단, 영문은 바스커빌 */
+  --font-heading: 'onul-heukdan', "Baskervville", serif;
+  --font-baskerville: "Baskervville", serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html, body {
+  background-color: #ffffff !important;
+  color: var(--foreground) !important;
+  font-family: var(--font-sans);
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.animate-ripple {
+  animation: ripple 2.5s infinite cubic-bezier(0.21, 0.47, 0.32, 0.98);
 }
+
