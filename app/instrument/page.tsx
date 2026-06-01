@@ -44,8 +44,21 @@ export default function InstrumentPage() {
   const geomungoIndexRef = useRef(0);
   const haegeumIndexRef = useRef(0);
 
-  // 페이지 이탈 시 정리
+  // 페이지 이탈 시 정리 및 이미지 프리로드
   useEffect(() => {
+    // 이미지 사전 로딩 (프리로드) - 버튼 클릭 시 딜레이 방지
+    const imagesToPreload = [
+      "/img/hun.png", "/img/pyeonjong.png", "/img/pyeongyeong.png",
+      "/img/daegeum.png", "/img/taepyeongso.png", "/img/piri.png",
+      "/img/saenghwang.png", "/img/bak.png", "/img/eo.png",
+      "/img/janggu.png", "/img/buk.png", "/img/jwago.png",
+      "/img/gayageum.png", "/img/geomungo.png", "/img/haegeum.png"
+    ];
+    imagesToPreload.forEach(src => {
+      const img = new Image();
+      img.src = src;
+    });
+
     return () => {
       if (reqRef.current) cancelAnimationFrame(reqRef.current);
       if (activeAudioRef.current) {

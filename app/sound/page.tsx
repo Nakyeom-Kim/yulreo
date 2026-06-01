@@ -72,6 +72,16 @@ export default function SoundPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // 이미지 사전 로딩 (프리로드) - 버튼 클릭 시 딜레이 방지
+    const imagesToPreload = [
+      "/img/daegeum.png", "/img/piri.png", "/img/gayageum.png",
+      "/img/geomungo.png", "/img/janggu.png"
+    ];
+    imagesToPreload.forEach(src => {
+      const img = new Image();
+      img.src = src;
+    });
+
     return () => {
       if (reqRef.current) cancelAnimationFrame(reqRef.current);
       Object.values(audiosRef.current).forEach((audio) => {
