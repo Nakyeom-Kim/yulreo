@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInteractionSound } from "@/hooks/useInteractionSound";
 import FadeIn from "@/components/FadeIn";
+import { getInstrumentMotionStyle } from "@/utils/instrumentMotions";
 
 // 통합된 트랙 설정 (각 버튼 인덱스에 매핑됨)
 const TRACK_CONFIGS = [
@@ -13,7 +14,23 @@ const TRACK_CONFIGS = [
       left: { id: "daegeum", img: "daegeum.png", audio: "/sound/sound effect/school bell/daegeum-kkokdugaksi.wav", minBin: 10, maxBin: 50, centerIndex: 20, offsetX: -250, offsetY: 50 },
       right: { id: "piri", img: "piri.png", audio: "/sound/sound effect/school bell/piri-kkokdugaksi.wav", minBin: 30, maxBin: 70, centerIndex: 40, offsetX: 250, offsetY: 50 },
       bottom: { id: "gayageum", img: "gayageum.png", audio: "/sound/sound effect/school bell/gayageum-kkokdugaksi.wav", minBin: 0, maxBin: 40, centerIndex: 8, offsetX: 0, offsetY: 150 },
-    }
+    },
+    staticImages: [
+      // 중앙 가야금 (맨 뒤 레이어): 넓게 퍼져있는 노란색 블록, 화면 중앙~좌측을 넓게 덮으며 왼쪽이 살짝 잘림
+      { id: "gayageum-cl", audioKey: "bottom", instrument: "Gayageum", img: "gayageum.png", className: "fixed top-[25vh] left-[-10vw] w-[80vw] max-w-none opacity-90 -z-10" },
+
+      // 좌측 상단 대금: 오른쪽으로 5vw 이동(left-[-10vw]) 및 크기 살짝 축소(w-[40vw])
+      { id: "daegeum-tl", audioKey: "left", instrument: "Daegeum", img: "daegeum.png", className: "fixed top-[5vh] left-[-10vw] w-[40vw] max-w-none opacity-90" },
+      
+      // 우측 중앙 대금: 크기를 53vw로 조정, 레퍼런스 이미지처럼 화면 최우측에 붙고 중앙에서 중앙을 향해 뻗어나가는 형태
+      { id: "daegeum-mr", audioKey: "left", instrument: "Daegeum", img: "daegeum.png", className: "fixed top-[35vh] right-0 w-[53vw] max-w-none opacity-90" },
+      
+      // 우측 상단 피리: 우측 가장자리가 아니라 화면 가로 70~80% 부근에 위치하며 위쪽이 약간 잘림
+      { id: "piri-tr", audioKey: "right", instrument: "Piri", img: "piri.png", className: "fixed top-[-10vh] right-[10vw] w-[30vw] max-w-none opacity-90" },
+      
+      // 좌측 하단 피리: 오른쪽으로 5vw 이동 (left-[5vw])
+      { id: "piri-bl", audioKey: "right", instrument: "Piri", img: "piri.png", className: "fixed bottom-[-10vh] left-[5vw] w-[30vw] max-w-none opacity-90" },
+    ]
   },
   {
     // index 1: 메시지 사운드 (대금, 거문고, 장구) - 약 100px 정도만 끝부분이 겹치도록 간격 확보
@@ -21,6 +38,14 @@ const TRACK_CONFIGS = [
       left: { id: "daegeum", img: "daegeum.png", audio: "/sound/sound effect/message/daegeum-message.mp3", minBin: 10, maxBin: 50, centerIndex: 20, offsetX: -250, offsetY: -80 },
       right: { id: "geomungo", img: "geomungo.png", audio: "/sound/sound effect/message/geomungo-message.mp3", minBin: 0, maxBin: 40, centerIndex: 8, offsetX: 250, offsetY: -80 },
       bottom: { id: "janggu", img: "janggu.png", audio: "/sound/sound effect/message/janggu-message.mp3", minBin: 0, maxBin: 30, centerIndex: 5, offsetX: 0, offsetY: 180 },
+    }
+  },
+  {
+    // index 2: 종소리 (bell)
+    slots: {
+      left: { id: "bell1", img: "daegeum.png", audio: "/sound/sound effect/bell/bell_gayageum.mp3", minBin: 10, maxBin: 50, centerIndex: 20, offsetX: -250, offsetY: 0 },
+      right: { id: "bell2", img: "piri.png", audio: "/sound/sound effect/bell/bell_janggu.mp3", minBin: 30, maxBin: 70, centerIndex: 40, offsetX: 250, offsetY: 0 },
+      bottom: { id: "bell3", img: "gayageum.png", audio: "/sound/sound effect/bell/bell_taepyeongso.mp3", minBin: 0, maxBin: 40, centerIndex: 8, offsetX: 0, offsetY: 150 },
     }
   }
 ];
@@ -51,6 +76,10 @@ export default function SoundPage() {
   const masterCompressorRef = useRef<DynamicsCompressorNode | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const reqRef = useRef<number | null>(null);
+  const endTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const smoothedIntensitiesRef = useRef<{ left: number; right: number; bottom: number }>({ left: 0, right: 0, bottom: 0 });
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // 범용 슬롯(Left, Right, Bottom)용 Analyser와 DOM Ref 관리
   const analysersRef = useRef<{
@@ -84,6 +113,7 @@ export default function SoundPage() {
 
     return () => {
       if (reqRef.current) cancelAnimationFrame(reqRef.current);
+      if (endTimeoutRef.current) clearTimeout(endTimeoutRef.current);
       Object.values(audiosRef.current).forEach((audio) => {
         if (audio) audio.pause();
       });
@@ -98,9 +128,10 @@ export default function SoundPage() {
       }
     });
     if (reqRef.current) cancelAnimationFrame(reqRef.current);
+    if (endTimeoutRef.current) clearTimeout(endTimeoutRef.current);
     setIsPlaying(false);
 
-    if (index === 0 || index === 1) {
+    if (index === 0 || index === 1 || index === 2) {
       setActiveTrackIndex(index);
       const trackConfig = TRACK_CONFIGS[index];
 
@@ -114,6 +145,9 @@ export default function SoundPage() {
       smoothPosRef.current = {
         left: {x: 0, y: 0}, right: {x: 0, y: 0}, bottom: {x: 0, y: 0}
       };
+
+      smoothedIntensitiesRef.current = { left: 0, right: 0, bottom: 0 };
+      itemRefs.current = [];
       
       if (!audioCtxRef.current) {
         audioCtxRef.current = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
@@ -180,8 +214,11 @@ export default function SoundPage() {
         audio.onended = () => {
           finishedCount++;
           if (finishedCount === slots.length) {
-            setIsPlaying(false);
-            if (reqRef.current) cancelAnimationFrame(reqRef.current);
+            // 모든 트랙 재생이 끝난 후 1.5초(1500ms) 동안 이미지가 화면에 더 머무르게 대기
+            endTimeoutRef.current = setTimeout(() => {
+              setIsPlaying(false);
+              if (reqRef.current) cancelAnimationFrame(reqRef.current);
+            }, 1500);
           }
         };
       });
@@ -216,51 +253,91 @@ export default function SoundPage() {
 
       const updateLoop = () => {
         const dataArray = new Uint8Array(128);
+        const time = performance.now();
         
-        const processSlot = (key: "left" | "right" | "bottom", ref: React.RefObject<HTMLDivElement | null>) => {
-          const analyser = analysersRef.current[key];
-          const config = trackConfig.slots[key as keyof typeof trackConfig.slots];
-          
-          if (analyser && ref.current) {
-            analyser.getByteFrequencyData(dataArray);
-            let sum = 0;
-            let maxVal = 0;
-            let maxIndex = config.centerIndex;
-            for (let i = config.minBin; i < config.maxBin; i++) {
-              sum += dataArray[i];
-              if (dataArray[i] > maxVal) { maxVal = dataArray[i]; maxIndex = i; }
-            }
-            const avg = sum / (config.maxBin - config.minBin);
-            const intensity = Math.pow(avg / 255, 1.5);
-            const scale = 1.0 + intensity * 0.8;
-            
-            const targetX = (maxIndex - config.centerIndex) * 15 + config.offsetX;
-            const targetY = -intensity * 300 + config.offsetY;
-            
-            smoothPosRef.current[key].x += (targetX - smoothPosRef.current[key].x) * 0.05;
-            smoothPosRef.current[key].y += (targetY - smoothPosRef.current[key].y) * 0.05;
-            
-            const moveX = smoothPosRef.current[key].x;
-            const waveY = smoothPosRef.current[key].y;
-            
-            ref.current.style.transform = `translate(${moveX}px, ${waveY}px) scale(${scale})`;
+        const keys: ("left"|"right"|"bottom")[] = ["left", "right", "bottom"];
+        const currentIntensities: Record<string, number> = { left: 0, right: 0, bottom: 0 };
+        
+        keys.forEach(key => {
+           const analyser = analysersRef.current[key];
+           const config = trackConfig.slots[key as keyof typeof trackConfig.slots];
+           if (analyser) {
+             analyser.getByteFrequencyData(dataArray);
+             let sum = 0;
+             for (let i = config.minBin; i < config.maxBin; i++) {
+               sum += dataArray[i];
+             }
+             const avg = sum / (config.maxBin - config.minBin);
+             // 사운드 페이지의 합주/메시지 사운드들은 단일 악기 대비 음압이 낮아 모션이 잘 안 보이므로 강도를 1.8배 증폭
+             const rawIntensity = Math.pow(avg / 255, 1.5);
+             const intensity = Math.min(1.0, rawIntensity * 1.8);
+             currentIntensities[key] = intensity;
+             
+             if (intensity > smoothedIntensitiesRef.current[key]) {
+               smoothedIntensitiesRef.current[key] += (intensity - smoothedIntensitiesRef.current[key]) * 0.8;
+             } else {
+               smoothedIntensitiesRef.current[key] += (intensity - smoothedIntensitiesRef.current[key]) * 0.25;
+             }
+           }
+        });
 
-            if (intensity > 0.1 && getDist(moveX, waveY, lastStampRef.current[key].x, lastStampRef.current[key].y) > 20) {
-              lastStampRef.current[key] = { x: moveX, y: waveY };
-              createTrail(ref.current, config.img, moveX, waveY, scale);
-            }
-          }
-        };
-
-        processSlot("left", leftRef);
-        processSlot("right", rightRef);
-        processSlot("bottom", bottomRef);
-
+        if ((trackConfig as any).staticImages) {
+           (trackConfig as any).staticImages.forEach((img: any, idx: number) => {
+             const node = itemRefs.current[idx];
+             if (!node) return;
+             const audioKey = img.audioKey as "left"|"right"|"bottom";
+             const audio = audiosRef.current[audioKey];
+             if (!audio) return;
+             const motionResult = getInstrumentMotionStyle({
+               instrument: img.instrument,
+               audio,
+               intensity: currentIntensities[audioKey],
+               smoothedIntensity: smoothedIntensitiesRef.current[audioKey],
+               smoothedPitch: 0.5,
+               isFadingOut: false,
+               elapsedFade: 0,
+               time,
+               disablePositionalTranslation: true,
+               disableBaseScale: true,
+               disableProgressFade: true,
+               elementId: img.id,
+               refs: { wrapper: node }
+             });
+             node.style.transform = motionResult.transform;
+             node.style.opacity = String(motionResult.opacity);
+             node.style.filter = motionResult.filter;
+           });
+        } else {
+           keys.forEach((key) => {
+             const node = key === "left" ? leftRef.current : key === "right" ? rightRef.current : bottomRef.current;
+             if (!node) return;
+             const config = trackConfig.slots[key];
+             const audio = audiosRef.current[key];
+             if (!audio) return;
+             
+             const mappedInstrument = config.id.startsWith("bell") ? "Janggu" : config.id.charAt(0).toUpperCase() + config.id.slice(1);
+             const motionResult = getInstrumentMotionStyle({
+               instrument: mappedInstrument,
+               audio,
+               intensity: currentIntensities[key],
+               smoothedIntensity: smoothedIntensitiesRef.current[key],
+               smoothedPitch: 0.5,
+               isFadingOut: false,
+               elapsedFade: 0,
+               time,
+               disableProgressFade: true,
+               refs: { wrapper: node }
+             });
+             node.style.transform = motionResult.transform;
+             node.style.opacity = String(motionResult.opacity);
+             node.style.filter = motionResult.filter;
+           });
+        }
+        
         reqRef.current = requestAnimationFrame(updateLoop);
       };
 
       reqRef.current = requestAnimationFrame(updateLoop);
-
     } else {
       playClickSound();
     }
@@ -282,26 +359,46 @@ export default function SoundPage() {
           >
             <div className="relative w-full h-[60vh] flex items-center justify-center">
               
-              {/* Left Slot */}
-              <div className="absolute flex flex-col items-center justify-center z-10 w-48 md:w-64 lg:w-96">
-                <div ref={leftRef} className="transition-all duration-75 ease-in-out origin-center z-10 relative">
-                  <img src={`/img/${currentConfig.slots.left.img}?v=2`} alt={currentConfig.slots.left.id} width={600} height={600} className="w-48 md:w-64 lg:w-96 h-auto object-contain" />
-                </div>
-              </div>
+              {(currentConfig as any).staticImages ? (
+                <>
+                  {(currentConfig as any).staticImages.map((img: any, idx: number) => (
+                    <div key={idx} className={img.className} style={{ transformOrigin: "center center" }}>
+                      <div ref={(el) => { itemRefs.current[idx] = el; }} className="w-full h-full transition-[opacity,filter] duration-300 ease-in-out">
+                        <img src={`/img/${img.img}?v=2`} alt={img.id} className="w-full h-auto object-contain" />
+                      </div>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <>
+                  {/* Left Slot */}
+                  <div className="absolute flex flex-col items-center justify-center z-10 w-48 md:w-64 lg:w-96">
+                    {currentConfig.audio.left && (
+                      <div ref={leftRef} className="transition-[opacity,filter] duration-300 ease-in-out origin-center z-10 relative">
+                        <img src={`/img/${currentConfig.slots.left.img}?v=2`} alt={currentConfig.slots.left.id} width={600} height={600} className="w-48 md:w-64 lg:w-96 h-auto object-contain" />
+                      </div>
+                    )}
+                  </div>
 
-              {/* Right Slot */}
-              <div className="absolute flex flex-col items-center justify-center z-10 w-48 md:w-64 lg:w-96">
-                <div ref={rightRef} className="transition-all duration-75 ease-in-out origin-center z-10 relative">
-                  <img src={`/img/${currentConfig.slots.right.img}?v=2`} alt={currentConfig.slots.right.id} width={600} height={600} className="w-48 md:w-64 lg:w-96 h-auto object-contain" />
-                </div>
-              </div>
+                  {/* Right Slot */}
+                  <div className="absolute flex flex-col items-center justify-center z-10 w-48 md:w-64 lg:w-96">
+                    {currentConfig.audio.right && (
+                      <div ref={rightRef} className="transition-[opacity,filter] duration-300 ease-in-out origin-center z-10 relative">
+                        <img src={`/img/${currentConfig.slots.right.img}?v=2`} alt={currentConfig.slots.right.id} width={600} height={600} className="w-48 md:w-64 lg:w-96 h-auto object-contain" />
+                      </div>
+                    )}
+                  </div>
 
-              {/* Bottom Slot */}
-              <div className="absolute flex flex-col items-center justify-center z-10 w-48 md:w-64 lg:w-96">
-                <div ref={bottomRef} className="transition-all duration-75 ease-in-out origin-center z-10 relative">
-                  <img src={`/img/${currentConfig.slots.bottom.img}?v=2`} alt={currentConfig.slots.bottom.id} width={600} height={600} className="w-48 md:w-64 lg:w-96 h-auto object-contain" />
-                </div>
-              </div>
+                  {/* Bottom Slot */}
+                  <div className="absolute flex flex-col items-center justify-center z-10 w-48 md:w-64 lg:w-96">
+                    {currentConfig.audio.bottom && (
+                      <div ref={bottomRef} className="transition-[opacity,filter] duration-300 ease-in-out origin-center z-10 relative">
+                        <img src={`/img/${currentConfig.slots.bottom.img}?v=2`} alt={currentConfig.slots.bottom.id} width={600} height={600} className="w-48 md:w-64 lg:w-96 h-auto object-contain" />
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
 
             </div>
           </motion.div>
