@@ -49,9 +49,9 @@ export default function InstrumentPage() {
   useEffect(() => {
     // 이미지 사전 로딩 (프리로드) - 버튼 클릭 시 딜레이 방지
     const imagesToPreload = [
-      "/img/hun.png", "/img/pyeonjong.png", "/img/pyeongyeong.png",
+      "/img/hun.png", "/img/hun01.png", "/img/pyeonjong.png", "/img/pyeongyeong.png",
       "/img/daegeum.png", "/img/taepyeongso.png", "/img/piri.png",
-      "/img/saenghwang.png", "/img/bak.png", "/img/eo.png",
+      "/img/saenghwang.png", "/img/saenghwang01.png", "/img/bak.png", "/img/eo.png",
       "/img/janggu.png", "/img/buk.png", "/img/jwago.png",
       "/img/gayageum.png", "/img/geomungo.png", "/img/haegeum.png"
     ];
@@ -358,12 +358,13 @@ export default function InstrumentPage() {
     // 루프 시작
     reqRef.current = requestAnimationFrame(updateLoop);
 
-    // 소리가 완전히 끝나면 즉시 정리 (편종, 편경, 대금은 재생 종료 시점에 맞춰 상승/하강/수평이동 및 소멸이 이미 완료되었으므로 즉시 제거)
+    // 소리가 완전히 끝나면 즉시 정리 (편종, 편경, 대금, 어는 재생 종료 시점에 즉시 제거)
     audio.onended = () => {
       if (
         instrumentName.en === "Pyeonjong" ||
         instrumentName.en === "Pyeongyeong" ||
-        instrumentName.en === "Daegeum"
+        instrumentName.en === "Daegeum" ||
+        instrumentName.en === "Eo"
       ) {
         setActiveImage(null);
         setActiveInstrument(null);
@@ -385,16 +386,20 @@ export default function InstrumentPage() {
             initial={{ 
               opacity: 0, 
               scale: 0.9, 
-              y: (activeInstrument?.en === "Hun" || activeInstrument?.en === "Pyeonjong") 
-                ? -15 
-                : (activeInstrument?.en === "Pyeongyeong" ? 5 : 0)
+              y: activeInstrument?.en === "Saenghwang" 
+                ? -55 
+                : (activeInstrument?.en === "Hun" || activeInstrument?.en === "Pyeonjong" || activeInstrument?.en === "Taepyeongso" || activeInstrument?.en === "Daegeum") 
+                  ? -15 
+                  : (activeInstrument?.en === "Pyeongyeong" ? -35 : 0)
             }}
             animate={{ 
               opacity: 1, 
               scale: 1.0, 
-              y: (activeInstrument?.en === "Hun" || activeInstrument?.en === "Pyeonjong") 
-                ? -30 
-                : (activeInstrument?.en === "Pyeongyeong" ? 10 : 0)
+              y: activeInstrument?.en === "Saenghwang" 
+                ? -80 
+                : (activeInstrument?.en === "Hun" || activeInstrument?.en === "Pyeonjong" || activeInstrument?.en === "Taepyeongso" || activeInstrument?.en === "Daegeum") 
+                  ? -30 
+                  : (activeInstrument?.en === "Pyeongyeong" ? -30 : 0)
             }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
@@ -410,7 +415,7 @@ export default function InstrumentPage() {
                 <>
                   <img
                     ref={rippleLeftRef}
-                    src={`${activeImage}?v=3`}
+                    src={`${activeImage}?v=4`}
                     alt=""
                     className="absolute inset-0 w-48 md:w-64 lg:w-96 h-auto object-contain z-0 blur-[6px] pointer-events-none"
                     style={{ 
@@ -422,7 +427,7 @@ export default function InstrumentPage() {
                   />
                   <img
                     ref={rippleRightRef}
-                    src={`${activeImage}?v=3`}
+                    src={`${activeImage}?v=4`}
                     alt=""
                     className="absolute inset-0 w-48 md:w-64 lg:w-96 h-auto object-contain z-0 blur-[6px] pointer-events-none"
                     style={{ 
@@ -434,14 +439,35 @@ export default function InstrumentPage() {
                   />
                 </>
               )}
-              <img
-                ref={mainImgRef}
-                src={`${activeImage}?v=3`}
-                alt="Instrument Graphic"
-                width={500}
-                height={500}
-                className="w-48 md:w-64 lg:w-96 h-auto object-contain relative z-10"
-              />
+              {(activeInstrument?.en === "Hun" || activeInstrument?.en === "Saenghwang") ? (
+                <>
+                  <img
+                    src={activeInstrument?.en === "Hun" ? "/img/hun01.png?v=4" : "/img/saenghwang01.png?v=4"}
+                    alt="Instrument Graphic Base"
+                    width={500}
+                    height={500}
+                    className="w-48 md:w-64 lg:w-96 h-auto object-contain absolute z-10"
+                  />
+                  <img
+                    ref={mainImgRef}
+                    src={`${activeImage}?v=4`}
+                    alt="Instrument Graphic Overlay"
+                    width={500}
+                    height={500}
+                    className="w-48 md:w-64 lg:w-96 h-auto object-contain relative z-20"
+                    style={{ maskImage: "radial-gradient(circle, transparent 0%, transparent 100%)", WebkitMaskImage: "radial-gradient(circle, transparent 0%, transparent 100%)" }}
+                  />
+                </>
+              ) : (
+                <img
+                  ref={mainImgRef}
+                  src={`${activeImage}?v=4`}
+                  alt="Instrument Graphic"
+                  width={500}
+                  height={500}
+                  className="w-48 md:w-64 lg:w-96 h-auto object-contain relative z-10"
+                />
+              )}
             </div>
           </motion.div>
         )}
@@ -506,7 +532,7 @@ export default function InstrumentPage() {
                     className={cn(
                       "w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 shrink-0 rounded-full border bg-background transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative",
                       isActive 
-                        ? "border-foreground/20 text-foreground scale-110 shadow-[0_0_20px_rgba(63,58,46,0.15)]" 
+                        ? "border-foreground/20 text-foreground scale-110 shadow-[0_0_20px_rgba(76,72,59,0.15)]" 
                         : "border-foreground/20 text-foreground/50 hover:bg-foreground/5 hover:border-foreground/40"
                     )}
                     aria-label={`Instrument button: ${instrumentNames[i]}`}
@@ -529,7 +555,7 @@ export default function InstrumentPage() {
                     className={cn(
                       "w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 shrink-0 rounded-full border bg-background transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative",
                       isActive 
-                        ? "border-foreground/20 text-foreground scale-110 shadow-[0_0_20px_rgba(63,58,46,0.15)]" 
+                        ? "border-foreground/20 text-foreground scale-110 shadow-[0_0_20px_rgba(76,72,59,0.15)]" 
                         : "border-foreground/20 text-foreground/50 hover:bg-foreground/5 hover:border-foreground/40"
                     )}
                     aria-label={`Instrument button: ${instrumentNames[index]}`}

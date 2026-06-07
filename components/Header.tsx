@@ -9,7 +9,6 @@ export default function Header() {
   const pathname = usePathname();
 
   const links = [
-    { href: "/", label: "Brand" },
     { href: "/instrument", label: "Instrument" },
     { href: "/sound", label: "Sound" },
   ];
@@ -17,7 +16,7 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-6 lg:px-8 py-4 md:py-5 lg:py-6 pointer-events-none">
       <Link href="/" className="pointer-events-auto transition-opacity hover:opacity-70 flex items-center">
-        <Image src="/logo.png" alt="Yul-reo Logo" width={160} height={60} className="h-6 md:h-8 lg:h-10 w-auto object-contain" priority />
+        <Image src="/logo2.png" alt="Yul-reo Logo" width={160} height={60} className="h-6 md:h-8 lg:h-10 w-auto object-contain" priority />
       </Link>
       <nav className="flex gap-4 md:gap-6 lg:gap-8 pointer-events-auto text-foreground">
         {links.map((link) => (

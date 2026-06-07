@@ -19,7 +19,7 @@
 
 :root {
   --background: #ffffff !important;
-  --foreground: #3f3a2e !important; /* 차분한 어두운 텍스트 */
+  --foreground: #4c483b !important; /* 차분한 어두운 텍스트 */
 }
 
 @theme inline {

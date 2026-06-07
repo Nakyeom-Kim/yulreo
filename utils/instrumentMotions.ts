@@ -32,6 +32,7 @@ export interface MotionResult {
   transform: string;
   opacity: number;
   filter: string;
+  transformOrigin?: string;
 }
 
 export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
@@ -40,9 +41,31 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
     isFadingOut, elapsedFade, time, jwagoState, refs
   } = ctx;
 
+
   const baseScale = 1;
   const maxMultiplier = 5;
   let opacity = 1.0;
+  
+  // 훈/생황 이외의 악기는 이전 인터랙션의 mask 및 opacity 잔여 스타일을 리셋 (DOM 재사용 방지)
+  if (refs?.mainImg) {
+    if (instrument !== "Hun" && instrument !== "Saenghwang") {
+      refs.mainImg.style.maskImage = "";
+      refs.mainImg.style.WebkitMaskImage = "";
+      refs.mainImg.style.clipPath = "";
+      refs.mainImg.style.WebkitClipPath = "";
+      refs.mainImg.style.opacity = "";
+    }
+  }
+  
+  // 2번 버튼(메시지 사운드)의 그래픽 요소들은 사용자의 요청으로 모든 모션을 완전히 제거하고 고정 상태로 렌더링
+  if (ctx.elementId && ["janggu-cb", "geomungo-t", "daegeum-ml", "daegeum-tr2"].includes(ctx.elementId)) {
+    return {
+      transform: "scale(1)",
+      opacity: 1.0,
+      filter: "none"
+    };
+  }
+
   let scale = baseScale + intensity * maxMultiplier;
   let transformStr = `scale(${scale})`;
 
@@ -61,7 +84,8 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
       const gScale = ctx.disableBaseScale ? 1.0 : 1.7;
       transformStr = `scale(${baseScale * gScale})`;
     } else if (instrument === "Piri" || instrument === "Haegeum") {
-      transformStr = `scale(${baseScale})`;
+      const piriScale = instrument === "Piri" ? 1.4 : baseScale;
+      transformStr = `scale(${piriScale})`;
       const duration = audio.duration || 3.0;
       const endProgress = Math.min(1.0, audio.currentTime / duration);
       let baseOpacity = 1.0;
@@ -70,6 +94,10 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
         baseOpacity = Math.max(0, 1.0 - Math.pow(fadeProgress, 1.2));
       }
       opacity = baseOpacity * Math.max(0, 1.0 - elapsedFade * 2.0);
+    } else if (instrument === "Saenghwang") {
+      const saenghwangBaseScale = 1.50;
+      scale = saenghwangBaseScale * (1.0 + elapsedFade * 0.1);
+      transformStr = `scale(${scale})`;
     } else {
       scale = (baseScale + intensity * maxMultiplier) * (1.0 + elapsedFade * 0.1);
       transformStr = `scale(${scale})`;
@@ -80,6 +108,65 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
       const growthFactor = 1.0 + durationProgress * 1.5;
       scale = baseScale * growthFactor;
       transformStr = `scale(${scale})`;
+      if (refs?.mainImg) {
+        // hun01.png is underneath. mainImg is hun.png, which expands from the center after 0.8s.
+        if (audio.currentTime <= 0.8) {
+          refs.mainImg.style.maskImage = "radial-gradient(circle, transparent 0%, transparent 100%)";
+          refs.mainImg.style.WebkitMaskImage = "radial-gradient(circle, transparent 0%, transparent 100%)";
+          refs.mainImg.style.clipPath = "none";
+          refs.mainImg.style.WebkitClipPath = "none";
+          refs.mainImg.style.opacity = "1";
+        } else {
+          // Slow circular reveal over 2.0 seconds with extremely soft/blurry edges
+          const fadeDuration = 2.0;
+          const elapsed = audio.currentTime - 0.8;
+          const progress = Math.min(1.0, elapsed / fadeDuration);
+          
+          const solidRadius = Math.max(0, progress * 150 - 50);
+          const transparentRadius = progress * 150 + 30;
+          
+          const maskStr = `radial-gradient(circle, black ${solidRadius}%, transparent ${transparentRadius}%)`;
+          refs.mainImg.style.maskImage = maskStr;
+          refs.mainImg.style.WebkitMaskImage = maskStr;
+          refs.mainImg.style.clipPath = "none";
+          refs.mainImg.style.WebkitClipPath = "none";
+          refs.mainImg.style.opacity = "1";
+        }
+      }
+    }
+
+    if (instrument === "Saenghwang") {
+      // Entire instrument visual starts showing after 0.5s
+      if (audio.currentTime <= 0.5) {
+        opacity = 0;
+      } else {
+        opacity = 1.0;
+      }
+      
+      const duration = audio.duration || 3.0;
+      const progress = Math.min(1.0, audio.currentTime / duration);
+      
+      // 시간이 지남에 따라 15% 성장하고, 주파수 증폭(intensity) 시 20px가량 더 팽창하도록 계수 상향(0.8 -> 1.5)
+      const saenghwangBaseScale = 1.35;
+      scale = saenghwangBaseScale + (progress * 0.15) + (intensity * 1.5);
+      transformStr = `scale(${scale})`;
+
+      if (refs?.mainImg) {
+        // saenghwang01.png is underneath. mainImg is saenghwang.png, which fades in after 1.3s.
+        if (audio.currentTime <= 1.3) {
+          refs.mainImg.style.maskImage = "none";
+          refs.mainImg.style.WebkitMaskImage = "none";
+          refs.mainImg.style.opacity = "0";
+        } else {
+          // Fades in over 1.0 second (fully opaque at 2.3s)
+          const fadeDuration = 1.0;
+          const elapsed = audio.currentTime - 1.3;
+          const overlayOpacity = Math.min(1.0, elapsed / fadeDuration);
+          refs.mainImg.style.maskImage = "none";
+          refs.mainImg.style.WebkitMaskImage = "none";
+          refs.mainImg.style.opacity = String(overlayOpacity);
+        }
+      }
     }
 
     if (instrument === "Daegeum") {
@@ -96,7 +183,8 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
     if (instrument === "Piri") {
       const duration = audio.duration || 3.0;
       const progress = Math.min(1.0, audio.currentTime / duration);
-      scale = (baseScale + intensity * 0.5) * (1.0 - progress * 0.1);
+      const piriBaseScale = 1.4;
+      scale = (piriBaseScale + intensity * 0.5) * (1.0 - progress * 0.1);
       transformStr = `scale(${scale})`;
       
       if (progress > 0.5 && !ctx.disableProgressFade) {
@@ -130,7 +218,8 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
         shakeX = (Math.random() - 0.5) * intensity * 25;
         shakeY = (Math.random() - 0.5) * intensity * 25;
       } else {
-        const vibrationSpeed = 0.08;
+        // 진동 속도(진동수)도 시간이 갈수록 점차 줄어들도록 설정 (vibrationSpeed 감쇠)
+        const vibrationSpeed = 0.01 + 0.07 * (1.0 - progress);
         const baseVibration = 10.0 * (1.0 - progress);
         const currentAmp = Math.max(0, baseVibration) + intensity * 15;
         shakeX = Math.sin(time * vibrationSpeed) * currentAmp;
@@ -233,22 +322,24 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
     }
 
     if (instrument === "Gayageum") {
-      const bounceY = -intensity * 30;
-      const trembleX = (Math.random() - 0.5) * intensity * 15; 
-      const trembleY = (Math.random() - 0.5) * intensity * 15;
+      // 거문고와 유사하지만 위로 튕기도록 -Y translation 적용
+      const bounceY = -intensity * 75;
+      const trembleX = (Math.random() - 0.5) * intensity * 30; 
+      const trembleY = (Math.random() - 0.5) * intensity * 30;
       const gScale = ctx.disableBaseScale ? 1.0 : 1.7;
       transformStr = `scale(${baseScale * gScale}) translate(${trembleX}px, ${bounceY + trembleY}px)`;
     }
     
     if (instrument === "Taepyeongso") {
       const taepyeongsoMultiplier = 8;
-      scale = Math.min(3.0, 0.6 + intensity * taepyeongsoMultiplier); 
-      transformStr = `scale(${scale})`;
+      const taepScale = Math.min(3.0, 0.6 + intensity * taepyeongsoMultiplier); 
+      transformStr = `scale(${taepScale})`;
     }
   }
 
   // Final wrapper transformations
   let finalTransform = transformStr;
+
   
   if (refs?.wrapper) {
     refs.wrapper.style.clipPath = "none";
@@ -267,7 +358,7 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
       const baseX = -30 + (easeProgress * 60); 
       const windShiver = Math.sin(time * 0.04) * intensity * 12;
       const xPosStr = `calc(${baseX}vw + ${windShiver}px)`;
-      const yPos = -Math.cos(progress * 2 * Math.PI) * 45;
+      const yPos = -30 - Math.cos(progress * 2 * Math.PI) * 45;
       finalTransform = `translate(${xPosStr}, ${yPos}px) ${transformStr}`;
     } else if (instrument === "Piri") {
       const duration = audio.duration || 3.0;
@@ -310,7 +401,7 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
       const duration = audio.duration || 2.5;
       const progress = Math.min(1.0, audio.currentTime / duration);
       const easeProgress = 1 - Math.pow(1 - progress, 2.0);
-      const yPos = 10 + (easeProgress * 80);
+      const yPos = -30 + (easeProgress * 80);
       finalTransform = `translateY(${yPos}px) ${transformStr}`;
     }
   } else {
@@ -338,7 +429,21 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
       } else if (ctx.elementId === "piri-bl") {
         ty = -100 * inverseProgress; // 위에서 아래로
         tx = arc * 30; // 궤적 동안 오른쪽으로 둥글게(30vw) 포물선
+      } 
+      // 2번 트랙 (메시지 사운드) - 위치를 먼저 잡기 위해 진입 모션 임시 비활성화
+      /*
+      else if (ctx.elementId === "janggu-cb") {
+        ty = 100 * inverseProgress; // 아래에서 위로
+      } else if (ctx.elementId === "geomungo-t") {
+        ty = -100 * inverseProgress; // 위에서 아래로
+      } else if (ctx.elementId === "daegeum-ml") {
+        tx = -100 * inverseProgress; // 좌에서 우로
+        ty = -arc * 30; // 둥글게 위로 솟는 포물선
+      } else if (ctx.elementId === "daegeum-tr2") {
+        tx = 100 * inverseProgress; // 우에서 좌로
+        ty = arc * 30; // 둥글게 아래로 꺼지는 포물선
       }
+      */
 
       if (tx !== 0 || ty !== 0) {
         finalTransform = `translate(${tx}vw, ${ty}vh) ${finalTransform}`;
