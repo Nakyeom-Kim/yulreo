@@ -78,12 +78,6 @@ html, body {
 }
 
 .dynamic-bottom-padding {
-  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
-}
-
-@media (min-width: 768px) {
-  .dynamic-bottom-padding {
-    padding-bottom: 3rem !important;
-  }
+  padding-bottom: calc(6.25dvh + env(safe-area-inset-bottom)) !important;
 }
 
