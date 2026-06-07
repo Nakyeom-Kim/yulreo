@@ -12,6 +12,7 @@ export default function InstrumentPage() {
   const [activeImage, setActiveImage] = useState<string | null>(null);
   const [activeInstrument, setActiveInstrument] = useState<{ ko: string; en: string } | null>(null);
   const [activeButtonIndex, setActiveButtonIndex] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   const instrumentNames = [
     "훈", "편종", "편경", "대금", "태평소",
@@ -60,12 +61,24 @@ export default function InstrumentPage() {
       img.src = src;
     });
 
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
     return () => {
+      window.removeEventListener("resize", handleResize);
       if (reqRef.current) cancelAnimationFrame(reqRef.current);
       if (activeAudioRef.current) {
         activeAudioRef.current.pause();
+        activeAudioRef.current.src = "";
       }
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(err => console.error("Error closing AudioContext:", err));
+        audioCtxRef.current = null;
+      }
     };
   }, []);
 
@@ -379,118 +392,115 @@ export default function InstrumentPage() {
 
   return (
     <div className="flex flex-col min-h-screen pt-24 md:pt-32 pb-8 md:pb-12 px-4 md:px-8 bg-background relative overflow-hidden">
-      {/* 중앙에 이미지 표시 영역 */}
-      <AnimatePresence>
-        {activeImage && (
-          <motion.div
-            initial={{ 
-              opacity: 0, 
-              scale: 0.9, 
-              y: activeInstrument?.en === "Saenghwang" 
-                ? -55 
-                : (activeInstrument?.en === "Hun" || activeInstrument?.en === "Pyeonjong" || activeInstrument?.en === "Taepyeongso" || activeInstrument?.en === "Daegeum") 
-                  ? -15 
-                  : (activeInstrument?.en === "Pyeongyeong" ? -35 : 0)
-            }}
-            animate={{ 
-              opacity: 1, 
-              scale: 1.0, 
-              y: activeInstrument?.en === "Saenghwang" 
-                ? -80 
-                : (activeInstrument?.en === "Hun" || activeInstrument?.en === "Pyeonjong" || activeInstrument?.en === "Taepyeongso" || activeInstrument?.en === "Daegeum") 
-                  ? -30 
-                  : (activeInstrument?.en === "Pyeongyeong" ? -30 : 0)
-            }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
-            className="absolute inset-0 flex items-center justify-center pointer-events-none z-0"
-          >
-            {/* transform에 CSS transition-duration이 걸려 있으면 60fps 고주파 떨림이 뭉개지므로 opacity, filter만 트랜지션 적용 */}
-            <div
-              ref={imgWrapperRef}
-              className="transition-[opacity,filter] duration-300 ease-in-out origin-center relative flex items-center justify-center"
+      
+      {/* 상단 여백 영역 (남은 공간을 모두 차지하여 이미지 센터링) */}
+      <div className="flex-grow flex items-center justify-center relative z-0">
+        <AnimatePresence>
+          {activeImage && (
+            <motion.div
+              initial={{ 
+                opacity: 0, 
+                scale: 0.9, 
+                y: 15,
+                x: activeInstrument?.en === "Saenghwang" ? 7 : 0
+              }}
+              animate={{ 
+                opacity: 1, 
+                scale: 1.0, 
+                y: 0,
+                x: activeInstrument?.en === "Saenghwang" ? 7 : 0
+              }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
+              className="absolute flex items-center justify-center pointer-events-none z-0"
             >
-              {/* 좌고(Jwago) 전용 흐릿하고 큰 배경(고스트) 이미지 - 좌/우 반갈라서 독립 제어 */}
-              {activeInstrument?.en === "Jwago" && (
-                <>
-                  <img
-                    ref={rippleLeftRef}
-                    src={`${activeImage}?v=4`}
-                    alt=""
-                    className="absolute inset-0 w-48 md:w-64 lg:w-96 h-auto object-contain z-0 blur-[6px] pointer-events-none"
-                    style={{ 
-                      clipPath: "inset(0 50% 0 0)", 
-                      transformOrigin: "center center",
-                      WebkitMaskImage: "radial-gradient(circle, black 40%, transparent 70%)",
-                      maskImage: "radial-gradient(circle, black 40%, transparent 70%)"
-                    }}
-                  />
-                  <img
-                    ref={rippleRightRef}
-                    src={`${activeImage}?v=4`}
-                    alt=""
-                    className="absolute inset-0 w-48 md:w-64 lg:w-96 h-auto object-contain z-0 blur-[6px] pointer-events-none"
-                    style={{ 
-                      clipPath: "inset(0 0 0 50%)", 
-                      transformOrigin: "center center",
-                      WebkitMaskImage: "radial-gradient(circle, black 40%, transparent 70%)",
-                      maskImage: "radial-gradient(circle, black 40%, transparent 70%)"
-                    }}
-                  />
-                </>
-              )}
-              {(activeInstrument?.en === "Hun" || activeInstrument?.en === "Saenghwang") ? (
-                <>
-                  <img
-                    src={activeInstrument?.en === "Hun" ? "/img/hun01.png?v=4" : "/img/saenghwang01.png?v=4"}
-                    alt="Instrument Graphic Base"
-                    width={500}
-                    height={500}
-                    className="w-48 md:w-64 lg:w-96 h-auto object-contain absolute z-10"
-                  />
+              {/* transform에 CSS transition-duration이 걸려 있으면 60fps 고주파 떨림이 뭉개지므로 opacity, filter만 트랜지션 적용 */}
+              <div
+                ref={imgWrapperRef}
+                className="transition-[opacity,filter] duration-300 ease-in-out origin-center relative flex items-center justify-center"
+              >
+                {/* 좌고(Jwago) 전용 흐릿하고 큰 배경(고스트) 이미지 - 좌/우 반갈라서 독립 제어 */}
+                {activeInstrument?.en === "Jwago" && (
+                  <>
+                    <img
+                      ref={rippleLeftRef}
+                      src={`${activeImage}?v=4`}
+                      alt=""
+                      className="absolute inset-0 w-48 md:w-64 lg:w-96 h-auto object-contain z-0 blur-[6px] pointer-events-none"
+                      style={{ 
+                        clipPath: "inset(0 50% 0 0)", 
+                        transformOrigin: "center center",
+                        WebkitMaskImage: "radial-gradient(circle, black 40%, transparent 70%)",
+                        maskImage: "radial-gradient(circle, black 40%, transparent 70%)"
+                      }}
+                    />
+                    <img
+                      ref={rippleRightRef}
+                      src={`${activeImage}?v=4`}
+                      alt=""
+                      className="absolute inset-0 w-48 md:w-64 lg:w-96 h-auto object-contain z-0 blur-[6px] pointer-events-none"
+                      style={{ 
+                        clipPath: "inset(0 0 0 50%)", 
+                        transformOrigin: "center center",
+                        WebkitMaskImage: "radial-gradient(circle, black 40%, transparent 70%)",
+                        maskImage: "radial-gradient(circle, black 40%, transparent 70%)"
+                      }}
+                    />
+                  </>
+                )}
+                {(activeInstrument?.en === "Hun" || activeInstrument?.en === "Saenghwang") ? (
+                  <>
+                    <img
+                      src={activeInstrument?.en === "Hun" ? "/img/hun01.png?v=4" : "/img/saenghwang01.png?v=4"}
+                      alt="Instrument Graphic Base"
+                      width={500}
+                      height={500}
+                      className="w-48 md:w-64 lg:w-96 h-auto object-contain absolute z-10"
+                    />
+                    <img
+                      ref={mainImgRef}
+                      src={`${activeImage}?v=4`}
+                      alt="Instrument Graphic Overlay"
+                      width={500}
+                      height={500}
+                      className="w-48 md:w-64 lg:w-96 h-auto object-contain relative z-20"
+                      style={{ maskImage: "radial-gradient(circle, transparent 0%, transparent 100%)", WebkitMaskImage: "radial-gradient(circle, transparent 0%, transparent 100%)" }}
+                    />
+                  </>
+                ) : (
                   <img
                     ref={mainImgRef}
                     src={`${activeImage}?v=4`}
-                    alt="Instrument Graphic Overlay"
+                    alt="Instrument Graphic"
                     width={500}
                     height={500}
-                    className="w-48 md:w-64 lg:w-96 h-auto object-contain relative z-20"
-                    style={{ maskImage: "radial-gradient(circle, transparent 0%, transparent 100%)", WebkitMaskImage: "radial-gradient(circle, transparent 0%, transparent 100%)" }}
+                    className="w-48 md:w-64 lg:w-96 h-auto object-contain relative z-10"
                   />
-                </>
-              ) : (
-                <img
-                  ref={mainImgRef}
-                  src={`${activeImage}?v=4`}
-                  alt="Instrument Graphic"
-                  width={500}
-                  height={500}
-                  className="w-48 md:w-64 lg:w-96 h-auto object-contain relative z-10"
-                />
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      <AnimatePresence>
-        {!activeImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-            className="absolute inset-0 flex items-center justify-center pointer-events-none z-0"
-          >
-            <p className="text-sm md:text-base tracking-[0.2em] text-foreground/40 font-light font-sans uppercase">
-              Click the Button
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <AnimatePresence>
+          {!activeImage && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
+              className="absolute flex items-center justify-center pointer-events-none z-0"
+            >
+              <p className="text-sm md:text-base tracking-[0.2em] text-foreground/40 font-light font-sans">
+                Click the button
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
-      {/* 여백을 밀어내서 버튼들을 제일 하단으로 배치 */}
-      <div className="flex-grow flex flex-col justify-end relative z-10">
+      {/* 하단 패널 영역 (고정) */}
+      <div className="relative z-10 mt-4">
         {/* 악기명 표시 영역 (버튼 위) */}
         <div className="h-20 flex items-end justify-center mb-6">
           <AnimatePresence>
@@ -530,14 +540,14 @@ export default function InstrumentPage() {
                     key={i}
                     onClick={() => handleButtonClick(i)}
                     className={cn(
-                      "w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 shrink-0 rounded-full border bg-background transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative",
+                      "w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 shrink-0 rounded-full border bg-background transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative",
                       isActive 
                         ? "border-foreground/20 text-foreground scale-110 shadow-[0_0_20px_rgba(76,72,59,0.15)]" 
                         : "border-foreground/20 text-foreground/50 hover:bg-foreground/5 hover:border-foreground/40"
                     )}
                     aria-label={`Instrument button: ${instrumentNames[i]}`}
                   >
-                    <span className="relative z-10 text-[9px] sm:text-[10px] md:text-xs tracking-tighter whitespace-nowrap font-sans">{instrumentNames[i]}</span>
+                    <span className="relative z-10 text-[10px] md:text-xs tracking-tighter whitespace-nowrap font-sans">{instrumentNames[i]}</span>
                   </button>
                 );
               })}
@@ -553,14 +563,14 @@ export default function InstrumentPage() {
                     key={index}
                     onClick={() => handleButtonClick(index)}
                     className={cn(
-                      "w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 shrink-0 rounded-full border bg-background transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative",
+                      "w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 shrink-0 rounded-full border bg-background transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative",
                       isActive 
                         ? "border-foreground/20 text-foreground scale-110 shadow-[0_0_20px_rgba(76,72,59,0.15)]" 
                         : "border-foreground/20 text-foreground/50 hover:bg-foreground/5 hover:border-foreground/40"
                     )}
                     aria-label={`Instrument button: ${instrumentNames[index]}`}
                   >
-                    <span className="relative z-10 text-[9px] sm:text-[10px] md:text-xs tracking-tighter whitespace-nowrap font-sans">{instrumentNames[index]}</span>
+                    <span className="relative z-10 text-[10px] md:text-xs tracking-tighter whitespace-nowrap font-sans">{instrumentNames[index]}</span>
                   </button>
                 );
               })}

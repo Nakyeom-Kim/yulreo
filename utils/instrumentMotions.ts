@@ -50,9 +50,9 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
   if (refs?.mainImg) {
     if (instrument !== "Hun" && instrument !== "Saenghwang") {
       refs.mainImg.style.maskImage = "";
-      refs.mainImg.style.WebkitMaskImage = "";
+      (refs.mainImg.style as any).WebkitMaskImage = "";
       refs.mainImg.style.clipPath = "";
-      refs.mainImg.style.WebkitClipPath = "";
+      (refs.mainImg.style as any).WebkitClipPath = "";
       refs.mainImg.style.opacity = "";
     }
   }
@@ -112,9 +112,9 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
         // hun01.png is underneath. mainImg is hun.png, which expands from the center after 0.8s.
         if (audio.currentTime <= 0.8) {
           refs.mainImg.style.maskImage = "radial-gradient(circle, transparent 0%, transparent 100%)";
-          refs.mainImg.style.WebkitMaskImage = "radial-gradient(circle, transparent 0%, transparent 100%)";
+          (refs.mainImg.style as any).WebkitMaskImage = "radial-gradient(circle, transparent 0%, transparent 100%)";
           refs.mainImg.style.clipPath = "none";
-          refs.mainImg.style.WebkitClipPath = "none";
+          (refs.mainImg.style as any).WebkitClipPath = "none";
           refs.mainImg.style.opacity = "1";
         } else {
           // Slow circular reveal over 2.0 seconds with extremely soft/blurry edges
@@ -127,9 +127,9 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
           
           const maskStr = `radial-gradient(circle, black ${solidRadius}%, transparent ${transparentRadius}%)`;
           refs.mainImg.style.maskImage = maskStr;
-          refs.mainImg.style.WebkitMaskImage = maskStr;
+          (refs.mainImg.style as any).WebkitMaskImage = maskStr;
           refs.mainImg.style.clipPath = "none";
-          refs.mainImg.style.WebkitClipPath = "none";
+          (refs.mainImg.style as any).WebkitClipPath = "none";
           refs.mainImg.style.opacity = "1";
         }
       }
@@ -155,7 +155,7 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
         // saenghwang01.png is underneath. mainImg is saenghwang.png, which fades in after 1.3s.
         if (audio.currentTime <= 1.3) {
           refs.mainImg.style.maskImage = "none";
-          refs.mainImg.style.WebkitMaskImage = "none";
+          (refs.mainImg.style as any).WebkitMaskImage = "none";
           refs.mainImg.style.opacity = "0";
         } else {
           // Fades in over 1.0 second (fully opaque at 2.3s)
@@ -163,7 +163,7 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
           const elapsed = audio.currentTime - 1.3;
           const overlayOpacity = Math.min(1.0, elapsed / fadeDuration);
           refs.mainImg.style.maskImage = "none";
-          refs.mainImg.style.WebkitMaskImage = "none";
+          (refs.mainImg.style as any).WebkitMaskImage = "none";
           refs.mainImg.style.opacity = String(overlayOpacity);
         }
       }
@@ -208,7 +208,7 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
       const duration = audio.duration || 2.5;
       const progress = Math.min(1.0, audio.currentTime / duration);
       
-      const pyeonjongScale = 0.8 + intensity * 0.6;
+      const pyeonjongScale = 0.7 + intensity * 0.5;
       const isStrikePeak = audio.currentTime < 0.35;
       
       let shakeX = 0;
@@ -251,7 +251,8 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
     }
 
     if (instrument === "Eo") {
-      scale = baseScale * 2;
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      scale = baseScale * (isMobile ? 1.5 : 2);
       if (intensity > 0.02) {
         const shakeAmount = intensity * 80;
         const shakeX = (Math.random() - 0.5) * shakeAmount;
@@ -366,7 +367,9 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
       if (isFadingOut) {
         progress += elapsedFade * 0.4; 
       }
-      const yPos = -35 + (progress * 70); 
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      const startY = isMobile ? -50 : -35;
+      const yPos = startY + (progress * (isMobile ? 85 : 70)); 
       const baseWaveWidth = 10;
       const dynamicWaveWidth = baseWaveWidth + smoothedIntensity * 40;
       const mainCurve = Math.sin(progress * Math.PI * 3.5);

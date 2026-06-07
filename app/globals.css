@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Baskervville:ital,wght@0,400..700;1,400..700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Baskervville:wght@400&display=swap");
 @import "tailwindcss";
 
 @font-face {
@@ -46,10 +46,10 @@
 
   /* 폰트 패밀리 정의 */
   /* 본문/소제목: 영문/기호는 바스커빌, 국문은 프리텐다드 */
-  --font-sans: "Baskervville", "Pretendard Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Baskerville", "Baskervville", "Pretendard Variable", ui-sans-serif, system-ui, sans-serif;
   /* 제목: onul흑단, 영문은 바스커빌 */
-  --font-heading: 'onul-heukdan', "Baskervville", serif;
-  --font-baskerville: "Baskervville", serif;
+  --font-heading: 'onul-heukdan', "Baskerville", "Baskervville", serif;
+  --font-baskerville: "Baskerville", "Baskervville", serif;
 }
 
 html, body {

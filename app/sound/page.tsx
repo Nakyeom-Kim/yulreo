@@ -153,8 +153,15 @@ export default function SoundPage() {
       if (reqRef.current) cancelAnimationFrame(reqRef.current);
       if (endTimeoutRef.current) clearTimeout(endTimeoutRef.current);
       Object.values(audiosRef.current).forEach((audio) => {
-        if (audio) audio.pause();
+        if (audio) {
+          audio.pause();
+          audio.src = "";
+        }
       });
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(err => console.error("Error closing AudioContext:", err));
+        audioCtxRef.current = null;
+      }
     };
   }, []);
 
@@ -399,80 +406,84 @@ export default function SoundPage() {
   return (
     <div className="flex flex-col min-h-screen pt-24 md:pt-32 pb-8 md:pb-12 px-4 md:px-8 bg-background relative overflow-hidden">
 
-      <AnimatePresence>
-        {isPlaying && currentConfig && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 px-4 md:px-12"
-          >
-            <div className="relative w-full h-[60vh] flex items-center justify-center">
+      {/* 상단 여백 영역 (남은 공간을 모두 차지하여 이미지 센터링) */}
+      <div className="flex-grow flex items-center justify-center relative z-0">
+        <AnimatePresence>
+          {isPlaying && currentConfig && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="absolute flex items-center justify-center pointer-events-none z-0 px-4 md:px-12"
+            >
+              <div className="relative w-full h-[60vh] flex items-center justify-center">
 
-              {(currentConfig as any).staticImages ? (
-                <>
-                  {(currentConfig as any).staticImages.map((img: any, idx: number) => (
-                    <div key={idx} className={img.className} style={{ transformOrigin: "center center", zIndex: img.zIndex !== undefined ? img.zIndex : idx }}>
-                      <div ref={(el) => { itemRefs.current[idx] = el; }} className="w-full h-full transition-[opacity,filter] duration-300 ease-in-out">
-                        <img src={`/img/${img.img}?v=4`} alt={img.id} className="w-full h-full object-contain" />
+                {(currentConfig as any).staticImages ? (
+                  <>
+                    {(currentConfig as any).staticImages.map((img: any, idx: number) => (
+                      <div key={idx} className={img.className} style={{ transformOrigin: "center center", zIndex: img.zIndex !== undefined ? img.zIndex : idx }}>
+                        <div ref={(el) => { itemRefs.current[idx] = el; }} className="w-full h-full transition-[opacity,filter] duration-300 ease-in-out">
+                          <img src={`/img/${img.img}?v=4`} alt={img.id} className="w-full h-full object-contain" />
+                        </div>
                       </div>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    {/* Left Slot */}
+                    <div className="absolute flex flex-col items-center justify-center z-10 w-48 md:w-64 lg:w-96">
+                      {currentConfig.slots.left && (
+                        <div ref={leftRef} className="transition-[opacity,filter] duration-300 ease-in-out origin-center z-10 relative">
+                          <img src={`/img/${currentConfig.slots.left.img}?v=4`} alt={currentConfig.slots.left.id} width={600} height={600} className="w-48 md:w-64 lg:w-96 h-auto object-contain" />
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </>
-              ) : (
-                <>
-                  {/* Left Slot */}
-                  <div className="absolute flex flex-col items-center justify-center z-10 w-48 md:w-64 lg:w-96">
-                    {currentConfig.slots.left && (
-                      <div ref={leftRef} className="transition-[opacity,filter] duration-300 ease-in-out origin-center z-10 relative">
-                        <img src={`/img/${currentConfig.slots.left.img}?v=4`} alt={currentConfig.slots.left.id} width={600} height={600} className="w-48 md:w-64 lg:w-96 h-auto object-contain" />
-                      </div>
-                    )}
-                  </div>
 
-                  {/* Right Slot */}
-                  <div className="absolute flex flex-col items-center justify-center z-10 w-48 md:w-64 lg:w-96">
-                    {currentConfig.slots.right && (
-                      <div ref={rightRef} className="transition-[opacity,filter] duration-300 ease-in-out origin-center z-10 relative">
-                        <img src={`/img/${currentConfig.slots.right.img}?v=4`} alt={currentConfig.slots.right.id} width={600} height={600} className="w-48 md:w-64 lg:w-96 h-auto object-contain" />
-                      </div>
-                    )}
-                  </div>
+                    {/* Right Slot */}
+                    <div className="absolute flex flex-col items-center justify-center z-10 w-48 md:w-64 lg:w-96">
+                      {currentConfig.slots.right && (
+                        <div ref={rightRef} className="transition-[opacity,filter] duration-300 ease-in-out origin-center z-10 relative">
+                          <img src={`/img/${currentConfig.slots.right.img}?v=4`} alt={currentConfig.slots.right.id} width={600} height={600} className="w-48 md:w-64 lg:w-96 h-auto object-contain" />
+                        </div>
+                      )}
+                    </div>
 
-                  {/* Bottom Slot */}
-                  <div className="absolute flex flex-col items-center justify-center z-10 w-48 md:w-64 lg:w-96">
-                    {currentConfig.slots.bottom && (
-                      <div ref={bottomRef} className="transition-[opacity,filter] duration-300 ease-in-out origin-center z-10 relative">
-                        <img src={`/img/${currentConfig.slots.bottom.img}?v=4`} alt={currentConfig.slots.bottom.id} width={600} height={600} className="w-48 md:w-64 lg:w-96 h-auto object-contain" />
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
+                    {/* Bottom Slot */}
+                    <div className="absolute flex flex-col items-center justify-center z-10 w-48 md:w-64 lg:w-96">
+                      {currentConfig.slots.bottom && (
+                        <div ref={bottomRef} className="transition-[opacity,filter] duration-300 ease-in-out origin-center z-10 relative">
+                          <img src={`/img/${currentConfig.slots.bottom.img}?v=4`} alt={currentConfig.slots.bottom.id} width={600} height={600} className="w-48 md:w-64 lg:w-96 h-auto object-contain" />
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
 
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      <AnimatePresence>
-        {!isPlaying && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-            className="absolute inset-0 flex items-center justify-center pointer-events-none z-0"
-          >
-            <p className="text-sm md:text-base tracking-[0.2em] text-foreground/40 font-light font-sans uppercase">
-              Click the Button
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <AnimatePresence>
+          {!isPlaying && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
+              className="absolute flex items-center justify-center pointer-events-none z-0"
+            >
+              <p className="text-sm md:text-base tracking-[0.2em] text-foreground/40 font-light font-sans">
+                Click the button
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
-      <div className="flex-grow flex flex-col justify-end relative z-10">
+      {/* 하단 패널 영역 (고정) */}
+      <div className="relative z-10 mt-4">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -483,7 +494,7 @@ export default function SoundPage() {
               <button
                 key={i}
                 onClick={() => handleButtonClick(i)}
-                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 shrink-0 rounded-full border border-foreground/20 bg-background transition-all duration-300 hover:scale-110 hover:bg-foreground/5 hover:border-foreground/40 active:scale-95 flex items-center justify-center text-[10px] md:text-xs font-sans text-foreground/50"
+                className="w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 shrink-0 rounded-full border border-foreground/20 bg-background transition-all duration-300 hover:scale-110 hover:bg-foreground/5 hover:border-foreground/40 active:scale-95 flex items-center justify-center text-xs md:text-xs font-sans text-foreground/50"
                 aria-label={`Sound button ${i + 1}`}
               >
                 {i + 1}
