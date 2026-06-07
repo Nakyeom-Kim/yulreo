@@ -394,7 +394,7 @@ export default function InstrumentPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen pt-24 md:pt-32 pb-14 md:pb-12 px-4 md:px-6 lg:px-8 bg-background relative overflow-hidden">
+    <div className="flex flex-col min-h-screen pt-24 md:pt-32 dynamic-bottom-padding px-4 md:px-6 lg:px-8 bg-background relative overflow-hidden">
       
       {/* 상단 여백 영역 (남은 공간을 모두 차지하여 이미지 센터링) */}
       <div className="flex-grow flex items-center justify-center relative z-0">

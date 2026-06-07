@@ -77,3 +77,13 @@ html, body {
   animation: ripple 2.5s infinite cubic-bezier(0.21, 0.47, 0.32, 0.98);
 }
 
+.dynamic-bottom-padding {
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 768px) {
+  .dynamic-bottom-padding {
+    padding-bottom: 3rem !important;
+  }
+}
+
