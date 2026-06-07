@@ -401,6 +401,7 @@ export default function InstrumentPage() {
         <AnimatePresence>
           {activeImage && (
             <motion.div
+              key={activeImage}
               initial={{ 
                 opacity: 0, 
                 scale: 0.9, 

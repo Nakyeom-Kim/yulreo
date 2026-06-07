@@ -78,6 +78,6 @@ html, body {
 }
 
 .dynamic-bottom-padding {
-  padding-bottom: calc(6.25dvh + env(safe-area-inset-bottom)) !important;
+  padding-bottom: calc(3.125dvh + env(safe-area-inset-bottom) * 0.5) !important;
 }
 
