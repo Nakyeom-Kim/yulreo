@@ -5,14 +5,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
 export default function SplashScreen() {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // 2초 후에 스플래시 스크린 숨김 처리 (로고가 노출되는 시간)
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-    }, 1000);
-    return () => clearTimeout(timer);
+    const hasShown = sessionStorage.getItem("splashShown");
+    if (!hasShown) {
+      setIsVisible(true);
+      sessionStorage.setItem("splashShown", "true");
+      
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   return (

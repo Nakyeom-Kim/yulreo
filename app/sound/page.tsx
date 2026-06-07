@@ -407,7 +407,7 @@ export default function SoundPage() {
   const currentConfig = activeTrackIndex !== null ? TRACK_CONFIGS[activeTrackIndex] : null;
 
   return (
-    <div className="flex flex-col min-h-screen pt-24 md:pt-32 pb-20 md:pb-12 px-4 md:px-6 lg:px-8 bg-background relative overflow-hidden">
+    <div className="flex flex-col min-h-screen pt-24 md:pt-32 pb-14 md:pb-12 px-4 md:px-6 lg:px-8 bg-background relative overflow-hidden">
 
       {/* 상단 여백 영역 (남은 공간을 모두 차지하여 이미지 센터링) */}
       <div className="flex-grow flex items-center justify-center relative z-0">
@@ -501,7 +501,7 @@ export default function SoundPage() {
                 className="w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 shrink-0 rounded-full border border-foreground/20 bg-background transition-all duration-300 hover:scale-110 hover:bg-foreground/5 hover:border-foreground/40 active:scale-95 flex items-center justify-center text-xs md:text-xs font-sans text-foreground/50"
                 aria-label={`Sound button ${i + 1}`}
               >
-                <span className="translate-y-[3px]">{i + 1}</span>
+                <span className="translate-y-[2px]">{i + 1}</span>
               </button>
             ))}
           </div>
