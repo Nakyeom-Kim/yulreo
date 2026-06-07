@@ -118,6 +118,7 @@ export default function SoundPage() {
 
   const smoothedIntensitiesRef = useRef<{ left: number; right: number; bottom: number }>({ left: 0, right: 0, bottom: 0 });
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const currentClickIdRef = useRef(0);
 
   // 범용 슬롯(Left, Right, Bottom)용 Analyser와 DOM Ref 관리
   const analysersRef = useRef<{
@@ -169,6 +170,7 @@ export default function SoundPage() {
   }, []);
 
   const handleButtonClick = (index: number) => {
+    const clickId = ++currentClickIdRef.current;
     Object.values(audiosRef.current).forEach((audio) => {
       if (audio) {
         audio.pause();
@@ -260,10 +262,12 @@ export default function SoundPage() {
         audio.play().catch(e => console.error("Audio play failed:", e));
 
         audio.onended = () => {
+          if (clickId !== currentClickIdRef.current) return;
           finishedCount++;
           if (finishedCount === slots.length) {
             // 모든 트랙 재생이 끝난 후 1.5초(1500ms) 동안 이미지가 화면에 더 머무르게 대기
             endTimeoutRef.current = setTimeout(() => {
+              if (clickId !== currentClickIdRef.current) return;
               setIsPlaying(false);
               if (reqRef.current) cancelAnimationFrame(reqRef.current);
             }, 1500);
@@ -273,33 +277,8 @@ export default function SoundPage() {
 
       setIsPlaying(true);
 
-      const createTrail = (parentRef: HTMLDivElement, imgSrc: string, moveX: number, moveY: number, scale: number) => {
-        if (!parentRef || !parentRef.parentElement) return;
-
-        const trail = document.createElement("img");
-        trail.src = `/img/${imgSrc}?v=4`;
-
-        trail.className = "music-trail w-64 md:w-96 h-auto object-contain absolute top-0 left-0 pointer-events-none z-0";
-        trail.style.opacity = "0.3";
-        trail.style.transform = `translate(${moveX}px, ${moveY}px) scale(${scale})`;
-        trail.style.transition = "opacity 1s ease-out";
-
-        parentRef.parentElement.appendChild(trail);
-
-        requestAnimationFrame(() => {
-          trail.style.opacity = "0";
-        });
-
-        setTimeout(() => {
-          if (parentRef.parentElement && parentRef.parentElement.contains(trail)) {
-            parentRef.parentElement.removeChild(trail);
-          }
-        }, 1000);
-      };
-
-      const getDist = (x1: number, y1: number, x2: number, y2: number) => Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-
       const updateLoop = () => {
+        if (clickId !== currentClickIdRef.current) return;
         const dataArray = new Uint8Array(128);
         const time = performance.now();
 

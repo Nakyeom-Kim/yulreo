@@ -27,6 +27,7 @@ export default function InstrumentPage() {
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const activeAudioRef = useRef<HTMLAudioElement | null>(null);
   const reqRef = useRef<number | null>(null);
+  const currentClickIdRef = useRef(0);
 
   // 이미지를 제어하기 위한 DOM 레퍼런스
   const imgWrapperRef = useRef<HTMLDivElement>(null);
@@ -86,6 +87,7 @@ export default function InstrumentPage() {
   }, []);
 
   const handleButtonClick = (index: number) => {
+    const clickId = ++currentClickIdRef.current;
     let audioSrc = "";
     let imgSrc = "";
     let instrumentName = { ko: "", en: "" };
@@ -295,6 +297,7 @@ export default function InstrumentPage() {
     let smoothedPitch = 0.5; // 해금 등에서 사용할 부드러운 피치(주파수 고저) 추적 변수
 
     const updateLoop = () => {
+      if (clickId !== currentClickIdRef.current) return;
       if (!analyserRef.current) return;
       const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
       analyserRef.current.getByteFrequencyData(dataArray);
@@ -376,6 +379,7 @@ export default function InstrumentPage() {
 
     // 소리가 완전히 끝나면 즉시 정리 (편종, 편경, 대금, 어는 재생 종료 시점에 즉시 제거)
     audio.onended = () => {
+      if (clickId !== currentClickIdRef.current) return;
       if (
         instrumentName.en === "Pyeonjong" ||
         instrumentName.en === "Pyeongyeong" ||
