@@ -49,17 +49,20 @@ export default function InstrumentPage() {
   // 페이지 이탈 시 정리 및 이미지 프리로드
   useEffect(() => {
     // 이미지 사전 로딩 (프리로드) - 버튼 클릭 시 딜레이 방지
-    const imagesToPreload = [
-      "/img/hun.png", "/img/hun01.png", "/img/pyeonjong.png", "/img/pyeongyeong.png",
-      "/img/daegeum.png", "/img/taepyeongso.png", "/img/piri.png",
-      "/img/saenghwang.png", "/img/saenghwang01.png", "/img/bak.png", "/img/eo.png",
-      "/img/janggu.png", "/img/buk.png", "/img/jwago.png",
-      "/img/gayageum.png", "/img/geomungo.png", "/img/haegeum.png"
-    ];
-    imagesToPreload.forEach(src => {
-      const img = new Image();
-      img.src = src;
-    });
+    const isMobileDevice = window.innerWidth < 768;
+    if (!isMobileDevice) {
+      const imagesToPreload = [
+        "/img/hun.png", "/img/hun01.png", "/img/pyeonjong.png", "/img/pyeongyeong.png",
+        "/img/daegeum.png", "/img/taepyeongso.png", "/img/piri.png",
+        "/img/saenghwang.png", "/img/saenghwang01.png", "/img/bak.png", "/img/eo.png",
+        "/img/janggu.png", "/img/buk.png", "/img/jwago.png",
+        "/img/gayageum.png", "/img/geomungo.png", "/img/haegeum.png"
+      ];
+      imagesToPreload.forEach(src => {
+        const img = new Image();
+        img.src = src;
+      });
+    }
 
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -391,7 +394,7 @@ export default function InstrumentPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen pt-24 md:pt-32 pb-8 md:pb-12 px-4 md:px-8 bg-background relative overflow-hidden">
+    <div className="flex flex-col min-h-screen pt-24 md:pt-32 pb-20 md:pb-12 px-4 md:px-6 lg:px-8 bg-background relative overflow-hidden">
       
       {/* 상단 여백 영역 (남은 공간을 모두 차지하여 이미지 센터링) */}
       <div className="flex-grow flex items-center justify-center relative z-0">
@@ -527,6 +530,7 @@ export default function InstrumentPage() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: [0.21, 0.47, 0.32, 0.98] }}
+          className="relative w-full"
         >
           {/* gap-x는 좌우 간격, gap-y는 위아래 간격입니다. */}
           <div className="flex flex-wrap justify-center gap-x-3 gap-y-2 md:gap-x-0 md:gap-y-3 lg:gap-y-4 max-w-5xl mx-auto px-4 md:px-0">
@@ -547,7 +551,7 @@ export default function InstrumentPage() {
                     )}
                     aria-label={`Instrument button: ${instrumentNames[i]}`}
                   >
-                    <span className="relative z-10 text-[10px] md:text-xs tracking-tighter whitespace-nowrap font-sans">{instrumentNames[i]}</span>
+                    <span className="relative z-10 text-[10px] md:text-xs tracking-tighter whitespace-nowrap font-sans translate-y-[3px]">{instrumentNames[i]}</span>
                   </button>
                 );
               })}
@@ -570,13 +574,23 @@ export default function InstrumentPage() {
                     )}
                     aria-label={`Instrument button: ${instrumentNames[index]}`}
                   >
-                    <span className="relative z-10 text-[10px] md:text-xs tracking-tighter whitespace-nowrap font-sans">{instrumentNames[index]}</span>
+                    <span className="relative z-10 text-[10px] md:text-xs tracking-tighter whitespace-nowrap font-sans translate-y-[3px]">{instrumentNames[index]}</span>
                   </button>
                 );
               })}
             </div>
 
           </div>
+
+          {/* 국악기 더 알아보기 링크 */}
+          <a
+            href="https://www.gugak.go.kr/site/main/index001"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:inline-block absolute bottom-2 right-0 z-30 text-[10px] md:text-xs tracking-wider text-foreground/50 hover:text-foreground/90 transition-colors duration-300 font-sans cursor-pointer whitespace-nowrap"
+          >
+            더 알아보기 &gt;
+          </a>
         </motion.div>
       </div>
     </div>

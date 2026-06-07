@@ -95,6 +95,24 @@ export default function Header() {
                   </Link>
                 </motion.div>
               ))}
+
+              {/* 모바일 메뉴 하단 외부 링크 */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * (links.length + 1) }}
+                className="mt-12"
+              >
+                <a
+                  href="https://www.gugak.go.kr/site/main/index001"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={closeMenu}
+                  className="text-xs font-light tracking-wider text-foreground/50 hover:text-foreground/90 transition-colors duration-300 whitespace-nowrap"
+                >
+                  더 알아보기 &gt;
+                </a>
+              </motion.div>
             </nav>
           </motion.div>
         )}

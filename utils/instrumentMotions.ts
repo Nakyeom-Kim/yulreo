@@ -95,7 +95,8 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
       }
       opacity = baseOpacity * Math.max(0, 1.0 - elapsedFade * 2.0);
     } else if (instrument === "Saenghwang") {
-      const saenghwangBaseScale = 1.50;
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      const saenghwangBaseScale = isMobile ? 1.70 : 1.50;
       scale = saenghwangBaseScale * (1.0 + elapsedFade * 0.1);
       transformStr = `scale(${scale})`;
     } else {
@@ -147,7 +148,8 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
       const progress = Math.min(1.0, audio.currentTime / duration);
       
       // 시간이 지남에 따라 15% 성장하고, 주파수 증폭(intensity) 시 20px가량 더 팽창하도록 계수 상향(0.8 -> 1.5)
-      const saenghwangBaseScale = 1.35;
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      const saenghwangBaseScale = isMobile ? 1.55 : 1.35;
       scale = saenghwangBaseScale + (progress * 0.15) + (intensity * 1.5);
       transformStr = `scale(${scale})`;
 

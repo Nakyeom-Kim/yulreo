@@ -140,14 +140,17 @@ export default function SoundPage() {
 
   useEffect(() => {
     // 이미지 사전 로딩 (프리로드) - 버튼 클릭 시 딜레이 방지
-    const imagesToPreload = [
-      "/img/daegeum.png", "/img/piri.png", "/img/gayageum.png",
-      "/img/geomungo.png", "/img/janggu.png"
-    ];
-    imagesToPreload.forEach(src => {
-      const img = new Image();
-      img.src = src;
-    });
+    const isMobileDevice = window.innerWidth < 768;
+    if (!isMobileDevice) {
+      const imagesToPreload = [
+        "/img/daegeum.png", "/img/piri.png", "/img/gayageum.png",
+        "/img/geomungo.png", "/img/janggu.png"
+      ];
+      imagesToPreload.forEach(src => {
+        const img = new Image();
+        img.src = src;
+      });
+    }
 
     return () => {
       if (reqRef.current) cancelAnimationFrame(reqRef.current);
@@ -404,7 +407,7 @@ export default function SoundPage() {
   const currentConfig = activeTrackIndex !== null ? TRACK_CONFIGS[activeTrackIndex] : null;
 
   return (
-    <div className="flex flex-col min-h-screen pt-24 md:pt-32 pb-8 md:pb-12 px-4 md:px-8 bg-background relative overflow-hidden">
+    <div className="flex flex-col min-h-screen pt-24 md:pt-32 pb-20 md:pb-12 px-4 md:px-6 lg:px-8 bg-background relative overflow-hidden">
 
       {/* 상단 여백 영역 (남은 공간을 모두 차지하여 이미지 센터링) */}
       <div className="flex-grow flex items-center justify-center relative z-0">
@@ -488,6 +491,7 @@ export default function SoundPage() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: [0.21, 0.47, 0.32, 0.98] }}
+          className="relative w-full"
         >
           <div className="flex flex-wrap justify-center gap-x-3 gap-y-3 md:gap-x-6 md:gap-y-4 lg:gap-x-8 max-w-4xl mx-auto px-4 md:px-0">
             {[...Array(8)].map((_, i) => (
@@ -497,10 +501,20 @@ export default function SoundPage() {
                 className="w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 shrink-0 rounded-full border border-foreground/20 bg-background transition-all duration-300 hover:scale-110 hover:bg-foreground/5 hover:border-foreground/40 active:scale-95 flex items-center justify-center text-xs md:text-xs font-sans text-foreground/50"
                 aria-label={`Sound button ${i + 1}`}
               >
-                {i + 1}
+                <span className="translate-y-[3px]">{i + 1}</span>
               </button>
             ))}
           </div>
+
+          {/* 국악기 더 알아보기 링크 */}
+          <a
+            href="https://www.gugak.go.kr/site/main/index001"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:inline-block absolute bottom-2 right-0 z-30 text-[10px] md:text-xs tracking-wider text-foreground/50 hover:text-foreground/90 transition-colors duration-300 font-sans cursor-pointer whitespace-nowrap"
+          >
+            더 알아보기 &gt;
+          </a>
         </motion.div>
       </div>
     </div>
