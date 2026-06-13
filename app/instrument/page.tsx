@@ -507,7 +507,18 @@ export default function InstrumentPage() {
                     />
                   </>
                 )}
-                {(activeInstrument?.en === "Hun" || activeInstrument?.en === "Saenghwang") ? (
+                {(activeInstrument?.en === "Pyeonjong" || activeInstrument?.en === "Pyeongyeong") ? (
+                  <div className="grid grid-cols-4 gap-3 md:gap-4 lg:gap-5">
+                    {[...Array(8)].map((_, i) => (
+                      <img
+                        key={i}
+                        src={`${activeImage}?v=4`}
+                        alt={`${activeInstrument.en} Graphic ${i}`}
+                        className="w-24 md:w-36 lg:w-40 h-auto object-contain relative z-10"
+                      />
+                    ))}
+                  </div>
+                ) : (activeInstrument?.en === "Hun" || activeInstrument?.en === "Saenghwang") ? (
                   <>
                     <img
                       src={activeInstrument?.en === "Hun" ? "/img/hun01.png?v=4" : "/img/saenghwang01.png?v=4"}
