@@ -508,21 +508,7 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
         ty = -100 * inverseProgress; // 위에서 아래로
         tx = arc * 30; // 궤적 동안 오른쪽으로 둥글게(30vw) 포물선
       } 
-      // 2번 트랙 (메시지 사운드) - 위치를 먼저 잡기 위해 진입 모션 임시 비활성화
-      /*
-      else if (ctx.elementId === "janggu-cb") {
-        ty = 100 * inverseProgress; // 아래에서 위로
-      } else if (ctx.elementId === "geomungo-t") {
-        ty = -100 * inverseProgress; // 위에서 아래로
-      } else if (ctx.elementId === "daegeum-ml") {
-        tx = -100 * inverseProgress; // 좌에서 우로
-        ty = -arc * 30; // 둥글게 위로 솟는 포물선
-      } else if (ctx.elementId === "daegeum-tr2") {
-        tx = 100 * inverseProgress; // 우에서 좌로
-        ty = arc * 30; // 둥글게 아래로 꺼지는 포물선
-      }
-      */
-
+ 
       if (tx !== 0 || ty !== 0) {
         finalTransform = `translate(${tx}vw, ${ty}vh) ${finalTransform}`;
       }

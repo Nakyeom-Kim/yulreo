@@ -90,8 +90,6 @@ const TRACK_CONFIGS: TrackConfig[] = [
     },
     staticImages: [
       // === 가야금 (상단 5개, 하단 5개) ===
-      // === 가야금 (상단 5개, 하단 5개) ===
-      // === 가야금 (상단 5개, 하단 5개) ===
       // w-auto를 빼고 명시적인 w-[30vw] 부여하여 크기 축소 버그 방지 (object-contain이 알아서 비율 유지)
       { id: "gaya-t1", audioKey: "left", instrument: "Gayageum", img: "gayageum.png", className: "fixed top-[0vh] left-[10%] -translate-x-1/2 h-[15vh] w-[30vw] opacity-80", zIndex: 30 },
       { id: "gaya-t2", audioKey: "left", instrument: "Gayageum", img: "gayageum.png", className: "fixed top-[5vh] left-[30%] -translate-x-1/2 h-[15vh] w-[30vw] opacity-80", zIndex: 30 },
