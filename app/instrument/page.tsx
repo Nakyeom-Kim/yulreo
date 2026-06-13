@@ -1,18 +1,16 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import FadeIn from "@/components/FadeIn";
 import { useInteractionSound } from "@/hooks/useInteractionSound";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/utils/cn";
 import { getInstrumentMotionStyle } from "@/utils/instrumentMotions";
 
 export default function InstrumentPage() {
-  const { playHoverSound, playClickSound } = useInteractionSound();
+  const { playClickSound } = useInteractionSound();
   const [activeImage, setActiveImage] = useState<string | null>(null);
   const [activeInstrument, setActiveInstrument] = useState<{ ko: string; en: string } | null>(null);
   const [activeButtonIndex, setActiveButtonIndex] = useState<number | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
 
   const instrumentNames = [
     "훈", "편종", "편경", "대금", "태평소",
@@ -37,6 +35,7 @@ export default function InstrumentPage() {
   const jwagoDirectionRef = useRef(-1); // 좌고 오-왼 번갈아 왜곡을 위한 방향 상태 (초기값 -1)
   const jwagoLastIntensityRef = useRef(0); // 좌고 비트(타격) 감지용 이전 강도
   const jwagoBeatCooldownRef = useRef(0); // 비트 중복 감지 방지용 쿨다운 시간
+  const jwagoBeatsRef = useRef(0); // 좌고 비트 카운터 (방향 결정용, 홀수=왼쪽 / 짝수=오른쪽)
   // 타악기 여음 대기를 끊기 위한 타이머 레퍼런스
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
@@ -65,20 +64,25 @@ export default function InstrumentPage() {
       });
     }
 
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
+    const currentHideTimer = hideTimerRef.current;
 
     return () => {
-      window.removeEventListener("resize", handleResize);
       if (reqRef.current) cancelAnimationFrame(reqRef.current);
       if (activeAudioRef.current) {
         activeAudioRef.current.pause();
+        activeAudioRef.current.onended = null;
         activeAudioRef.current.src = "";
       }
-      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+      if (sourceRef.current) {
+        try {
+          sourceRef.current.disconnect();
+        } catch {}
+        sourceRef.current = null;
+      }
+      // analyserRef, gainNodeRef도 초기화해야 새 AudioContext 생성 시 재연결됨
+      analyserRef.current = null;
+      gainNodeRef.current = null;
+      if (currentHideTimer) clearTimeout(currentHideTimer);
       if (audioCtxRef.current) {
         audioCtxRef.current.close().catch(err => console.error("Error closing AudioContext:", err));
         audioCtxRef.current = null;
@@ -112,7 +116,7 @@ export default function InstrumentPage() {
       maxBin = 100;
     } else if (index === 2) {
       // 3번 버튼: 편경
-      audioSrc = "/sound/instrument/pyeongyeoing01.mp3";
+      audioSrc = "/sound/instrument/pyeongyeong01.mp3";
       imgSrc = "/img/pyeongyeong.png";
       instrumentName = { ko: "편경", en: "Pyeongyeong" };
       minBin = 30;
@@ -180,6 +184,8 @@ export default function InstrumentPage() {
       
       imgSrc = "/img/janggu.png";
       instrumentName = { ko: "장구", en: "Janggu" };
+      minBin = 5;
+      maxBin = 40;
     } else if (index === 10) {
       // 11번 버튼 (인덱스 10): 북
       audioSrc = "/sound/instrument/buk01.mp3";
@@ -189,14 +195,15 @@ export default function InstrumentPage() {
       maxBin = 20;
     } else if (index === 11) {
       // 12번 버튼 (인덱스 11): 좌고
-      audioSrc = "/sound/instrument/Jwago 01.mp3";
+      audioSrc = "/sound/instrument/Jwago01.mp3";
       imgSrc = "/img/jwago.png";
       instrumentName = { ko: "좌고", en: "Jwago" };
       minBin = 0;
-      maxBin = 20;
-      jwagoDirectionRef.current = -1; // 재생 시작 시 초기화 (첫 비트 때 토글되어 1(오른쪽)부터 시작)
+      maxBin = 35; // 0~752Hz — 좌고(큰 북) 저음역대를 더 넓게 커버하도록 확장
+      jwagoDirectionRef.current = -1; // 재생 시작 시 초기화 (비트 1이 왼쪽에서 시작)
       jwagoLastIntensityRef.current = 0;
       jwagoBeatCooldownRef.current = 0;
+      jwagoBeatsRef.current = 0; // 비트 카운터 초기화
     } else if (index === 12) {
       // 13번 버튼 (인덱스 12): 가야금
       const gayageumSounds = [
@@ -247,8 +254,17 @@ export default function InstrumentPage() {
     // 재생 중인 소리나 타이머가 있다면 초기화
     if (activeAudioRef.current) {
       activeAudioRef.current.pause();
-      if (reqRef.current) cancelAnimationFrame(reqRef.current);
+      activeAudioRef.current.onended = null;
     }
+    if (sourceRef.current) {
+      try {
+        sourceRef.current.disconnect();
+      } catch (e) {
+        console.warn("Failed to disconnect source node:", e);
+      }
+      sourceRef.current = null;
+    }
+    if (reqRef.current) cancelAnimationFrame(reqRef.current);
     if (hideTimerRef.current) {
       clearTimeout(hideTimerRef.current);
     }
@@ -262,37 +278,49 @@ export default function InstrumentPage() {
 
     if (!analyserRef.current) {
       analyserRef.current = ctx.createAnalyser();
-      analyserRef.current.fftSize = 256;
+      analyserRef.current.fftSize = 2048;
     }
 
     if (!gainNodeRef.current) {
       gainNodeRef.current = ctx.createGain();
       gainNodeRef.current.gain.setValueAtTime(0.9, ctx.currentTime);
-    }
-
-    if (!activeAudioRef.current) {
-      activeAudioRef.current = new Audio();
-      activeAudioRef.current.crossOrigin = "anonymous";
-    }
-
-    const audio = activeAudioRef.current;
-
-    // MediaElementAudioSourceNode는 단 한 번만 생성하여 메모리 누수 및 노이즈 발생 차단
-    if (!sourceRef.current) {
-      sourceRef.current = ctx.createMediaElementSource(audio);
-      sourceRef.current.connect(analyserRef.current);
+      
+      // 최초 생성 시 연결 해두기
       analyserRef.current.connect(gainNodeRef.current);
       gainNodeRef.current.connect(ctx.destination);
     }
 
+    // 새 Audio 객체 생성하여 재사용 버그 및 오디오 무음 현상 방지
+    const audio = new Audio();
+    activeAudioRef.current = audio;
+
+    // 새 MediaElementAudioSourceNode 생성 후 연결
+    sourceRef.current = ctx.createMediaElementSource(audio);
+    sourceRef.current.connect(analyserRef.current);
+
     audio.src = audioSrc;
-    audio.play().catch(e => console.error("Audio play failed:", e));
+
+    // let 선언을 audio.play() 앞으로 이동 — catch 클로저에서 TDZ 오류 방지
+    let isFadingOut = false;
+    let fadeOutStart = 0;
+    let fadeOutStartCurrentTime = 0;
+
+    audio.play().catch(e => {
+      console.error("Audio play failed:", e);
+      // 재생 실패/중단 시 이미지 고정 방지용 fallback 타이머
+      if (clickId === currentClickIdRef.current) {
+        hideTimerRef.current = setTimeout(() => {
+          if (clickId === currentClickIdRef.current) {
+            isFadingOut = true;
+            fadeOutStart = performance.now();
+            fadeOutStartCurrentTime = 0;
+          }
+        }, 2000);
+      }
+    });
     setActiveImage(imgSrc);
     setActiveInstrument(instrumentName);
     setActiveButtonIndex(index);
-
-    let isFadingOut = false;
-    let fadeOutStart = 0;
     let smoothedIntensity = 0; // 진동(떨림) 현상을 방지하기 위한 부드러운 오디오 봉투(Envelope) 값
     let smoothedPitch = 0.5; // 해금 등에서 사용할 부드러운 피치(주파수 고저) 추적 변수
 
@@ -329,6 +357,22 @@ export default function InstrumentPage() {
         smoothedIntensity = smoothedIntensity + (intensity - smoothedIntensity) * 0.25;
       }
 
+      // 소리 재생이 시작된 후, 분석된 강도가 극도로 낮아지면(잔향이 끝남) 이미지 페이드아웃 처리
+      const minPlayTime = (
+        instrumentName.en === "Piri" || 
+        instrumentName.en === "Saenghwang" || 
+        instrumentName.en === "Haegeum" || 
+        instrumentName.en === "Daegeum" || 
+        instrumentName.en === "Taepyeongso" || 
+        instrumentName.en === "Hun"
+      ) ? 1.2 : 0.6;
+
+      if (audio.currentTime > minPlayTime && smoothedIntensity < 0.003 && !isFadingOut) {
+        isFadingOut = true;
+        fadeOutStart = performance.now();
+        fadeOutStartCurrentTime = audio.currentTime;
+      }
+
       if (imgWrapperRef.current) {
         const motionResult = getInstrumentMotionStyle({
           instrument: instrumentName.en,
@@ -339,13 +383,17 @@ export default function InstrumentPage() {
           isFadingOut,
           elapsedFade: isFadingOut ? (performance.now() - fadeOutStart) / 1000 : 0,
           time: performance.now(),
+          frozenTime: isFadingOut ? fadeOutStartCurrentTime : undefined,
           jwagoState: {
-            direction: jwagoDirectionRef.current,
-            lastIntensity: jwagoLastIntensityRef.current,
-            beatCooldown: jwagoBeatCooldownRef.current,
-            updateState: (newDir, newCooldown) => {
+            // getter를 사용해 updateState 호출 즉시 최신 값 반영 (같은 프레임 내 동기화)
+            get direction() { return jwagoDirectionRef.current; },
+            get lastIntensity() { return jwagoLastIntensityRef.current; },
+            get beatCooldown() { return jwagoBeatCooldownRef.current; },
+            get beatCount() { return jwagoBeatsRef.current; },
+            updateState: (newDir: number, newCooldown: number, newBeatCount: number) => {
               jwagoDirectionRef.current = newDir;
               jwagoBeatCooldownRef.current = newCooldown;
+              jwagoBeatsRef.current = newBeatCount;
             }
           },
           refs: {
@@ -359,6 +407,8 @@ export default function InstrumentPage() {
         jwagoLastIntensityRef.current = smoothedIntensity;
 
         if (isFadingOut && motionResult.opacity <= 0) {
+          audio.pause();
+          audio.currentTime = 0;
           if (reqRef.current) cancelAnimationFrame(reqRef.current);
           setActiveImage(null);
           setActiveInstrument(null);
@@ -393,6 +443,7 @@ export default function InstrumentPage() {
       } else {
         isFadingOut = true;
         fadeOutStart = performance.now();
+        fadeOutStartCurrentTime = audio.duration || 4.0;
       }
     };
   };
@@ -408,7 +459,7 @@ export default function InstrumentPage() {
               key={activeImage}
               initial={{ 
                 opacity: 0, 
-                scale: 0.9, 
+                scale: activeInstrument?.en === "Hun" ? 0 : 0.9, 
                 y: 15,
                 x: activeInstrument?.en === "Saenghwang" ? 7 : 0
               }}
@@ -424,14 +475,14 @@ export default function InstrumentPage() {
             >
               {/* transform에 CSS transition-duration이 걸려 있으면 60fps 고주파 떨림이 뭉개지므로 opacity, filter만 트랜지션 적용 */}
               <div
-                ref={imgWrapperRef}
+                ref={(el) => { if (el) imgWrapperRef.current = el; }}
                 className="transition-[opacity,filter] duration-300 ease-in-out origin-center relative flex items-center justify-center"
               >
                 {/* 좌고(Jwago) 전용 흐릿하고 큰 배경(고스트) 이미지 - 좌/우 반갈라서 독립 제어 */}
                 {activeInstrument?.en === "Jwago" && (
                   <>
                     <img
-                      ref={rippleLeftRef}
+                      ref={(el) => { if (el) rippleLeftRef.current = el; }}
                       src={`${activeImage}?v=4`}
                       alt=""
                       className="absolute inset-0 w-48 md:w-64 lg:w-96 h-auto object-contain z-0 blur-[6px] pointer-events-none"
@@ -443,7 +494,7 @@ export default function InstrumentPage() {
                       }}
                     />
                     <img
-                      ref={rippleRightRef}
+                      ref={(el) => { if (el) rippleRightRef.current = el; }}
                       src={`${activeImage}?v=4`}
                       alt=""
                       className="absolute inset-0 w-48 md:w-64 lg:w-96 h-auto object-contain z-0 blur-[6px] pointer-events-none"
@@ -466,7 +517,7 @@ export default function InstrumentPage() {
                       className="w-48 md:w-64 lg:w-96 h-auto object-contain absolute z-10"
                     />
                     <img
-                      ref={mainImgRef}
+                      ref={(el) => { if (el) mainImgRef.current = el; }}
                       src={`${activeImage}?v=4`}
                       alt="Instrument Graphic Overlay"
                       width={500}
@@ -477,7 +528,7 @@ export default function InstrumentPage() {
                   </>
                 ) : (
                   <img
-                    ref={mainImgRef}
+                    ref={(el) => { if (el) mainImgRef.current = el; }}
                     src={`${activeImage}?v=4`}
                     alt="Instrument Graphic"
                     width={500}
@@ -523,7 +574,7 @@ export default function InstrumentPage() {
                   {activeInstrument.ko}
                 </div>
                 {/* 영문은 기본적으로 폰트 스택의 Baskervville이 적용됨 */}
-                <div className="text-sm md:text-base font-light tracking-widest text-foreground/60 uppercase font-sans">
+                <div className="text-sm md:text-base font-light tracking-widest text-foreground/60 font-sans">
                   {activeInstrument.en}
                 </div>
               </motion.div>

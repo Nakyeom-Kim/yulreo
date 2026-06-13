@@ -10,13 +10,18 @@ export default function SplashScreen() {
   useEffect(() => {
     const hasShown = sessionStorage.getItem("splashShown");
     if (!hasShown) {
-      setIsVisible(true);
+      const showTimer = setTimeout(() => {
+        setIsVisible(true);
+      }, 0);
       sessionStorage.setItem("splashShown", "true");
       
-      const timer = setTimeout(() => {
+      const hideTimer = setTimeout(() => {
         setIsVisible(false);
       }, 1000);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(showTimer);
+        clearTimeout(hideTimer);
+      };
     }
   }, []);
 

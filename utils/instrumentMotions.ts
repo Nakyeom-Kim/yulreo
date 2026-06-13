@@ -17,7 +17,8 @@ export interface MotionContext {
     direction: number;
     lastIntensity: number;
     beatCooldown: number;
-    updateState: (newDir: number, newCooldown: number) => void;
+    beatCount: number; // 울린 횟수 (홈수=왼쪽 / 짜수=오른쪽)
+    updateState: (newDir: number, newCooldown: number, newBeatCount: number) => void;
   };
   // DOM Refs for specific effects (like Jwago and Janggu)
   refs?: {
@@ -26,6 +27,7 @@ export interface MotionContext {
     rippleLeft?: HTMLImageElement | null;
     rippleRight?: HTMLImageElement | null;
   };
+  frozenTime?: number; // Exact currentTime at the start of fade out to prevent scale jumps
 }
 
 export interface MotionResult {
@@ -50,9 +52,9 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
   if (refs?.mainImg) {
     if (instrument !== "Hun" && instrument !== "Saenghwang") {
       refs.mainImg.style.maskImage = "";
-      (refs.mainImg.style as any).WebkitMaskImage = "";
+      refs.mainImg.style.setProperty("-webkit-mask-image", "");
       refs.mainImg.style.clipPath = "";
-      (refs.mainImg.style as any).WebkitClipPath = "";
+      refs.mainImg.style.setProperty("-webkit-clip-path", "");
       refs.mainImg.style.opacity = "";
     }
   }
@@ -77,7 +79,9 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
     opacity = 1.0 - elapsedFade;
     
     if (instrument === "Hun") {
-      const growthFactor = 1.0 + (1.0 + elapsedFade * 0.4) * 1.5;
+      const referenceTime = ctx.frozenTime !== undefined ? ctx.frozenTime : audio.currentTime;
+      const startProgress = referenceTime / (audio.duration || 4.0);
+      const growthFactor = 1.0 + (startProgress + elapsedFade * 0.4) * 1.5;
       scale = baseScale * growthFactor;
       transformStr = `scale(${scale})`;
     } else if (instrument === "Gayageum" || instrument === "Geomungo") {
@@ -86,19 +90,45 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
     } else if (instrument === "Piri" || instrument === "Haegeum") {
       const piriScale = instrument === "Piri" ? 1.4 : baseScale;
       transformStr = `scale(${piriScale})`;
-      const duration = audio.duration || 3.0;
-      const endProgress = Math.min(1.0, audio.currentTime / duration);
-      let baseOpacity = 1.0;
-      if (endProgress > 0.5) {
-        const fadeProgress = (endProgress - 0.5) * 2.0;
-        baseOpacity = Math.max(0, 1.0 - Math.pow(fadeProgress, 1.2));
-      }
-      opacity = baseOpacity * Math.max(0, 1.0 - elapsedFade * 2.0);
+      // elapsedFade로 단순 페이드 아웃 (endProgress 기반 로직은 onended 후 currentTime 리셋 시 회복 불가)
+      opacity = Math.max(0, 1.0 - elapsedFade);
     } else if (instrument === "Saenghwang") {
       const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
       const saenghwangBaseScale = isMobile ? 1.70 : 1.50;
       scale = saenghwangBaseScale * (1.0 + elapsedFade * 0.1);
       transformStr = `scale(${scale})`;
+    } else if (instrument === "Pyeonjong" || instrument === "Pyeongyeong") {
+      const referenceTime = ctx.frozenTime !== undefined ? ctx.frozenTime : audio.currentTime;
+      const duration = audio.duration || 2.5;
+      const progress = Math.min(1.0, referenceTime / duration);
+      
+      const pyeonjongScale = (0.7 + intensity * 0.5) * (1.0 - elapsedFade * 0.2);
+      const isStrikePeak = referenceTime < 0.35;
+      
+      let shakeX = 0;
+      let shakeY = 0;
+      
+      if (isStrikePeak) {
+        shakeX = (Math.random() - 0.5) * intensity * 25 * (1.0 - elapsedFade);
+        shakeY = (Math.random() - 0.5) * intensity * 25 * (1.0 - elapsedFade);
+      } else {
+        const vibrationSpeed = 0.01 + 0.07 * (1.0 - progress);
+        const baseVibration = 10.0 * (1.0 - progress);
+        const currentAmp = (Math.max(0, baseVibration) + intensity * 15) * (1.0 - elapsedFade);
+        shakeX = Math.sin(time * vibrationSpeed) * currentAmp;
+        shakeY = (Math.random() - 0.5) * intensity * 2 * (1.0 - elapsedFade);
+      }
+      
+      transformStr = `scale(${pyeonjongScale}) translate(${shakeX}px, ${shakeY}px)`;
+    } else if (instrument === "Jwago") {
+      // 페이드 아웃: mainImg 웨곡 즉시 해제, 래퍼 투명도만 감소
+      if (refs?.mainImg) {
+        refs.mainImg.style.transform = "scale(1, 1)";
+        refs.mainImg.style.transformOrigin = "center center";
+      }
+      if (refs?.rippleLeft) refs.rippleLeft.style.opacity = "0.0";
+      if (refs?.rippleRight) refs.rippleRight.style.opacity = "0.0";
+      transformStr = "scale(1.0)";
     } else {
       scale = (baseScale + intensity * maxMultiplier) * (1.0 + elapsedFade * 0.1);
       transformStr = `scale(${scale})`;
@@ -113,9 +143,9 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
         // hun01.png is underneath. mainImg is hun.png, which expands from the center after 0.8s.
         if (audio.currentTime <= 0.8) {
           refs.mainImg.style.maskImage = "radial-gradient(circle, transparent 0%, transparent 100%)";
-          (refs.mainImg.style as any).WebkitMaskImage = "radial-gradient(circle, transparent 0%, transparent 100%)";
+          refs.mainImg.style.setProperty("-webkit-mask-image", "radial-gradient(circle, transparent 0%, transparent 100%)");
           refs.mainImg.style.clipPath = "none";
-          (refs.mainImg.style as any).WebkitClipPath = "none";
+          refs.mainImg.style.setProperty("-webkit-clip-path", "none");
           refs.mainImg.style.opacity = "1";
         } else {
           // Slow circular reveal over 2.0 seconds with extremely soft/blurry edges
@@ -128,9 +158,9 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
           
           const maskStr = `radial-gradient(circle, black ${solidRadius}%, transparent ${transparentRadius}%)`;
           refs.mainImg.style.maskImage = maskStr;
-          (refs.mainImg.style as any).WebkitMaskImage = maskStr;
+          refs.mainImg.style.setProperty("-webkit-mask-image", maskStr);
           refs.mainImg.style.clipPath = "none";
-          (refs.mainImg.style as any).WebkitClipPath = "none";
+          refs.mainImg.style.setProperty("-webkit-clip-path", "none");
           refs.mainImg.style.opacity = "1";
         }
       }
@@ -157,7 +187,7 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
         // saenghwang01.png is underneath. mainImg is saenghwang.png, which fades in after 1.3s.
         if (audio.currentTime <= 1.3) {
           refs.mainImg.style.maskImage = "none";
-          (refs.mainImg.style as any).WebkitMaskImage = "none";
+          refs.mainImg.style.setProperty("-webkit-mask-image", "none");
           refs.mainImg.style.opacity = "0";
         } else {
           // Fades in over 1.0 second (fully opaque at 2.3s)
@@ -165,7 +195,7 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
           const elapsed = audio.currentTime - 1.3;
           const overlayOpacity = Math.min(1.0, elapsed / fadeDuration);
           refs.mainImg.style.maskImage = "none";
-          (refs.mainImg.style as any).WebkitMaskImage = "none";
+          refs.mainImg.style.setProperty("-webkit-mask-image", "none");
           refs.mainImg.style.opacity = String(overlayOpacity);
         }
       }
@@ -200,10 +230,16 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
     if (instrument === "Haegeum") {
       const duration = audio.duration || 3.0;
       const progress = Math.min(1.0, audio.currentTime / duration);
+      // 진행도 0.8 이후 페이드 (80%이후 서서히 사라짐)
       if (progress > 0.8 && !ctx.disableProgressFade) {
         const fadeProgress = (progress - 0.8) * 5.0;
         opacity = 1.0 - Math.pow(fadeProgress, 1.2);
+      } else {
+        opacity = 1.0; // 일반 재생 중 항상 완전 비형 유지
       }
+      // intensity에 반응하는 미세한 스케일 (활로 켜는 느낙)
+      const haegeumScale = 1.0 + smoothedIntensity * 1.2;
+      transformStr = `scale(${haegeumScale})`;
     }
 
     if (instrument === "Pyeonjong" || instrument === "Pyeongyeong") {
@@ -266,6 +302,16 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
       }
     }
 
+    if (instrument === "Bak") {
+      // 박은 양손을 펼쳐 치는 타악기 — 타격 시 좌우로 퍼지는 느낌을 강조
+      const shakeAmount = intensity * 18;
+      const shakeX = (Math.random() - 0.5) * shakeAmount;
+      const shakeY = (Math.random() - 0.5) * intensity * 8;
+      const rotateAmount = (Math.random() - 0.5) * intensity * 6;
+      const bakScale = 1.0 + intensity * 8.0;
+      transformStr = `scale(${bakScale}) translate(${shakeX}px, ${shakeY}px) rotate(${rotateAmount}deg)`;
+    }
+
     if (instrument === "Buk") {
       const shakeAmount = intensity * 10;
       const shakeX = (Math.random() - 0.5) * shakeAmount;
@@ -275,46 +321,65 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
     }
 
     if (instrument === "Jwago") {
-      transformStr = `scale(${baseScale + intensity * 0.05})`;
-      
-      if (refs?.rippleLeft && refs?.rippleRight && refs?.mainImg && jwagoState) {
+      // 1. 래퍼: 미세한 스케일 (메인 왜곡 연출은 mainImg에서 담당)
+      const wrapperScale = 1.0 + smoothedIntensity * 0.4;
+      transformStr = `scale(${wrapperScale})`;
+
+      // 2. 비트 감지 및 방향 결정 (refs 조건과 분리하여 항상 실행)
+      // 동작 패턴: 비트 1=왼쪽, 2=오른쪽, 3=왼쪽, 4=오른쪽 (홀수=왼쪽 / 짝수=오른쪽)
+      if (jwagoState) {
         const currentInt = smoothedIntensity;
         const lastInt = jwagoState.lastIntensity;
-        
-        if (currentInt > 0.15 && currentInt > lastInt + 0.05 && time - jwagoState.beatCooldown > 250) {
-          jwagoState.updateState(jwagoState.direction * -1, time);
+        if (currentInt > 0.08 && currentInt > lastInt + 0.03 && time - jwagoState.beatCooldown > 250) {
+          const newBeatCount = jwagoState.beatCount + 1;
+          // 홀수 번째 비트 = 왼쪽(-1), 짝수 번째 비트 = 오른쪽(1)
+          const newDir = (newBeatCount % 2 === 1) ? -1 : 1;
+          jwagoState.updateState(newDir, time, newBeatCount);
+          // getter 덕분에 jwagoState.direction이 즉시 새 값을 반환하므로 같은 프레임에서 새 방향 적용 가능
         }
+      }
 
+      // 3. 이미지 자체 왜곡: 비트 방향으로 좌우 늘어나기 (최대 2배)
+      if (refs?.mainImg && jwagoState) {
         const direction = jwagoState.direction;
-        const maxStretch = smoothedIntensity * 8.0; 
-        const stretchScale = 1.0 + maxStretch;
-        const baseRippleScale = 1.0;
-        const scaleY = 1.0 + smoothedIntensity * 0.5;
-
-        const mainStretchScale = 1.0 + smoothedIntensity * 1.8; 
-        const mainScaleY = 1.0 + smoothedIntensity * 1.2;
+        // raw intensity 사용: 타격 직후 즉시 복원 — smoothedIntensity는 release가 느려 이미지가 서서히 줌할 때 반동처럼 보임
+        const stretchX = Math.min(1.5, 1.0 + intensity * 2.5);
+        const squishY = Math.max(0.85, 1.0 - intensity * 0.12);
 
         if (direction < 0) {
+          // 왼쪽으로 늘어나기: 오른쪽 끝 고정 → 왼쪽으로 팽창
           refs.mainImg.style.transformOrigin = "right center";
-          refs.mainImg.style.transform = `scale(${mainStretchScale}, ${mainScaleY})`;
-
-          refs.rippleLeft.style.transform = `scale(${stretchScale}, ${scaleY})`;
-          refs.rippleLeft.style.opacity = String(0.3 + smoothedIntensity * 0.4);
-          refs.rippleRight.style.transform = `scale(${baseRippleScale}, ${baseRippleScale})`;
-          refs.rippleRight.style.opacity = "0.0"; 
         } else {
+          // 오른쪽으로 늘어나기: 왼쪽 끝 고정 → 오른쪽으로 팽창
           refs.mainImg.style.transformOrigin = "left center";
-          refs.mainImg.style.transform = `scale(${mainStretchScale}, ${mainScaleY})`;
+        }
+        refs.mainImg.style.transform = `scale(${stretchX}, ${squishY})`;
+      }
 
+      // 4. 리플 이펙트: ripple refs가 유효할 때 추가 연출
+      if (refs?.rippleLeft && refs?.rippleRight && jwagoState) {
+        const direction = jwagoState.direction;
+        const maxStretch = smoothedIntensity * 5.0;
+        const stretchScale = 1.0 + maxStretch;
+        const scaleY = 1.0 + smoothedIntensity * 0.4;
+        const rippleOpacity = String(Math.min(0.65, 0.2 + smoothedIntensity * 0.5));
+
+        if (direction < 0) {
+          refs.rippleLeft.style.transform = `scale(${stretchScale}, ${scaleY})`;
+          refs.rippleLeft.style.opacity = rippleOpacity;
+          refs.rippleRight.style.transform = "scale(1, 1)";
+          refs.rippleRight.style.opacity = "0.0";
+        } else {
           refs.rippleRight.style.transform = `scale(${stretchScale}, ${scaleY})`;
-          refs.rippleRight.style.opacity = String(0.3 + smoothedIntensity * 0.4);
-          refs.rippleLeft.style.transform = `scale(${baseRippleScale}, ${baseRippleScale})`;
+          refs.rippleRight.style.opacity = rippleOpacity;
+          refs.rippleLeft.style.transform = "scale(1, 1)";
           refs.rippleLeft.style.opacity = "0.0";
         }
       }
     } else {
       if (refs?.mainImg) refs.mainImg.style.transform = "none";
     }
+
 
     if (instrument === "Geomungo") {
       const bounceY = intensity * 75;
@@ -386,7 +451,7 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
       if (isFadingOut) {
         progress += elapsedFade * 0.4;
       }
-      opacity = opacity * Math.min(1.0, smoothedIntensity * 50.0);
+      // opacity는 progress 기반 페이드 및 isFadingOut에서 관리 — intensity로 곡하지 않음
       const xPos = 35 - (progress * 70); 
       const linearY = -40 + (progress * 30);
       const sag = Math.sin(progress * Math.PI) * 20;
@@ -397,14 +462,22 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
       const yPosStr = `calc(${yPos}vh)`;
       finalTransform = `translate(${xPosStr}, ${yPosStr}) ${transformStr}`;
     } else if (instrument === "Pyeonjong") {
+      const referenceTime = ctx.frozenTime !== undefined ? ctx.frozenTime : audio.currentTime;
       const duration = audio.duration || 2.5;
-      const progress = Math.min(1.0, audio.currentTime / duration);
+      let progress = referenceTime / duration;
+      if (isFadingOut) {
+        progress = Math.min(1.0, progress + elapsedFade * 0.4);
+      }
       const easeProgress = 1 - Math.pow(1 - progress, 2.0);
       const yPos = -30 - (easeProgress * 80);
       finalTransform = `translateY(${yPos}px) ${transformStr}`;
     } else if (instrument === "Pyeongyeong") {
+      const referenceTime = ctx.frozenTime !== undefined ? ctx.frozenTime : audio.currentTime;
       const duration = audio.duration || 2.5;
-      const progress = Math.min(1.0, audio.currentTime / duration);
+      let progress = referenceTime / duration;
+      if (isFadingOut) {
+        progress = Math.min(1.0, progress + elapsedFade * 0.4);
+      }
       const easeProgress = 1 - Math.pow(1 - progress, 2.0);
       const yPos = -30 + (easeProgress * 80);
       finalTransform = `translateY(${yPos}px) ${transformStr}`;

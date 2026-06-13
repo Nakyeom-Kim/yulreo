@@ -3,11 +3,39 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInteractionSound } from "@/hooks/useInteractionSound";
-import FadeIn from "@/components/FadeIn";
 import { getInstrumentMotionStyle } from "@/utils/instrumentMotions";
 
+interface SlotConfig {
+  id: string;
+  img: string;
+  audio: string;
+  minBin: number;
+  maxBin: number;
+  centerIndex: number;
+  offsetX: number;
+  offsetY: number;
+}
+
+interface StaticImageConfig {
+  id: string;
+  audioKey: "left" | "right" | "bottom";
+  instrument: string;
+  img: string;
+  className: string;
+  zIndex?: number;
+}
+
+interface TrackConfig {
+  slots: {
+    left: SlotConfig;
+    right: SlotConfig;
+    bottom: SlotConfig;
+  };
+  staticImages?: StaticImageConfig[];
+}
+
 // 통합된 트랙 설정 (각 버튼 인덱스에 매핑됨)
-const TRACK_CONFIGS = [
+const TRACK_CONFIGS: TrackConfig[] = [
   {
     // index 0: 합주 (대금, 피리, 가야금)
     slots: {
@@ -89,7 +117,7 @@ const TRACK_CONFIGS = [
 ];
 
 export default function SoundPage() {
-  const { playClickSound, playHoverSound } = useInteractionSound();
+  const { playClickSound } = useInteractionSound();
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeTrackIndex, setActiveTrackIndex] = useState<number | null>(null);
 
@@ -127,13 +155,7 @@ export default function SoundPage() {
     bottom: AnalyserNode | null;
   }>({ left: null, right: null, bottom: null });
 
-  const lastStampRef = useRef<{ left: { x: number, y: number }; right: { x: number, y: number }; bottom: { x: number, y: number } }>({
-    left: { x: -999, y: -999 }, right: { x: -999, y: -999 }, bottom: { x: -999, y: -999 },
-  });
 
-  const smoothPosRef = useRef<{ left: { x: number, y: number }; right: { x: number, y: number }; bottom: { x: number, y: number } }>({
-    left: { x: 0, y: 0 }, right: { x: 0, y: 0 }, bottom: { x: 0, y: 0 },
-  });
 
   const leftRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLDivElement>(null);
@@ -153,13 +175,26 @@ export default function SoundPage() {
       });
     }
 
+    const currentAudios = audiosRef.current;
+    const currentSources = sourcesRef.current;
+
     return () => {
       if (reqRef.current) cancelAnimationFrame(reqRef.current);
       if (endTimeoutRef.current) clearTimeout(endTimeoutRef.current);
-      Object.values(audiosRef.current).forEach((audio) => {
+      Object.values(currentAudios).forEach((audio) => {
         if (audio) {
           audio.pause();
+          audio.onended = null;
           audio.src = "";
+        }
+      });
+      Object.keys(currentSources).forEach((k) => {
+        const key = k as "left" | "right" | "bottom";
+        if (currentSources[key]) {
+          try {
+            currentSources[key]?.disconnect();
+          } catch {}
+          currentSources[key] = null;
         }
       });
       if (audioCtxRef.current) {
@@ -174,9 +209,22 @@ export default function SoundPage() {
     Object.values(audiosRef.current).forEach((audio) => {
       if (audio) {
         audio.pause();
-        audio.currentTime = 0;
+        audio.onended = null;
       }
     });
+    Object.keys(sourcesRef.current).forEach((k) => {
+      const key = k as "left" | "right" | "bottom";
+      if (sourcesRef.current[key]) {
+        try {
+          sourcesRef.current[key]?.disconnect();
+        } catch (e) {
+          console.warn("Failed to disconnect source:", e);
+        }
+        sourcesRef.current[key] = null;
+      }
+    });
+    audiosRef.current = { left: null, right: null, bottom: null };
+
     if (reqRef.current) cancelAnimationFrame(reqRef.current);
     if (endTimeoutRef.current) clearTimeout(endTimeoutRef.current);
     setIsPlaying(false);
@@ -188,13 +236,7 @@ export default function SoundPage() {
       const existingTrails = document.querySelectorAll('.music-trail');
       existingTrails.forEach(trail => trail.remove());
 
-      lastStampRef.current = {
-        left: { x: -999, y: -999 }, right: { x: -999, y: -999 }, bottom: { x: -999, y: -999 }
-      };
 
-      smoothPosRef.current = {
-        left: { x: 0, y: 0 }, right: { x: 0, y: 0 }, bottom: { x: 0, y: 0 }
-      };
 
       smoothedIntensitiesRef.current = { left: 0, right: 0, bottom: 0 };
       itemRefs.current = [];
@@ -204,25 +246,6 @@ export default function SoundPage() {
       }
       const ctx = audioCtxRef.current;
       if (ctx.state === "suspended") ctx.resume();
-
-      const createAnalyser = () => {
-        const analyser = ctx.createAnalyser();
-        analyser.fftSize = 256;
-        return analyser;
-      };
-
-      if (!analysersRef.current.left) analysersRef.current.left = createAnalyser();
-      if (!analysersRef.current.right) analysersRef.current.right = createAnalyser();
-      if (!analysersRef.current.bottom) analysersRef.current.bottom = createAnalyser();
-
-      const slots = [
-        { key: "left", config: trackConfig.slots.left, analyser: analysersRef.current.left },
-        { key: "right", config: trackConfig.slots.right, analyser: analysersRef.current.right },
-        { key: "bottom", config: trackConfig.slots.bottom, analyser: analysersRef.current.bottom },
-      ];
-
-      // 개별 채널 볼륨 설정 (물리 파일이 가야금 기준으로 정규화 완료되었으므로, 합산 헤드룸인 0.8로 통일)
-      const targetVol = 0.8;
 
       // 마스터 채널에서 모든 소리가 겹칠 때 생기는 클리핑 방지용 컴프레서 생성 (최초 1회만 생성하여 왜곡 제거)
       if (!masterCompressorRef.current) {
@@ -237,27 +260,55 @@ export default function SoundPage() {
       }
       const compressor = masterCompressorRef.current;
 
+      const createAnalyser = () => {
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 2048;
+        return analyser;
+      };
+
+      // 개별 채널 볼륨 설정 (물리 파일이 가야금 기준으로 정규화 완료되었으므로, 합산 헤드룸인 0.8로 통일)
+      const targetVol = 0.8;
+
+      if (!analysersRef.current.left) {
+        analysersRef.current.left = createAnalyser();
+        gainNodesRef.current.left = ctx.createGain();
+        gainNodesRef.current.left.gain.setValueAtTime(targetVol, ctx.currentTime);
+        analysersRef.current.left.connect(gainNodesRef.current.left);
+        gainNodesRef.current.left.connect(compressor);
+      }
+      if (!analysersRef.current.right) {
+        analysersRef.current.right = createAnalyser();
+        gainNodesRef.current.right = ctx.createGain();
+        gainNodesRef.current.right.gain.setValueAtTime(targetVol, ctx.currentTime);
+        analysersRef.current.right.connect(gainNodesRef.current.right);
+        gainNodesRef.current.right.connect(compressor);
+      }
+      if (!analysersRef.current.bottom) {
+        analysersRef.current.bottom = createAnalyser();
+        gainNodesRef.current.bottom = ctx.createGain();
+        gainNodesRef.current.bottom.gain.setValueAtTime(targetVol, ctx.currentTime);
+        analysersRef.current.bottom.connect(gainNodesRef.current.bottom);
+        gainNodesRef.current.bottom.connect(compressor);
+      }
+
+      const slots = [
+        { key: "left", config: trackConfig.slots.left, analyser: analysersRef.current.left },
+        { key: "right", config: trackConfig.slots.right, analyser: analysersRef.current.right },
+        { key: "bottom", config: trackConfig.slots.bottom, analyser: analysersRef.current.bottom },
+      ];
+
       let finishedCount = 0;
       slots.forEach((slot) => {
         const key = slot.key as "left" | "right" | "bottom";
 
-        if (!audiosRef.current[key]) {
-          audiosRef.current[key] = new Audio();
-          audiosRef.current[key]!.crossOrigin = "anonymous";
-        }
-        const audio = audiosRef.current[key]!;
+        const audio = new Audio();
         audio.src = slot.config.audio;
+        audiosRef.current[key] = audio;
 
-        // MediaElementAudioSourceNode 및 GainNode를 최초 1회만 매핑 및 연결하여 노이즈 제거
-        if (!sourcesRef.current[key]) {
-          sourcesRef.current[key] = ctx.createMediaElementSource(audio);
-          gainNodesRef.current[key] = ctx.createGain();
-          gainNodesRef.current[key]!.gain.setValueAtTime(targetVol, ctx.currentTime);
-
-          sourcesRef.current[key]!.connect(slot.analyser!);
-          slot.analyser!.connect(gainNodesRef.current[key]!);
-          gainNodesRef.current[key]!.connect(compressor);
-        }
+        // 매번 새 MediaElementAudioSourceNode 생성 후 analyser에 직접 연결
+        const source = ctx.createMediaElementSource(audio);
+        sourcesRef.current[key] = source;
+        source.connect(slot.analyser!);
 
         audio.play().catch(e => console.error("Audio play failed:", e));
 
@@ -318,8 +369,8 @@ export default function SoundPage() {
           }
         });
 
-        if ((trackConfig as any).staticImages) {
-          (trackConfig as any).staticImages.forEach((img: any, idx: number) => {
+        if (trackConfig.staticImages) {
+          trackConfig.staticImages.forEach((img, idx) => {
             const node = itemRefs.current[idx];
             if (!node) return;
             const audioKey = img.audioKey as "left" | "right" | "bottom";
@@ -402,11 +453,11 @@ export default function SoundPage() {
             >
               <div className="relative w-full h-[60vh] flex items-center justify-center">
 
-                {(currentConfig as any).staticImages ? (
+                {currentConfig.staticImages ? (
                   <>
-                    {(currentConfig as any).staticImages.map((img: any, idx: number) => (
+                    {currentConfig.staticImages.map((img, idx) => (
                       <div key={idx} className={img.className} style={{ transformOrigin: "center center", zIndex: img.zIndex !== undefined ? img.zIndex : idx }}>
-                        <div ref={(el) => { itemRefs.current[idx] = el; }} className="w-full h-full transition-[opacity,filter] duration-300 ease-in-out">
+                        <div ref={(el) => { if (el) itemRefs.current[idx] = el; }} className="w-full h-full transition-[opacity,filter] duration-300 ease-in-out">
                           <img src={`/img/${img.img}?v=4`} alt={img.id} className="w-full h-full object-contain" />
                         </div>
                       </div>
@@ -417,25 +468,25 @@ export default function SoundPage() {
                     {/* Left Slot */}
                     <div className="absolute flex flex-col items-center justify-center z-10 w-48 md:w-64 lg:w-96">
                       {currentConfig.slots.left && (
-                        <div ref={leftRef} className="transition-[opacity,filter] duration-300 ease-in-out origin-center z-10 relative">
+                        <div ref={(el) => { if (el) leftRef.current = el; }} className="transition-[opacity,filter] duration-300 ease-in-out origin-center z-10 relative">
                           <img src={`/img/${currentConfig.slots.left.img}?v=4`} alt={currentConfig.slots.left.id} width={600} height={600} className="w-48 md:w-64 lg:w-96 h-auto object-contain" />
                         </div>
                       )}
                     </div>
-
+ 
                     {/* Right Slot */}
                     <div className="absolute flex flex-col items-center justify-center z-10 w-48 md:w-64 lg:w-96">
                       {currentConfig.slots.right && (
-                        <div ref={rightRef} className="transition-[opacity,filter] duration-300 ease-in-out origin-center z-10 relative">
+                        <div ref={(el) => { if (el) rightRef.current = el; }} className="transition-[opacity,filter] duration-300 ease-in-out origin-center z-10 relative">
                           <img src={`/img/${currentConfig.slots.right.img}?v=4`} alt={currentConfig.slots.right.id} width={600} height={600} className="w-48 md:w-64 lg:w-96 h-auto object-contain" />
                         </div>
                       )}
                     </div>
-
+ 
                     {/* Bottom Slot */}
                     <div className="absolute flex flex-col items-center justify-center z-10 w-48 md:w-64 lg:w-96">
                       {currentConfig.slots.bottom && (
-                        <div ref={bottomRef} className="transition-[opacity,filter] duration-300 ease-in-out origin-center z-10 relative">
+                        <div ref={(el) => { if (el) bottomRef.current = el; }} className="transition-[opacity,filter] duration-300 ease-in-out origin-center z-10 relative">
                           <img src={`/img/${currentConfig.slots.bottom.img}?v=4`} alt={currentConfig.slots.bottom.id} width={600} height={600} className="w-48 md:w-64 lg:w-96 h-auto object-contain" />
                         </div>
                       )}
