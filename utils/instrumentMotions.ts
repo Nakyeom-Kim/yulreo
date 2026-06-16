@@ -87,6 +87,13 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
     } else if (instrument === "Gayageum" || instrument === "Geomungo") {
       const gScale = ctx.disableBaseScale ? 1.0 : 1.7;
       transformStr = `scale(${baseScale * gScale})`;
+    } else if (instrument === "Daegeum") {
+      const referenceTime = ctx.frozenTime !== undefined ? ctx.frozenTime : audio.currentTime;
+      const duration = audio.duration || 3.5;
+      const progress = Math.min(1.0, referenceTime / duration);
+      const daegeumBaseScale = ctx.disableBaseScale ? 1.0 : 1.85; 
+      scale = (daegeumBaseScale + intensity * 0.5) * (1.0 - progress * 0.1);
+      transformStr = `scale(${scale})`;
     } else if (instrument === "Piri" || instrument === "Haegeum") {
       const piriScale = instrument === "Piri" ? 1.4 : baseScale;
       transformStr = `scale(${piriScale})`;
@@ -129,6 +136,10 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
       if (refs?.rippleLeft) refs.rippleLeft.style.opacity = "0.0";
       if (refs?.rippleRight) refs.rippleRight.style.opacity = "0.0";
       transformStr = "scale(1.0)";
+    } else if (instrument === "Eo") {
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      scale = baseScale * (isMobile ? 1.5 : 2);
+      transformStr = `scale(${scale})`;
     } else {
       scale = (baseScale + intensity * maxMultiplier) * (1.0 + elapsedFade * 0.1);
       transformStr = `scale(${scale})`;
@@ -321,8 +332,12 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
     }
 
     if (instrument === "Jwago") {
-      // 1. 래퍼: 미세한 스케일 (메인 왜곡 연출은 mainImg에서 담당)
-      const wrapperScale = 1.0 + smoothedIntensity * 0.4;
+      const dt = jwagoState ? Math.max(0, (time - jwagoState.beatCooldown) / 1000) : 0;
+      // 쫀득한 탄성 감쇄 진동을 위해 사인파와 지수 감쇄 적용 (주파수 14Hz, 감쇄계수 8)
+      const wobble = Math.sin(dt * Math.PI * 14) * Math.exp(-8.0 * dt);
+
+      // 1. 래퍼: 미세한 스케일 + 탄성 바운스 효과
+      const wrapperScale = 1.0 + (smoothedIntensity * 0.35) + wobble * 0.06;
       transformStr = `scale(${wrapperScale})`;
 
       // 2. 비트 감지 및 방향 결정 (refs 조건과 분리하여 항상 실행)
@@ -339,12 +354,12 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
         }
       }
 
-      // 3. 이미지 자체 왜곡: 비트 방향으로 좌우 늘어나기 (최대 2배)
+      // 3. 이미지 자체 왜곡: 타격 방향으로 좌우 팽창 및 탄성 흔들림 추가
       if (refs?.mainImg && jwagoState) {
         const direction = jwagoState.direction;
-        // raw intensity 사용: 타격 직후 즉시 복원 — smoothedIntensity는 release가 느려 이미지가 서서히 줌할 때 반동처럼 보임
-        const stretchX = Math.min(1.5, 1.0 + intensity * 2.5);
-        const squishY = Math.max(0.85, 1.0 - intensity * 0.12);
+        // 타격 시점의 물리 효과를 시뮬레이션하여 더욱 쫀득하고 젤리 같은 느낌 부여
+        const stretchX = Math.min(1.6, 1.0 + (intensity * 2.5) + wobble * 0.3);
+        const squishY = Math.max(0.78, 1.0 - (intensity * 0.15) - wobble * 0.12);
 
         if (direction < 0) {
           // 왼쪽으로 늘어나기: 오른쪽 끝 고정 → 왼쪽으로 팽창

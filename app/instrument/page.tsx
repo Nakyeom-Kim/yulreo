@@ -9,7 +9,7 @@ import { getInstrumentMotionStyle } from "@/utils/instrumentMotions";
 export default function InstrumentPage() {
   const { playClickSound } = useInteractionSound();
   const [activeImage, setActiveImage] = useState<string | null>(null);
-  const [activeInstrument, setActiveInstrument] = useState<{ ko: string; en: string } | null>(null);
+  const [activeInstrument, setActiveInstrument] = useState<{ ko: string; en: string; desc: string } | null>(null);
   const [activeButtonIndex, setActiveButtonIndex] = useState<number | null>(null);
 
   const instrumentNames = [
@@ -94,7 +94,7 @@ export default function InstrumentPage() {
     const clickId = ++currentClickIdRef.current;
     let audioSrc = "";
     let imgSrc = "";
-    let instrumentName = { ko: "", en: "" };
+    let instrumentName = { ko: "", en: "", desc: "" };
     
     // 주파수 분석 대역 설정 (기본값: 타악기용 저음역대)
     let minBin = 0;
@@ -104,56 +104,56 @@ export default function InstrumentPage() {
       // 1번 버튼: 훈
       audioSrc = "/sound/instrument/hun01.mp3";
       imgSrc = "/img/hun.png";
-      instrumentName = { ko: "훈", en: "Hun" };
+      instrumentName = { ko: "훈", en: "Hun", desc: "한국의 오카리나" };
       minBin = 10;
       maxBin = 50;
     } else if (index === 1) {
       // 2번 버튼: 편종
       audioSrc = "/sound/instrument/pyeonjong01.mp3";
       imgSrc = "/img/pyeonjong.png";
-      instrumentName = { ko: "편종", en: "Pyeonjong" };
+      instrumentName = { ko: "편종", en: "Pyeonjong", desc: "한국의 실로폰" };
       minBin = 30;
       maxBin = 100;
     } else if (index === 2) {
       // 3번 버튼: 편경
       audioSrc = "/sound/instrument/pyeongyeong01.mp3";
       imgSrc = "/img/pyeongyeong.png";
-      instrumentName = { ko: "편경", en: "Pyeongyeong" };
+      instrumentName = { ko: "편경", en: "Pyeongyeong", desc: "한국의 실로폰" };
       minBin = 30;
       maxBin = 100;
     } else if (index === 3) {
       // 4번 버튼: 대금
       audioSrc = "/sound/instrument/deageum01.mp3";
       imgSrc = "/img/daegeum.png";
-      instrumentName = { ko: "대금", en: "Daegeum" };
+      instrumentName = { ko: "대금", en: "Daegeum", desc: "한국의 플루트" };
       minBin = 20;
       maxBin = 60;
     } else if (index === 4) {
       // 5번 버튼: 태평소
       audioSrc = "/sound/instrument/taepyeongso01.mp3";
       imgSrc = "/img/taepyeongso.png";
-      instrumentName = { ko: "태평소", en: "Taepyeongso" };
+      instrumentName = { ko: "태평소", en: "Taepyeongso", desc: "한국의 나팔" };
       minBin = 30;
       maxBin = 100;
     } else if (index === 5) {
       // 6번 버튼: 피리
       audioSrc = "/sound/instrument/piri01.mp3";
       imgSrc = "/img/piri.png";
-      instrumentName = { ko: "피리", en: "Piri" };
+      instrumentName = { ko: "피리", en: "Piri", desc: "한국의 피리" };
       minBin = 40;
       maxBin = 120;
     } else if (index === 6) {
       // 7번 버튼: 생황
       audioSrc = "/sound/instrument/saenghwang01.mp3";
       imgSrc = "/img/saenghwang.png";
-      instrumentName = { ko: "생황", en: "Saenghwang" };
+      instrumentName = { ko: "생황", en: "Saenghwang", desc: "한국의 아코디언" };
       minBin = 30;
       maxBin = 100;
     } else if (index === 7) {
       // 8번 버튼: 박
       audioSrc = "/sound/instrument/bak01.mp3";
       imgSrc = "/img/bak.png";
-      instrumentName = { ko: "박", en: "Bak" };
+      instrumentName = { ko: "박", en: "Bak", desc: "한국의 캐스터네츠" };
       minBin = 20;
       maxBin = 80;
     } else if (index === 8) {
@@ -166,7 +166,7 @@ export default function InstrumentPage() {
       eoIndexRef.current = (eoIndexRef.current + 1) % eoSounds.length;
       
       imgSrc = "/img/eo.png";
-      instrumentName = { ko: "어", en: "Eo" };
+      instrumentName = { ko: "어", en: "Eo", desc: "한국의 귀로" };
       // '어'는 나무를 긁는 소리이므로 고음역대(High frequency)에 반응하도록 설정
       minBin = 40;
       maxBin = 120;
@@ -183,21 +183,21 @@ export default function InstrumentPage() {
       jangguIndexRef.current = (jangguIndexRef.current + 1) % jangguSounds.length;
       
       imgSrc = "/img/janggu.png";
-      instrumentName = { ko: "장구", en: "Janggu" };
+      instrumentName = { ko: "장구", en: "Janggu", desc: "한국의 드럼" };
       minBin = 5;
       maxBin = 40;
     } else if (index === 10) {
       // 11번 버튼 (인덱스 10): 북
       audioSrc = "/sound/instrument/buk01.mp3";
       imgSrc = "/img/buk.png";
-      instrumentName = { ko: "북", en: "Buk" };
+      instrumentName = { ko: "북", en: "Buk", desc: "한국의 베이스 드럼" };
       minBin = 0;
       maxBin = 20;
     } else if (index === 11) {
       // 12번 버튼 (인덱스 11): 좌고
       audioSrc = "/sound/instrument/Jwago01.mp3";
       imgSrc = "/img/jwago.png";
-      instrumentName = { ko: "좌고", en: "Jwago" };
+      instrumentName = { ko: "좌고", en: "Jwago", desc: "한국의 팀파니" };
       minBin = 0;
       maxBin = 35; // 0~752Hz — 좌고(큰 북) 저음역대를 더 넓게 커버하도록 확장
       jwagoDirectionRef.current = -1; // 재생 시작 시 초기화 (비트 1이 왼쪽에서 시작)
@@ -215,7 +215,7 @@ export default function InstrumentPage() {
       audioSrc = gayageumSounds[gayageumIndexRef.current];
       gayageumIndexRef.current = (gayageumIndexRef.current + 1) % gayageumSounds.length;
       imgSrc = "/img/gayageum.png";
-      instrumentName = { ko: "가야금", en: "Gayageum" };
+      instrumentName = { ko: "가야금", en: "Gayageum", desc: "한국의 하프" };
       minBin = 20;
       maxBin = 80;
     } else if (index === 13) {
@@ -229,7 +229,7 @@ export default function InstrumentPage() {
       audioSrc = geomungoSounds[geomungoIndexRef.current];
       geomungoIndexRef.current = (geomungoIndexRef.current + 1) % geomungoSounds.length;
       imgSrc = "/img/geomungo.png";
-      instrumentName = { ko: "거문고", en: "Geomungo" };
+      instrumentName = { ko: "거문고", en: "Geomungo", desc: "한국의 첼로" };
       minBin = 10;
       maxBin = 60;
     } else if (index === 14) {
@@ -242,7 +242,7 @@ export default function InstrumentPage() {
       audioSrc = haegeumSounds[haegeumIndexRef.current];
       haegeumIndexRef.current = (haegeumIndexRef.current + 1) % haegeumSounds.length;
       imgSrc = "/img/haegeum.png";
-      instrumentName = { ko: "해금", en: "Haegeum" };
+      instrumentName = { ko: "해금", en: "Haegeum", desc: "한국의 바이올린" };
       minBin = 30;
       maxBin = 100;
     } else {
@@ -283,12 +283,15 @@ export default function InstrumentPage() {
 
     if (!gainNodeRef.current) {
       gainNodeRef.current = ctx.createGain();
-      gainNodeRef.current.gain.setValueAtTime(0.9, ctx.currentTime);
       
       // 최초 생성 시 연결 해두기
       analyserRef.current.connect(gainNodeRef.current);
       gainNodeRef.current.connect(ctx.destination);
     }
+
+    // 북(Buk) 및 좌고(Jwago) 소리는 저음이라 잘 안 들리므로 게인을 2.5배로 증폭하고, 다른 악기들은 기본 0.95 유지
+    const volumeVal = (instrumentName.en === "Buk" || instrumentName.en === "Jwago") ? 2.5 : 0.95;
+    gainNodeRef.current.gain.setValueAtTime(volumeVal, ctx.currentTime);
 
     // 새 Audio 객체 생성하여 재사용 버그 및 오디오 무음 현상 방지
     const audio = new Audio();
@@ -572,7 +575,7 @@ export default function InstrumentPage() {
       {/* 하단 패널 영역 (고정) */}
       <div className="relative z-10 mt-4">
         {/* 악기명 표시 영역 (버튼 위) */}
-        <div className="h-20 flex items-end justify-center mb-6">
+        <div className="h-28 flex items-end justify-center mb-6">
           <AnimatePresence>
             {activeInstrument && (
               <motion.div
@@ -581,12 +584,16 @@ export default function InstrumentPage() {
                 exit={{ opacity: 0, y: 10 }}
                 className="text-center"
               >
-                <div className="text-base md:text-lg font-bold font-sans text-foreground mb-1">
+                <div className="text-base md:text-lg font-bold font-sans text-foreground leading-none">
                   {activeInstrument.ko}
                 </div>
                 {/* 영문은 기본적으로 폰트 스택의 Baskervville이 적용됨 */}
-                <div className="text-sm md:text-base font-light tracking-widest text-foreground/60 font-sans">
+                <div className="text-[11px] md:text-xs font-light tracking-widest text-foreground/45 font-sans leading-none mt-[2px]">
                   {activeInstrument.en}
+                </div>
+                {/* 악기 부연설명 (한글) */}
+                <div className="text-sm md:text-base font-normal tracking-wide text-foreground/75 font-sans mt-2">
+                  {activeInstrument.desc}
                 </div>
               </motion.div>
             )}
