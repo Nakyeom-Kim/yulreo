@@ -11,10 +11,11 @@ import { Menu, X } from "lucide-react";
 export default function Header() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [hoveredHref, setHoveredHref] = useState<string | null>(null);
 
   const links = [
-    { href: "/instrument", label: "Instrument" },
-    { href: "/sound", label: "Sound" },
+    { href: "/", labelEn: "Instrument", labelKo: "악기" },
+    { href: "/sound", labelEn: "Sound", labelKo: "사운드" },
   ];
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -40,18 +41,24 @@ export default function Header() {
         
         {/* Desktop Nav */}
         <nav className="hidden md:flex gap-4 md:gap-6 lg:gap-8 pointer-events-auto text-foreground">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "text-xs md:text-sm lg:text-base font-normal tracking-wider transition-all duration-300 hover:opacity-100",
-                pathname === link.href ? "opacity-100" : "opacity-30"
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {links.map((link) => {
+            const isActive = pathname === link.href;
+            const isHovered = hoveredHref === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onMouseEnter={() => setHoveredHref(link.href)}
+                onMouseLeave={() => setHoveredHref(null)}
+                className={cn(
+                  "text-xs md:text-sm lg:text-base font-normal tracking-wider transition-all duration-300 hover:opacity-100 w-[5rem] text-center inline-block",
+                  isActive || isHovered ? "opacity-100" : "opacity-30"
+                )}
+              >
+                {isActive || isHovered ? link.labelKo : link.labelEn}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Mobile Hamburger Button */}
@@ -76,25 +83,31 @@ export default function Header() {
             onClick={closeMenu}
           >
             <nav className="flex flex-col items-center gap-8 cursor-default" onClick={(e) => e.stopPropagation()}>
-              {links.map((link, idx) => (
-                <motion.div
-                  key={link.href}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * (idx + 1) }}
-                >
-                  <Link
-                    href={link.href}
-                    onClick={closeMenu}
-                    className={cn(
-                      "text-xl font-light tracking-widest transition-all duration-300",
-                      pathname === link.href ? "text-foreground" : "text-foreground/30"
-                    )}
+              {links.map((link, idx) => {
+                const isActive = pathname === link.href;
+                const isHovered = hoveredHref === link.href;
+                return (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 * (idx + 1) }}
                   >
-                    {link.label}
-                  </Link>
-                </motion.div>
-              ))}
+                    <Link
+                      href={link.href}
+                      onClick={closeMenu}
+                      onMouseEnter={() => setHoveredHref(link.href)}
+                      onMouseLeave={() => setHoveredHref(null)}
+                      className={cn(
+                        "text-xl font-light tracking-widest transition-all duration-300 text-center block w-[8rem]",
+                        isActive || isHovered ? "text-foreground" : "text-foreground/30"
+                      )}
+                    >
+                      {isActive || isHovered ? link.labelKo : link.labelEn}
+                    </Link>
+                  </motion.div>
+                );
+              })}
 
               {/* 모바일 메뉴 하단 외부 링크 */}
               <motion.div
