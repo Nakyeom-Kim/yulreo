@@ -22,8 +22,9 @@ const BUTTON_IMAGES: Record<string, string> = {
   tv: "/sound-img/img/graphics-geomungo.png",
   "tv-off": "/sound-img/img/graphics-geomungo.png",
   message: "/sound-img/img/graphics-jwago.png",
-  card: "/sound-img/img/graphics-카드태그.png",
+  card: "/sound-img/img/graphics-pyeonjong.png",
   alarm: "/sound-img/img/graphics-기상알람.png",
+  intercom: "/sound-img/img/graphics-pyeongyeong.png",
 };
 
 // Reusable Right Column Text mapping template
@@ -37,7 +38,7 @@ const BUTTON_TEXTS: Record<string, { description: string; subDescription?: strin
     subDescription: "핸드폰 전화벨소리"
   },
   emergency: {
-    description: "박 • 어",
+    description: "북 • 박",
     subDescription: "재난문자 알림 소리"
   },
   unlock: {
@@ -65,12 +66,16 @@ const BUTTON_TEXTS: Record<string, { description: string; subDescription?: strin
     subDescription: "문자 알림 소리"
   },
   card: {
-    description: "거문고 • 가야금",
+    description: "편종",
     subDescription: "버스 카드 찍는 소리"
   },
   alarm: {
     description: "가야금 • 해금 • 대금",
     subDescription: "핸드폰 알람 소리"
+  },
+  intercom: {
+    description: "편경",
+    subDescription: "초인종 누르는 소리"
   },
 };
 
@@ -160,7 +165,7 @@ export default function SoundPage() {
       const audio = new Audio(url);
       activeAudiosRef.current.push(audio);
 
-      if (id === "emergency" || id === "unlock" || id === "pedestrian" || id === "headlight" || id === "tv-off" || id === "alarm" || id === "card" || id === "message") {
+      if (id === "emergency" || id === "unlock" || id === "pedestrian" || id === "headlight" || id === "tv-off" || id === "alarm" || id === "card" || id === "message" || id === "intercom") {
         let isMinDurationEnforced = false;
         
         audio.addEventListener("loadedmetadata", () => {
@@ -185,14 +190,6 @@ export default function SoundPage() {
       });
     }
     
-    // Auto-close intercom after 2 seconds
-    if (
-      id === "intercom"
-    ) {
-      autoCloseTimerRef.current = setTimeout(() => {
-        stopSound();
-      }, 2000);
-    }
   };
 
   // Cleanup on unmount
@@ -705,7 +702,7 @@ export default function SoundPage() {
                   ) : (
                     /* Inactive State (sound-home-Intercom-1.svg) */
                     <motion.g 
-                      onClick={() => playSound("intercom", "")}
+                      onClick={() => playSound("intercom", "/sound/sound/home_ring.mp3")}
                       className="cursor-pointer"
                       style={{ transformOrigin: "64.4px 88.7px" }}
                     >
