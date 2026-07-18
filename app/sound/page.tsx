@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import { cn } from "@/utils/cn";
 
@@ -83,7 +84,17 @@ export default function SoundPage() {
   const [currentPage, setCurrentPage] = useState(1); // 1, 2, 3
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [activeRightImage, setActiveRightImage] = useState<string | null>(null);
-  
+
+  // Preload all right-column images on mount for instant display
+  useEffect(() => {
+    const imageSrcs = Object.values(BUTTON_IMAGES);
+    const unique = [...new Set(imageSrcs)];
+    unique.forEach((src) => {
+      const img = new window.Image();
+      img.src = src;
+    });
+  }, []);
+
   // Audio state
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -811,10 +822,13 @@ export default function SoundPage() {
             <div className="relative w-full overflow-hidden -mt-8 z-0">
               {/* Soft white gradient overlay starting exactly at the top of the image to mask the edge */}
               <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-[#ffffff] via-[#ffffff] to-transparent pointer-events-none z-20" />
-              <img 
-                src={activeRightImage} 
-                alt="Active right column graphic" 
+              <Image
+                src={activeRightImage!}
+                alt="Active right column graphic"
+                width={800}
+                height={900}
                 className="w-full h-auto object-contain object-bottom relative z-10"
+                priority
               />
             </div>
           </motion.div>
