@@ -14,18 +14,18 @@ interface SoundItem {
 
 // Reusable Right Column Image mapping template
 const BUTTON_IMAGES: Record<string, string> = {
-  washer: "/sound-img/img/graphics-세탁기종료.png",
-  call: "/sound-img/img/graphics-전화벨.png",
-  emergency: "/sound-img/img/graphics-재난문자.png",
-  unlock: "/sound-img/img/graphics-eo.png",
-  headlight: "/sound-img/img/graphics-piri.png",
-  pedestrian: "/sound-img/img/graphics-gayageum.png",
-  tv: "/sound-img/img/graphics-geomungo.png",
-  "tv-off": "/sound-img/img/graphics-geomungo.png",
-  message: "/sound-img/img/graphics-jwago.png",
-  card: "/sound-img/img/graphics-pyeonjong.png",
-  alarm: "/sound-img/img/graphics-기상알람.png",
-  intercom: "/sound-img/img/graphics-pyeongyeong.png",
+  washer: "/sound-img/img/graphics-세탁기종료.webp",
+  call: "/sound-img/img/graphics-전화벨.webp",
+  emergency: "/sound-img/img/graphics-재난문자.webp",
+  unlock: "/sound-img/img/graphics-eo.webp",
+  headlight: "/sound-img/img/graphics-piri.webp",
+  pedestrian: "/sound-img/img/graphics-gayageum.webp",
+  tv: "/sound-img/img/graphics-geomungo.webp",
+  "tv-off": "/sound-img/img/graphics-geomungo.webp",
+  message: "/sound-img/img/graphics-jwago.webp",
+  card: "/sound-img/img/graphics-pyeonjong.webp",
+  alarm: "/sound-img/img/graphics-기상알람.webp",
+  intercom: "/sound-img/img/graphics-pyeongyeong.webp",
 };
 
 // Reusable Right Column Text mapping template
