@@ -25,23 +25,35 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  /* 반응형 브레이크포인트 — iPad Pro 최적화 */
+  /* Tailwind 기본: sm(640) md(768) lg(1024) xl(1280) */
+  --breakpoint-ipad: 834px;   /* iPad Pro 11" 세로 — 컬럼 12→8 */
+  --breakpoint-wide: 1366px;  /* iPad Pro 13" 가로 — 여백 확장  */
   
-  /* 1.333 타이포그래피 스케일 (Perfect Fourth) */
-  --text-base: 1rem;
+  /* 타이포그래피 스케일 (Perfect Fourth ×1.333) */
+  /* Caption / Label */
+  --text-xs: 0.75rem;            /* 12px — 버튼 라벨, 링크 */
+  --text-xs--line-height: 1.6;
+  /* Secondary Body */
+  --text-sm: 0.875rem;           /* 14px — 보조 설명, 영문 서브라벨 */
+  --text-sm--line-height: 1.6;
+  /* Body (H4 base) */
+  --text-base: 1rem;             /* 16px — 기본 본문 */
   --text-base--line-height: 1.6;
-  --text-lg: 1.333rem;
+  --text-lg: 1.333rem;          /* 21px — H4 악기명/강조 텍스트 */
   --text-lg--line-height: 1.5;
-  --text-xl: 1.777rem;
+  --text-xl: 1.777rem;          /* 28px — H3 모바일 메뉴 / 콘텐츠 제목 */
   --text-xl--line-height: 1.4;
-  --text-2xl: 2.369rem;
+  --text-2xl: 2.369rem;         /* 38px — H2 섹션 제목 */
   --text-2xl--line-height: 1.3;
-  --text-3xl: 3.157rem;
+  --text-3xl: 3.157rem;         /* 51px — H1 페이지 대제목 */
   --text-3xl--line-height: 1.2;
-  --text-4xl: 4.209rem;
+  --text-4xl: 4.209rem;         /* 67px — Display 1 */
   --text-4xl--line-height: 1.1;
-  --text-5xl: 5.610rem;
+  --text-5xl: 5.610rem;         /* 90px — Display 2 */
   --text-5xl--line-height: 1.1;
-  --text-6xl: 7.478rem;
+  --text-6xl: 7.478rem;         /* 120px — Display 3 (Hero) */
   --text-6xl--line-height: 1.1;
 
   /* 폰트 패밀리 정의 */

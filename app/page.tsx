@@ -6,6 +6,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/utils/cn";
 import { getInstrumentMotionStyle } from "@/utils/instrumentMotions";
 
+// 국악기 분류 체계인 8음(八音) 브랜드 컬러에 기반한 버튼 활성화 시 그림자(boxShadow) 색상 매핑
+const INSTRUMENT_SHADOW_COLORS = [
+  "rgba(192, 122, 108, 0.35)",  // 0. 훈 (토) - Yulreo Soil
+  "rgba(189, 204, 210, 0.55)",  // 1. 편종 (금) - Yulreo Metal (연하므로 불투명도 조정)
+  "rgba(143, 147, 169, 0.45)",  // 2. 편경 (석) - Yulreo Rock
+  "rgba(169, 184, 140, 0.45)",  // 3. 대금 (죽) - Yulreo Bamboo
+  "rgba(169, 184, 140, 0.45)",  // 4. 태평소 (죽) - Yulreo Bamboo
+  "rgba(169, 184, 140, 0.45)",  // 5. 피리 (죽) - Yulreo Bamboo
+  "rgba(142, 168, 146, 0.45)",  // 6. 생황 (포) - Yulreo Gourd
+  "rgba(170, 134, 87, 0.4)",    // 7. 박 (목) - Yulreo Wood
+  "rgba(170, 134, 87, 0.4)",    // 8. 어 (목) - Yulreo Wood
+  "rgba(208, 156, 156, 0.4)",   // 9. 장구 (혁) - Yulreo Leather
+  "rgba(208, 156, 156, 0.4)",   // 10. 북 (혁) - Yulreo Leather
+  "rgba(208, 156, 156, 0.4)",   // 11. 좌고 (혁) - Yulreo Leather
+  "rgba(236, 227, 180, 0.65)",  // 12. 가야금 (사) - Yulreo Silk (연하므로 불투명도 조정)
+  "rgba(236, 227, 180, 0.65)",  // 13. 거문고 (사) - Yulreo Silk (연하므로 불투명도 조정)
+  "rgba(236, 227, 180, 0.65)",  // 14. 해금 (사) - Yulreo Silk (연하므로 불투명도 조정)
+];
+
 export default function InstrumentPage() {
   const { playClickSound } = useInteractionSound();
   const [activeImage, setActiveImage] = useState<string | null>(null);
@@ -452,7 +471,7 @@ export default function InstrumentPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-[100dvh] pt-24 md:pt-32 dynamic-bottom-padding px-4 md:px-6 lg:px-8 bg-background relative overflow-hidden">
+    <div className="flex flex-col min-h-[100dvh] pt-20 md:pt-28 lg:pt-32 dynamic-bottom-padding px-4 md:px-10 lg:px-16 wide:px-24 bg-background relative overflow-hidden">
       
       {/* 상단 여백 영역 (남은 공간을 모두 차지하여 이미지 센터링) */}
       <div className="flex-grow flex items-center justify-center relative z-0">
@@ -575,7 +594,7 @@ export default function InstrumentPage() {
       {/* 하단 패널 영역 (고정) */}
       <div className="relative z-10 mt-4">
         {/* 악기명 표시 영역 (버튼 위) */}
-        <div className="h-28 flex items-end justify-center mb-6">
+        <div className="h-24 md:h-28 lg:h-32 flex items-end justify-center mb-4 md:mb-6">
           <AnimatePresence>
             {activeInstrument && (
               <motion.div
@@ -588,7 +607,7 @@ export default function InstrumentPage() {
                   {activeInstrument.ko}
                 </div>
                 {/* 영문은 기본적으로 폰트 스택의 Baskervville이 적용됨 */}
-                <div className="text-[11px] md:text-xs font-light tracking-widest text-foreground/45 font-sans leading-none mt-[2px]">
+                <div className="text-xs font-light tracking-widest text-foreground/45 font-sans leading-none mt-[2px]">
                   {activeInstrument.en}
                 </div>
                 {/* 악기 부연설명 (한글) */}
@@ -607,10 +626,10 @@ export default function InstrumentPage() {
           className="relative w-full"
         >
           {/* gap-x는 좌우 간격, gap-y는 위아래 간격입니다. */}
-          <div className="flex flex-wrap justify-center gap-x-3 gap-y-2 md:gap-x-0 md:gap-y-3 lg:gap-y-4 max-w-5xl mx-auto px-4 md:px-0">
+          <div className="flex flex-wrap justify-center gap-x-3 gap-y-2 md:gap-x-0 md:gap-y-3 lg:gap-y-[24px] max-w-[920px] mx-auto px-4 md:px-0">
             
             {/* 첫 번째 줄 (1~7번 버튼) - 모바일에서는 원래대로 자연스럽게 이어짐 */}
-            <div className="contents md:flex md:justify-center md:gap-x-5 lg:gap-x-6 md:w-full">
+            <div className="contents md:flex md:justify-center md:gap-x-[16px] lg:gap-x-[24px] md:w-full">
               {[...Array(7)].map((_, i) => {
                 const isActive = activeButtonIndex === i;
                 return (
@@ -618,21 +637,22 @@ export default function InstrumentPage() {
                     key={i}
                     onClick={() => handleButtonClick(i)}
                     className={cn(
-                      "w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 shrink-0 rounded-full border bg-background transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative",
+                      "w-11 h-11 md:w-[52px] md:h-[52px] lg:w-16 lg:h-16 wide:w-[72px] wide:h-[72px] shrink-0 rounded-full border bg-background transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative",
                       isActive 
-                        ? "border-foreground/20 text-foreground scale-110 shadow-[0_0_20px_rgba(76,72,59,0.15)]" 
+                        ? "border-foreground/20 text-foreground scale-110" 
                         : "border-foreground/20 text-foreground/50 hover:bg-foreground/5 hover:border-foreground/40"
                     )}
+                    style={isActive ? { boxShadow: `0 0 20px ${INSTRUMENT_SHADOW_COLORS[i]}` } : undefined}
                     aria-label={`Instrument button: ${instrumentNames[i]}`}
                   >
-                    <span className="relative z-10 text-[10px] md:text-xs tracking-tighter whitespace-nowrap font-sans translate-y-[2px]">{instrumentNames[i]}</span>
+                    <span className="relative z-10 text-xs tracking-tighter whitespace-nowrap font-sans translate-y-[2px]">{instrumentNames[i]}</span>
                   </button>
                 );
               })}
             </div>
 
             {/* 두 번째 줄 (8~15번 버튼) */}
-            <div className="contents md:flex md:justify-center md:gap-x-5 lg:gap-x-6 md:w-full">
+            <div className="contents md:flex md:justify-center md:gap-x-[16px] lg:gap-x-[24px] md:w-full">
               {[...Array(8)].map((_, i) => {
                 const index = i + 7;
                 const isActive = activeButtonIndex === index;
@@ -641,14 +661,15 @@ export default function InstrumentPage() {
                     key={index}
                     onClick={() => handleButtonClick(index)}
                     className={cn(
-                      "w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 shrink-0 rounded-full border bg-background transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative",
+                      "w-11 h-11 md:w-[52px] md:h-[52px] lg:w-16 lg:h-16 wide:w-[72px] wide:h-[72px] shrink-0 rounded-full border bg-background transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative",
                       isActive 
-                        ? "border-foreground/20 text-foreground scale-110 shadow-[0_0_20px_rgba(76,72,59,0.15)]" 
+                        ? "border-foreground/20 text-foreground scale-110" 
                         : "border-foreground/20 text-foreground/50 hover:bg-foreground/5 hover:border-foreground/40"
                     )}
+                    style={isActive ? { boxShadow: `0 0 20px ${INSTRUMENT_SHADOW_COLORS[index]}` } : undefined}
                     aria-label={`Instrument button: ${instrumentNames[index]}`}
                   >
-                    <span className="relative z-10 text-[10px] md:text-xs tracking-tighter whitespace-nowrap font-sans translate-y-[2px]">{instrumentNames[index]}</span>
+                    <span className="relative z-10 text-xs tracking-tighter whitespace-nowrap font-sans translate-y-[2px]">{instrumentNames[index]}</span>
                   </button>
                 );
               })}
@@ -661,7 +682,7 @@ export default function InstrumentPage() {
             href="https://www.gugak.go.kr/site/main/index001"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden md:inline-block absolute bottom-2 right-0 z-30 text-[10px] md:text-xs tracking-wider text-foreground/50 hover:text-foreground/90 transition-colors duration-300 font-sans cursor-pointer whitespace-nowrap"
+            className="hidden md:inline-block absolute bottom-2 right-0 z-30 text-xs tracking-wider text-foreground/50 hover:text-foreground/90 transition-colors duration-300 font-sans cursor-pointer whitespace-nowrap"
           >
             더 알아보기 &gt;
           </a>

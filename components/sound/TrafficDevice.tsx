@@ -1,0 +1,199 @@
+"use client";
+
+import { motion } from "framer-motion";
+
+interface TrafficDeviceProps {
+  playingId: string | null;
+  playSound: (id: string, url: string) => void;
+}
+
+export default function TrafficDevice({ playingId, playSound }: TrafficDeviceProps) {
+  return (
+    <svg 
+      viewBox="177.15 50 1043.8 1030" 
+      className="w-full h-full max-h-full object-contain pointer-events-auto"
+    >
+      {/* Bus Front Body */}
+      <path 
+        stroke="#4c483b"
+        fill="none"
+        strokeWidth={1.5}
+        strokeMiterlimit={10}
+        d="M1171.39,539.6h-32.25l-26.56-26.56v-10.75c0-21.91-17.76-39.66-39.66-39.66H494.52c-21.91,0-39.66,17.76-39.66,39.66v10.75l-26.56,26.56h-32.25c-6.33,0-11.46,5.13-11.46,11.46v132.73c0,6.33,5.13,11.6,11.46,11.46h32.43c6.33,0,11.46-5.13,11.46-11.46v-121.07l14.92-14.92v614.21h657.72v-614.21l14.92,14.92v121.07c0,6.33,5.13,11.6,11.46,11.46h32.43c6.33,0,11.46-5.13,11.46-11.46v-132.73c0-6.33-5.13-11.46-11.46-11.46ZM909.48,869.98c0-3.09,4.08-7.17,10.39-10.39,8.92-4.55,21.51-7.16,34.56-7.16s25.64,2.61,34.56,7.16c6.31,3.22,10.39,7.3,10.39,10.39,0,2.1-1.89,4.66-5.08,7.1h-79.73c-3.19-2.44-5.08-4.99-5.08-7.1ZM1093.06,915.06c0,10.77-5.05,20.36-12.9,26.55l-8.63-27.69c-6.83-21.92-27.12-36.85-50.07-36.85h-12.84c1.14-2.27,1.74-4.65,1.74-7.1,0-15.77-25.05-28.55-55.94-28.55s-55.94,12.78-55.94,28.55c0,2.45.61,4.83,1.74,7.1h-12.84c-22.96,0-43.24,14.93-50.07,36.85l-10.88,34.94h-318.24c-18.67,0-33.8-15.13-33.8-33.8v-384.47c0-10.28,8.34-18.62,18.62-18.62h581.44c10.28,0,18.62,8.34,18.62,18.62v384.47Z"
+      />
+
+      {/* Bus Left Headlight Inner Core */}
+      <path fill="#4c483b" d="M486.68,615.99h12.13c13.05,0,23.65,10.6,23.65,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65h-12.13v-87.29h0Z"/>
+
+      {/* Bus Right Headlight Inner Core */}
+      <path fill="#4c483b" d="M1044.98,615.99h12.13c13.05,0,23.65,10.6,23.65,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65h-12.13v-87.29h0Z" transform="translate(2125.7411 1319.2679) rotate(-180)"/>
+
+      {/* Traffic Light Post */}
+      <rect stroke="#4c483b" fill="none" strokeWidth={1.5} x="218.45" y="59.42" width="65.87" height="1102.58"/>
+      <polygon fill="#FFF" stroke="#4c483b" strokeWidth={1.5} points="432.16 406.25 287.21 411.26 287.21 400.98 215.56 400.98 215.56 426.1 287.21 426.1 287.21 415.94 432.32 410.93 432.16 406.25"/>
+      <polygon fill="#FFF" stroke="#4c483b" strokeWidth={1.5} points="287.21 113.81 432.16 118.82 432.32 114.14 287.21 109.12 287.21 98.9 215.56 98.9 215.56 124.02 287.21 124.02 287.21 113.81"/>
+
+      {/* Pedestrian Signal Light (Blinker Component - Toggles between State 1 & State 2) */}
+      {playingId === "pedestrian" ? (
+        /* Active State (sound-traffic-blinker-2.svg) */
+        <g transform="translate(341.69, 117.74)">
+          {/* Brackets */}
+          <polygon fill="#FFF" stroke="#4c483b" strokeMiterlimit={10} points="90.48 288.51 -54.47 293.52 -54.47 283.24 -126.12 283.24 -126.12 308.36 -54.47 308.36 -54.47 298.2 90.64 293.19 90.48 288.51"/>
+          <polygon fill="#FFF" stroke="#4c483b" strokeMiterlimit={10} points="-54.47 -3.94 90.48 1.08 90.64 -3.6 -54.47 -8.62 -54.47 -18.84 -126.12 -18.84 -126.12 6.28 -54.47 6.28 -54.47 -3.94"/>
+          
+          {/* Outer frame */}
+          <path fill="#4c483b" d="M144.79,135.48V9.31c0-5.14-4.17-9.31-9.31-9.31H9.31C4.17,0,0,4.17,0,9.31v126.18c0,5.14,4.17,9.31,9.31,9.31-5.14,0-9.31,4.17-9.31,9.31v126.18c0,5.14,4.17,9.31,9.31,9.31h126.18c5.14,0,9.31-4.17,9.31-9.31v-126.18c0-5.14-4.17-9.31-9.31-9.31,5.14,0,9.31-4.17,9.31-9.31Z"/>
+          {/* Top light outer border */}
+          <path fill="#4c483b" stroke="#FFF" strokeMiterlimit={10} d="M24.6,8.8h100.8c7.33,0,13.28,5.95,13.28,13.28v95.42c0,8.63-7.01,15.63-15.63,15.63H26.95c-8.63,0-15.63-7.01-15.63-15.63V22.09c0-7.33,5.95-13.28,13.28-13.28Z"/>
+          {/* Top light background (white) */}
+          <path fill="#FFF" d="M119.33,14.19H30.67c-4.83,0-8.84,3.71-9.22,8.51l-7.55,96.15c-.6,7.71,5.5,14.29,13.24,14.29h95.71c7.74,0,13.85-6.59,13.24-14.29l-7.55-96.15c-.38-4.8-4.39-8.51-9.22-8.51Z"/>
+          {/* Bottom light outer border */}
+          <path fill="#4c483b" stroke="#FFF" strokeMiterlimit={10} d="M24.6,153.45h100.8c7.33,0,13.28,5.95,13.28,13.28v95.42c0,8.63-7.01,15.63-15.63,15.63H26.95c-8.63,0-15.63-7.01-15.63-15.63v-95.42c0-7.33,5.95-13.28,13.28-13.28Z"/>
+          {/* Bottom light background (white) */}
+          <path fill="#FFF" d="M119.33,158.84H30.67c-4.83,0-8.84,3.71-9.22,8.51l-7.55,96.15c-.6,7.71,5.5,14.29,13.24,14.29h95.71c7.74,0,13.85-6.59,13.24-14.29l-7.55-96.15c-.38-4.8-4.39-8.51-9.22-8.51Z"/>
+          
+          {/* Walking Man (Head & Torso) - lit in brown against white background */}
+          <g fill="#4c483b">
+            <circle cx="70.29" cy="178.52" r="9.98"/>
+            <path d="M62.67,189.84h15.24c2.5,0,4.54,2.03,4.54,4.54v27.16h-24.32v-27.16c0-2.5,2.03-4.54,4.54-4.54Z"/>
+            <polygon points="42.83 260.98 51.12 263.73 71.59 220.84 58.75 219.89 42.83 260.98"/>
+            <polygon points="96.39 261.53 88 263.98 70.29 220.84 81.97 219.89 96.39 261.53"/>
+            <rect x="41.99" y="262.91" width="12.78" height="3.26" transform="translate(85.66 -1.79) rotate(18.33)"/>
+            <rect x="88.2" y="262.12" width="12.78" height="3.26" transform="translate(-70.02 37) rotate(-16.25)"/>
+            <path d="M67.43,191.8l-4.38-1.96c-1.92,0-3.47.31-4.87,1.3l-13.91,10.07-.9,19.62,7.12-.14.81-16.46,16.13-12.43Z"/>
+            <path d="M82.57,191.37c-1.08-1.38-3.22-1.53-5.45-1.53l1.03,2.32c-.99,1.66-.95,3.75.11,5.37l9.74,12.48,19.25,3.92.96-7.06-16.14-3.34-9.49-12.16Z"/>
+          </g>
+        </g>
+      ) : (
+        /* Inactive State (sound-traffic-blinker-1.svg) */
+        <g transform="translate(341.69, 117.74)">
+          <motion.g 
+            onClick={() => playSound("pedestrian", "/sound/sound/traffic_crosswalk_signal.mp3")}
+            className="cursor-pointer"
+            style={{ transformOrigin: "72.4px 144.8px" }}
+            initial={{ filter: "drop-shadow(0px 4px 8px rgba(76, 72, 59, 0.15))" }}
+            animate={{ y: [0, -5, 0] }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 2.5, 
+              ease: "easeInOut",
+              delay: 0 
+            }}
+            whileHover={{ scale: 1.08, y: -8, filter: "drop-shadow(0px 12px 20px rgba(76, 72, 59, 0.3))" }}
+            whileTap={{ scale: 0.94, y: 1, filter: "drop-shadow(0px 3px 6px rgba(76, 72, 59, 0.15))" }}
+          >
+            {/* Brackets */}
+            <polygon fill="#FFF" stroke="#4c483b" strokeMiterlimit={10} points="90.48 288.51 -54.47 293.52 -54.47 283.24 -126.12 283.24 -126.12 308.36 -54.47 308.36 -54.47 298.2 90.64 293.19 90.48 288.51"/>
+            <polygon fill="#FFF" stroke="#4c483b" strokeMiterlimit={10} points="-54.47 -3.94 90.48 1.08 90.64 -3.6 -54.47 -8.62 -54.47 -18.84 -126.12 -18.84 -126.12 6.28 -54.47 6.28 -54.47 -3.94"/>
+            
+            {/* Outer frame */}
+            <path fill="#4c483b" d="M144.79,135.48V9.31c0-5.14-4.17-9.31-9.31-9.31H9.31C4.17,0,0,4.17,0,9.31v126.18c0,5.14,4.17,9.31,9.31,9.31-5.14,0-9.31,4.17-9.31,9.31v126.18c0,5.14,4.17,9.31,9.31,9.31h126.18c5.14,0,9.31-4.17,9.31-9.31v-126.18c0-5.14-4.17-9.31-9.31-9.31,5.14,0,9.31-4.17,9.31-9.31Z"/>
+            {/* Top light outer border */}
+            <path fill="#4c483b" stroke="#FFF" strokeMiterlimit={10} d="M24.6,8.8h100.8c7.33,0,13.28,5.95,13.28,13.28v95.42c0,8.63-7.01,15.63-15.63,15.63H26.95c-8.63,0-15.63-7.01-15.63-15.63V22.09c0-7.33,5.95-13.28,13.28-13.28Z"/>
+            {/* Top light background (white) */}
+            <path fill="#FFF" d="M119.33,14.19H30.67c-4.83,0-8.84,3.71-9.22,8.51l-7.55,96.15c-.6,7.71,5.5,14.29,13.24,14.29h95.71c7.74,0,13.85-6.59,13.24-14.29l-7.55-96.15c-.38-4.8-4.39-8.51-9.22-8.51Z"/>
+            {/* Bottom light outer border */}
+            <path fill="#4c483b" stroke="#FFF" strokeMiterlimit={10} d="M24.6,153.45h100.8c7.33,0,13.28,5.95,13.28,13.28v95.42c0,8.63-7.01,15.63-15.63,15.63H26.95c-8.63,0-15.63-7.01-15.63-15.63v-95.42c0-7.33,5.95-13.28,13.28-13.28Z"/>
+            {/* Bottom light background (white) */}
+            <path fill="#FFF" d="M119.33,158.84H30.67c-4.83,0-8.84,3.71-9.22,8.51l-7.55,96.15c-.6,7.71,5.5,14.29,13.24,14.29h95.71c7.74,0,13.85-6.59,13.24-14.29l-7.55-96.15c-.38-4.8-4.39-8.51-9.22-8.51Z"/>
+            
+            {/* Standing Man in top light (dark brown) */}
+            <g fill="#4c483b">
+              <path d="M86.16,76.03l1-26.16c0-2.51-2.03-4.54-4.54-4.54h-15.24c-2.51,0-4.54,2.03-4.54,4.54l1,26.16-3.19,44.01h8.74l5.62-37.5,5.62,37.5h8.74l-3.19-44.01Z"/>
+              <rect x="56.6" y="120.05" width="12.78" height="3.26"/>
+              <rect x="80.62" y="120.05" width="12.78" height="3.26"/>
+              <path d="M69.05,45.34h-4.26c-1.94,0-3.71,1.1-4.56,2.84l-5.74,14.75,6.48,18.54,6.55-2.79-5.39-15.58,6.91-17.77Z"/>
+              <path d="M80.95,45.34h4.26c1.94,0,3.71,1.1,4.56,2.84l5.74,14.75-6.48,18.54-6.55-2.79,5.39-15.58-6.91-17.77Z"/>
+              <circle cx="75" cy="33.03" r="9.98"/>
+            </g>
+          </motion.g>
+        </g>
+      )}
+
+      {/* Bus Headlights (Toggles between State 1 & State 2) */}
+      {playingId === "headlight" ? (
+        /* Active Flashing State (sound-traffic-button-2.svg) */
+        <g transform="translate(486.68, 605.4)">
+          <path fill="#4c483b" d="M0,10.59h12.13c13.05,0,23.65,10.6,23.65,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65H0V10.59h0Z"/>
+          <path fill="#4c483b" d="M558.31,10.59h12.13c13.05,0,23.65,10.6,23.65,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65h-12.13V10.59h0Z" transform="translate(1152.3868 108.4808) rotate(-180)"/>
+          <g stroke="#4c483b" strokeLinecap="round" strokeMiterlimit={10} strokeWidth="5px">
+            <line x1="59.31" y1="54.24" x2="82.34" y2="54.24"/>
+            <line x1="56.21" y1="10.91" x2="77.65" y2="2.5"/>
+            <line x1="56.21" y1="97.57" x2="77.65" y2="105.98"/>
+            <line x1="534.77" y1="54.24" x2="511.74" y2="54.24"/>
+            <line x1="537.87" y1="97.57" x2="516.43" y2="105.98"/>
+            <line x1="537.87" y1="10.91" x2="516.43" y2="2.5"/>
+          </g>
+        </g>
+      ) : (
+        /* Inactive State (sound-traffic-button-1.svg) */
+        <g transform="translate(486.68, 615.99)">
+          <motion.g 
+            onClick={() => playSound("headlight", "/sound/sound/traffic_stop_bell.mp3")}
+            className="cursor-pointer"
+            style={{ transformOrigin: "297px 43.6px" }}
+            initial={{ filter: "drop-shadow(0px 4px 8px rgba(76, 72, 59, 0.15))" }}
+            animate={{ y: [0, -5, 0] }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 2.5, 
+              ease: "easeInOut",
+              delay: 0.3 
+            }}
+            whileHover={{ scale: 1.08, y: -8, filter: "drop-shadow(0px 12px 20px rgba(76, 72, 59, 0.3))" }}
+            whileTap={{ scale: 0.94, y: 1, filter: "drop-shadow(0px 3px 6px rgba(76, 72, 59, 0.15))" }}
+          >
+            <path fill="#4c483b" d="M0,0h12.13c13.05,0,23.65,10.6,23.65,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65H0V0h0Z"/>
+            <path fill="#4c483b" d="M558.31,0h12.13C583.48,0,594.08,10.6,594.08,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65h-12.13V0h0Z" transform="translate(1152.3868 87.2918) rotate(-180)"/>
+          </motion.g>
+        </g>
+      )}
+
+      {/* Bus Card Tag / Reader Terminal (Interactive Button - Toggles between State 1 & State 2) */}
+      {playingId === "card" ? (
+        /* Active Tags State (sound-traffic-card-2.svg) */
+        <g transform="translate(652.74, 776.19)">
+          <path 
+            fill="#4c483b"
+            fillRule="evenodd"
+            d="M144.84,50.81H14.87c-8.21,0-14.87,6.66-14.87,14.87v63.35c0,8.21,6.66,14.87,14.87,14.87h49.62v28.78h30.74v-28.78h49.62c8.21,0,14.87-6.66,14.87-14.87v-63.35c0-8.21-6.66-14.87-14.87-14.87ZM152.71,129.03c0,4.34-3.53,7.87-7.87,7.87H14.87c-4.34,0-7.87-3.53-7.87-7.87v-63.35c0-4.34,3.53-7.87,7.87-7.87h129.97c4.34,0,7.87,3.53,7.87,7.87v63.35Z"
+          />
+          <path fill="#4c483b" d="M102.39,81.18l-.71-2.74c-.45-1.71-2.19-2.74-3.9-2.29l-43.74,11.4c-1.71.45-2.74,2.19-2.29,3.9l.71,2.74,49.93-13.01Z"/>
+          <path fill="#4c483b" d="M53.82,99.41l4.22,16.2c.45,1.71,2.19,2.74,3.9,2.29l43.74-11.4c1.71-.45,2.74-2.19,2.29-3.9l-4.22-16.2-49.93,13.01Z"/>
+          <g stroke="#4c483b" strokeLinecap="round" strokeMiterlimit={10} strokeWidth="5px">
+            <line x1="77.01" y1="25.53" x2="77.01" y2="2.5"/>
+            <line x1="33.68" y1="28.63" x2="25.27" y2="7.19"/>
+            <line x1="120.34" y1="28.63" x2="128.75" y2="7.19"/>
+          </g>
+        </g>
+      ) : (
+        /* Inactive State (sound-traffic-card-1.svg) */
+        <g transform="translate(652.74, 827)">
+          <motion.g 
+            onClick={() => playSound("card", "/sound/sound/transit_card.mp3")}
+            className="cursor-pointer"
+            style={{ transformOrigin: "79.8px 60.9px" }}
+            initial={{ filter: "drop-shadow(0px 4px 8px rgba(76, 72, 59, 0.15))" }}
+            animate={{ y: [0, -5, 0] }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 2.5, 
+              ease: "easeInOut",
+              delay: 0.6 
+            }}
+            whileHover={{ scale: 1.08, y: -8, filter: "drop-shadow(0px 12px 20px rgba(76, 72, 59, 0.3))" }}
+            whileTap={{ scale: 0.94, y: 1, filter: "drop-shadow(0px 3px 6px rgba(76, 72, 59, 0.15))" }}
+          >
+            <path 
+              fill="#4c483b"
+              fillRule="evenodd"
+              d="M144.84,0H14.87C6.66,0,0,6.66,0,14.87v63.35c0,8.21,6.66,14.87,14.87,14.87h49.62v28.78h30.74v-28.78h49.62c8.21,0,14.87-6.66,14.87-14.87V14.87c0-8.21-6.66-14.87-14.87-14.87ZM152.71,78.22c0,4.34-3.53,7.87-7.87,7.87H14.87c-4.34,0-7.87-3.53-7.87-7.87V14.87c0-4.34,3.53-7.87,7.87-7.87h129.97c4.34,0,7.87,3.53,7.87,7.87v63.35Z"
+            />
+            <path fill="#4c483b" d="M102.39,30.37l-.71-2.74c-.45-1.71-2.19-2.74-3.9-2.29l-43.74,11.4c-1.71.45-2.74,2.19-2.29,3.9l.71,2.74,49.93-13.01Z"/>
+            <path fill="#4c483b" d="M53.82,48.6l4.22,16.2c.45,1.71,2.19,2.74,3.9,2.29l43.74-11.4c1.71-.45,2.74-2.19,2.29-3.9l-4.22-16.2-49.93,13.01Z"/>
+          </motion.g>
+        </g>
+      )}
+    </svg>
+  );
+}
