@@ -30,6 +30,7 @@ export default function InstrumentPage() {
   const [activeImage, setActiveImage] = useState<string | null>(null);
   const [activeInstrument, setActiveInstrument] = useState<{ ko: string; en: string; desc: string } | null>(null);
   const [activeButtonIndex, setActiveButtonIndex] = useState<number | null>(null);
+  const [activeVideo, setActiveVideo] = useState<string | null>(null);
 
   const instrumentNames = [
     "훈", "편종", "편경", "대금", "태평소",
@@ -113,6 +114,7 @@ export default function InstrumentPage() {
     const clickId = ++currentClickIdRef.current;
     let audioSrc = "";
     let imgSrc = "";
+    let videoSrc = "";
     let instrumentName = { ko: "", en: "", desc: "" };
     
     // 주파수 분석 대역 설정 (기본값: 타악기용 저음역대)
@@ -144,6 +146,7 @@ export default function InstrumentPage() {
       // 4번 버튼: 대금
       audioSrc = "/sound/instrument/deageum01.mp3";
       imgSrc = "/img/daegeum.png";
+      videoSrc = "/mov/daegeum.mp4";
       instrumentName = { ko: "대금", en: "Daegeum", desc: "한국의 플루트" };
       minBin = 20;
       maxBin = 60;
@@ -172,6 +175,7 @@ export default function InstrumentPage() {
       // 8번 버튼: 박
       audioSrc = "/sound/instrument/bak01.mp3";
       imgSrc = "/img/bak.png";
+      videoSrc = "/mov/bak1.mp4";
       instrumentName = { ko: "박", en: "Bak", desc: "한국의 캐스터네츠" };
       minBin = 20;
       maxBin = 80;
@@ -181,7 +185,12 @@ export default function InstrumentPage() {
         "/sound/instrument/eo01.wav",
         "/sound/instrument/eo02.wav"
       ];
+      const eoVideos = [
+        "/mov/eo1.mp4",
+        "/mov/eo2.mp4"
+      ];
       audioSrc = eoSounds[eoIndexRef.current];
+      videoSrc = eoVideos[eoIndexRef.current];
       eoIndexRef.current = (eoIndexRef.current + 1) % eoSounds.length;
       
       imgSrc = "/img/eo.png";
@@ -197,8 +206,15 @@ export default function InstrumentPage() {
         "/sound/instrument/Janggu03.wav",
         "/sound/instrument/Janggu04.wav"
       ];
+      const jangguVideos = [
+        "/mov/janggu1.mp4",
+        "/mov/janggu2.mp4",
+        "/mov/janggu3.mp4",
+        "/mov/janggu4.mp4"
+      ];
       // 무작위가 아닌 순서대로(돌아가면서) 재생
       audioSrc = jangguSounds[jangguIndexRef.current];
+      videoSrc = jangguVideos[jangguIndexRef.current];
       jangguIndexRef.current = (jangguIndexRef.current + 1) % jangguSounds.length;
       
       imgSrc = "/img/janggu.png";
@@ -209,6 +225,7 @@ export default function InstrumentPage() {
       // 11번 버튼 (인덱스 10): 북
       audioSrc = "/sound/instrument/buk01.mp3";
       imgSrc = "/img/buk.png";
+      videoSrc = "/mov/buk.mp4";
       instrumentName = { ko: "북", en: "Buk", desc: "한국의 베이스 드럼" };
       minBin = 0;
       maxBin = 20;
@@ -216,6 +233,7 @@ export default function InstrumentPage() {
       // 12번 버튼 (인덱스 11): 좌고
       audioSrc = "/sound/instrument/Jwago01.mp3";
       imgSrc = "/img/jwago.png";
+      videoSrc = "/mov/jwago.mp4";
       instrumentName = { ko: "좌고", en: "Jwago", desc: "한국의 팀파니" };
       minBin = 0;
       maxBin = 35; // 0~752Hz — 좌고(큰 북) 저음역대를 더 넓게 커버하도록 확장
@@ -231,7 +249,12 @@ export default function InstrumentPage() {
         "/sound/instrument/gayageum03.mp3",
         "/sound/instrument/gayageum04.mp3"
       ];
+      const gayageumVideos = [
+        "/mov/gayageum1.mp4",
+        "/mov/gayageum2.mp4"
+      ];
       audioSrc = gayageumSounds[gayageumIndexRef.current];
+      videoSrc = gayageumVideos[gayageumIndexRef.current % gayageumVideos.length];
       gayageumIndexRef.current = (gayageumIndexRef.current + 1) % gayageumSounds.length;
       imgSrc = "/img/gayageum.png";
       instrumentName = { ko: "가야금", en: "Gayageum", desc: "한국의 하프" };
@@ -245,7 +268,13 @@ export default function InstrumentPage() {
         "/sound/instrument/gumungo03.mp3",
         "/sound/instrument/gumungo04.mp3"
       ];
+      const geomungoVideos = [
+        "/mov/geomungo1.mp4",
+        "/mov/geomungo2.mp4",
+        "/mov/geomungo3.mp4"
+      ];
       audioSrc = geomungoSounds[geomungoIndexRef.current];
+      videoSrc = geomungoVideos[geomungoIndexRef.current % geomungoVideos.length];
       geomungoIndexRef.current = (geomungoIndexRef.current + 1) % geomungoSounds.length;
       imgSrc = "/img/geomungo.png";
       instrumentName = { ko: "거문고", en: "Geomungo", desc: "한국의 첼로" };
@@ -341,6 +370,7 @@ export default function InstrumentPage() {
       }
     });
     setActiveImage(imgSrc);
+    setActiveVideo(videoSrc || null);
     setActiveInstrument(instrumentName);
     setActiveButtonIndex(index);
     let smoothedIntensity = 0; // 진동(떨림) 현상을 방지하기 위한 부드러운 오디오 봉투(Envelope) 값
@@ -433,6 +463,7 @@ export default function InstrumentPage() {
           audio.currentTime = 0;
           if (reqRef.current) cancelAnimationFrame(reqRef.current);
           setActiveImage(null);
+          setActiveVideo(null);
           setActiveInstrument(null);
           setActiveButtonIndex(null);
           return;
@@ -456,9 +487,16 @@ export default function InstrumentPage() {
         instrumentName.en === "Pyeonjong" ||
         instrumentName.en === "Pyeongyeong" ||
         instrumentName.en === "Daegeum" ||
-        instrumentName.en === "Eo"
+        instrumentName.en === "Eo" ||
+        instrumentName.en === "Bak" ||
+        instrumentName.en === "Buk" ||
+        instrumentName.en === "Jwago" ||
+        instrumentName.en === "Janggu" ||
+        instrumentName.en === "Gayageum" ||
+        instrumentName.en === "Geomungo"
       ) {
         setActiveImage(null);
+        setActiveVideo(null);
         setActiveInstrument(null);
         setActiveButtonIndex(null);
         if (reqRef.current) cancelAnimationFrame(reqRef.current);
@@ -479,20 +517,30 @@ export default function InstrumentPage() {
           {activeImage && (
             <motion.div
               key={activeImage}
-              initial={{ 
+              initial={activeVideo ? {
+                opacity: 0,
+                scale: 1.0,
+                y: 0,
+                x: 0
+              } : { 
                 opacity: 0, 
                 scale: activeInstrument?.en === "Hun" ? 0 : 0.9, 
                 y: 15,
                 x: activeInstrument?.en === "Saenghwang" ? 7 : 0
               }}
-              animate={{ 
+              animate={activeVideo ? {
+                opacity: 1,
+                scale: 1.0,
+                y: 0,
+                x: 0
+              } : { 
                 opacity: 1, 
                 scale: 1.0, 
                 y: 0,
                 x: activeInstrument?.en === "Saenghwang" ? 7 : 0
               }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
+              transition={activeVideo ? { duration: 0.3 } : { duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
               className="absolute flex items-center justify-center pointer-events-none z-0"
             >
               {/* transform에 CSS transition-duration이 걸려 있으면 60fps 고주파 떨림이 뭉개지므로 opacity, filter만 트랜지션 적용 */}
@@ -501,7 +549,7 @@ export default function InstrumentPage() {
                 className="transition-[opacity,filter] duration-300 ease-in-out origin-center relative flex items-center justify-center after:content-[''] after:absolute after:inset-x-0 after:top-0 after:h-12 after:bg-gradient-to-b after:from-[#ffffff] after:to-transparent after:pointer-events-none after:z-30"
               >
                 {/* 좌고(Jwago) 전용 흐릿하고 큰 배경(고스트) 이미지 - 좌/우 반갈라서 독립 제어 */}
-                {activeInstrument?.en === "Jwago" && (
+                {activeInstrument?.en === "Jwago" && !activeVideo && (
                   <>
                     <img
                       ref={(el) => { if (el) rippleLeftRef.current = el; }}
@@ -559,6 +607,20 @@ export default function InstrumentPage() {
                       style={{ maskImage: "radial-gradient(circle, transparent 0%, transparent 100%)", WebkitMaskImage: "radial-gradient(circle, transparent 0%, transparent 100%)" }}
                     />
                   </>
+                ) : activeVideo ? (
+                  <video
+                    src={activeVideo}
+                    autoPlay
+                    muted
+                    playsInline
+                    loop
+                    className={cn(
+                      "aspect-[16/9] object-contain relative z-10",
+                      activeInstrument?.en === "Janggu"
+                        ? "w-[64vw] max-w-[1440px] max-h-[41vh] md:w-auto md:h-[58.5vh] md:max-h-[60vh] md:max-w-none"
+                        : "w-[85vw] max-w-[1920px] max-h-[55vh] md:w-auto md:h-[78vh] md:max-h-[80vh] md:max-w-none"
+                    )}
+                  />
                 ) : (
                   <img
                     ref={(el) => { if (el) mainImgRef.current = el; }}

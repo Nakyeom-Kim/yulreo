@@ -43,6 +43,14 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
     isFadingOut, elapsedFade, time, jwagoState, refs
   } = ctx;
 
+  // 'Bak', 'Eo', 'Buk', 'Jwago', 'Janggu', 'Gayageum', 'Geomungo', 'Daegeum'는 영상 재생 방식으로 대체되어 모든 스케일/진동 모션 비활성화 (페이드아웃 투명도만 적용)
+  if (["Bak", "Eo", "Buk", "Jwago", "Janggu", "Gayageum", "Geomungo", "Daegeum"].includes(instrument)) {
+    return {
+      transform: "scale(1)",
+      opacity: isFadingOut ? Math.max(0, 1.0 - elapsedFade) : 1.0,
+      filter: "none"
+    };
+  }
 
   const baseScale = 1;
   const maxMultiplier = 5;
