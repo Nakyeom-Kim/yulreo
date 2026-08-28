@@ -87,15 +87,15 @@ const BUTTON_TEXTS: Record<string, { description: string; subDescription?: strin
 const CARD_DEFAULT_INFOS = [
   {
     title: "일상 속 알림 소리",
-    description: "스마트폰에서 울려 퍼지는 다양한 알림음을 들어보세요"
+    description: "스마트폰에서 나는 소리들.\n재난문자, 문자 알림, 통화 벨소리."
   },
   {
     title: "거리의 신호 소리",
-    description: "매일 이용하는 대중교통에서 마주치는 알림음을 들어보세요"
+    description: "대중교통에서 마주치는 소리들.\n횡단보도 신호음, 버스카드 태그음, 하차벨."
   },
   {
     title: "머무는 공간의 소리",
-    description: "집안 곳곳에서 들려오는 생활 속 알림음을 들어보세요"
+    description: "집 안에서 들리는 알림음들.\n세탁 완료음, 초인종, TV를 켜고 끄는 소리."
   }
 ];
 
@@ -162,21 +162,21 @@ function CarouselCard({
   const pointerEvents = (currentIndex === slideIdx ? "auto" : "none") as "auto" | "none";
 
   // Use dynamic motion values only on client-side to prevent SSR hydration mismatch and initial load blur issues
-  const dynamicStyle = isMounted 
+  const dynamicStyle = isMounted
     ? {
-        width: `${cardWidth}px`,
-        opacity,
-        scale,
-        filter,
-        pointerEvents,
-      }
+      width: `${cardWidth}px`,
+      opacity,
+      scale,
+      filter,
+      pointerEvents,
+    }
     : {
-        width: `${cardWidth}px`,
-        opacity: slideIdx === currentIndex ? 1 : 0.35,
-        scale: slideIdx === currentIndex ? 1 : 0.94,
-        filter: slideIdx === currentIndex ? "none" : "blur(1.5px)",
-        pointerEvents,
-      };
+      width: `${cardWidth}px`,
+      opacity: slideIdx === currentIndex ? 1 : 0.35,
+      scale: slideIdx === currentIndex ? 1 : 0.94,
+      filter: slideIdx === currentIndex ? "none" : "blur(1.5px)",
+      pointerEvents,
+    };
 
   return (
     <motion.div
@@ -422,7 +422,7 @@ export default function SoundPage() {
 
       if (id === "emergency" || id === "unlock" || id === "pedestrian" || id === "headlight" || id === "tv-off" || id === "alarm" || id === "card" || id === "message" || id === "intercom") {
         let isMinDurationEnforced = false;
-        
+
         audio.addEventListener("loadedmetadata", () => {
           const duration = audio.duration;
           if (!isNaN(duration) && duration < 2.0) {
@@ -468,12 +468,12 @@ export default function SoundPage() {
 
   return (
     <div className="relative min-h-screen bg-background overflow-hidden select-none flex flex-col justify-between py-12 md:py-16">
-      
+
       {/* Background/Header spacer spacing */}
       <div className="h-12 shrink-0" />
 
       {/* Navigation Arrows */}
-      <button 
+      <button
         onClick={handlePrevPage}
         className="absolute left-[2vw] md:left-[4vw] top-1/2 -translate-y-1/2 z-30 p-2 group cursor-pointer focus:outline-none hidden sm:block"
         aria-label="Previous page"
@@ -483,7 +483,7 @@ export default function SoundPage() {
         </svg>
       </button>
 
-      <button 
+      <button
         onClick={handleNextPage}
         className="absolute right-[2vw] md:right-[4vw] top-1/2 -translate-y-1/2 z-30 p-2 group cursor-pointer focus:outline-none hidden sm:block"
         aria-label="Next page"
@@ -494,7 +494,7 @@ export default function SoundPage() {
       </button>
 
       {/* Carousel Container */}
-      <div 
+      <div
         className="relative w-full flex-grow overflow-visible flex items-center justify-start z-10 touch-pan-y"
         style={{
           paddingLeft: `calc(50vw - ${cardWidth / 2}px)`
@@ -520,7 +520,7 @@ export default function SoundPage() {
             } else if (offset > swipeThreshold || velocity > swipeVelocityThreshold) {
               nextIndex = currentIndex - 1; // Slide backward (down to 0)
             }
-            
+
             stopSound();
             snapTo(nextIndex);
           }}
@@ -564,8 +564,8 @@ export default function SoundPage() {
               }}
               className={cn(
                 "w-2.5 h-2.5 rounded-full transition-all duration-300 cursor-pointer",
-                isIndicatorActive 
-                  ? "bg-[#4c483b] scale-120" 
+                isIndicatorActive
+                  ? "bg-[#4c483b] scale-120"
                   : "bg-[#4c483b]/20 hover:bg-[#4c483b]/40"
               )}
               aria-label={`Go to slide ${idx + 1}`}
