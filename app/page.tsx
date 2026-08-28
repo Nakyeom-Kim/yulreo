@@ -58,7 +58,7 @@ export default function InstrumentPage() {
   const jwagoBeatsRef = useRef(0); // 좌고 비트 카운터 (방향 결정용, 홀수=왼쪽 / 짝수=오른쪽)
   // 타악기 여음 대기를 끊기 위한 타이머 레퍼런스
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  
+
   // 타악기 및 현악기 소리 순차 재생을 위한 인덱스 레퍼런스
   const jangguIndexRef = useRef(0);
   const eoIndexRef = useRef(0);
@@ -96,7 +96,7 @@ export default function InstrumentPage() {
       if (sourceRef.current) {
         try {
           sourceRef.current.disconnect();
-        } catch {}
+        } catch { }
         sourceRef.current = null;
       }
       // analyserRef, gainNodeRef도 초기화해야 새 AudioContext 생성 시 재연결됨
@@ -116,7 +116,7 @@ export default function InstrumentPage() {
     let imgSrc = "";
     let videoSrc = "";
     let instrumentName = { ko: "", en: "", desc: "" };
-    
+
     // 주파수 분석 대역 설정 (기본값: 타악기용 저음역대)
     let minBin = 0;
     let maxBin = 20;
@@ -192,7 +192,7 @@ export default function InstrumentPage() {
       audioSrc = eoSounds[eoIndexRef.current];
       videoSrc = eoVideos[eoIndexRef.current];
       eoIndexRef.current = (eoIndexRef.current + 1) % eoSounds.length;
-      
+
       imgSrc = "/img/eo.png";
       instrumentName = { ko: "어", en: "Eo", desc: "한국의 귀로" };
       // '어'는 나무를 긁는 소리이므로 고음역대(High frequency)에 반응하도록 설정
@@ -216,7 +216,7 @@ export default function InstrumentPage() {
       audioSrc = jangguSounds[jangguIndexRef.current];
       videoSrc = jangguVideos[jangguIndexRef.current];
       jangguIndexRef.current = (jangguIndexRef.current + 1) % jangguSounds.length;
-      
+
       imgSrc = "/img/janggu.png";
       instrumentName = { ko: "장구", en: "Janggu", desc: "한국의 드럼" };
       minBin = 5;
@@ -331,7 +331,7 @@ export default function InstrumentPage() {
 
     if (!gainNodeRef.current) {
       gainNodeRef.current = ctx.createGain();
-      
+
       // 최초 생성 시 연결 해두기
       analyserRef.current.connect(gainNodeRef.current);
       gainNodeRef.current.connect(ctx.destination);
@@ -386,7 +386,7 @@ export default function InstrumentPage() {
       let sum = 0;
       let maxVal = 0;
       let peakBin = minBin;
-      
+
       for (let i = minBin; i < maxBin; i++) {
         const val = dataArray[i];
         sum += val;
@@ -396,12 +396,12 @@ export default function InstrumentPage() {
         }
       }
       const avg = sum / (maxBin - minBin); // 0 ~ 255
-      
+
       // 피치(고저) 계산: 피크 주파수의 위치를 0.0(저음) ~ 1.0(고음) 범위로 정규화
       const pitchRatio = maxVal > 30 ? (peakBin - minBin) / (maxBin - minBin) : 0.5;
       smoothedPitch = smoothedPitch + (pitchRatio - smoothedPitch) * 0.15; // 부드럽게 피치 추적
       const intensity = Math.pow(avg / 255, 1.5); // 지수 함수를 사용해 큰 소리일 때 더 극적으로 변화하도록 설정
-      
+
       // 즉각적인 타격감은 살리면서 잔향이 끊기거나 떨리는 현상(Jitter)을 방지하는 스무딩(Envelope Follower)
       if (intensity > smoothedIntensity) {
         smoothedIntensity = smoothedIntensity + (intensity - smoothedIntensity) * 0.8;
@@ -411,11 +411,11 @@ export default function InstrumentPage() {
 
       // 소리 재생이 시작된 후, 분석된 강도가 극도로 낮아지면(잔향이 끝남) 이미지 페이드아웃 처리
       const minPlayTime = (
-        instrumentName.en === "Piri" || 
-        instrumentName.en === "Saenghwang" || 
-        instrumentName.en === "Haegeum" || 
-        instrumentName.en === "Daegeum" || 
-        instrumentName.en === "Taepyeongso" || 
+        instrumentName.en === "Piri" ||
+        instrumentName.en === "Saenghwang" ||
+        instrumentName.en === "Haegeum" ||
+        instrumentName.en === "Daegeum" ||
+        instrumentName.en === "Taepyeongso" ||
         instrumentName.en === "Hun"
       ) ? 1.2 : 0.6;
 
@@ -455,7 +455,7 @@ export default function InstrumentPage() {
             rippleRight: rippleRightRef.current,
           }
         });
-        
+
         jwagoLastIntensityRef.current = smoothedIntensity;
 
         if (isFadingOut && motionResult.opacity <= 0) {
@@ -510,7 +510,7 @@ export default function InstrumentPage() {
 
   return (
     <div className="flex flex-col min-h-[100dvh] pt-20 md:pt-28 lg:pt-32 dynamic-bottom-padding px-4 md:px-10 lg:px-16 wide:px-24 bg-background relative overflow-hidden">
-      
+
       {/* 상단 여백 영역 (남은 공간을 모두 차지하여 이미지 센터링) */}
       <div className="flex-grow flex items-center justify-center relative z-0">
         <AnimatePresence>
@@ -522,9 +522,9 @@ export default function InstrumentPage() {
                 scale: 1.0,
                 y: 0,
                 x: 0
-              } : { 
-                opacity: 0, 
-                scale: activeInstrument?.en === "Hun" ? 0 : 0.9, 
+              } : {
+                opacity: 0,
+                scale: activeInstrument?.en === "Hun" ? 0 : 0.9,
                 y: 15,
                 x: activeInstrument?.en === "Saenghwang" ? 7 : 0
               }}
@@ -533,9 +533,9 @@ export default function InstrumentPage() {
                 scale: 1.0,
                 y: 0,
                 x: 0
-              } : { 
-                opacity: 1, 
-                scale: 1.0, 
+              } : {
+                opacity: 1,
+                scale: 1.0,
                 y: 0,
                 x: activeInstrument?.en === "Saenghwang" ? 7 : 0
               }}
@@ -556,8 +556,8 @@ export default function InstrumentPage() {
                       src={`${activeImage}?v=4`}
                       alt=""
                       className="absolute inset-0 w-48 md:w-64 lg:w-96 h-auto object-contain z-0 blur-[6px] pointer-events-none"
-                      style={{ 
-                        clipPath: "inset(0 50% 0 0)", 
+                      style={{
+                        clipPath: "inset(0 50% 0 0)",
                         transformOrigin: "center center",
                         WebkitMaskImage: "radial-gradient(circle, black 40%, transparent 70%)",
                         maskImage: "radial-gradient(circle, black 40%, transparent 70%)"
@@ -568,8 +568,8 @@ export default function InstrumentPage() {
                       src={`${activeImage}?v=4`}
                       alt=""
                       className="absolute inset-0 w-48 md:w-64 lg:w-96 h-auto object-contain z-0 blur-[6px] pointer-events-none"
-                      style={{ 
-                        clipPath: "inset(0 0 0 50%)", 
+                      style={{
+                        clipPath: "inset(0 0 0 50%)",
                         transformOrigin: "center center",
                         WebkitMaskImage: "radial-gradient(circle, black 40%, transparent 70%)",
                         maskImage: "radial-gradient(circle, black 40%, transparent 70%)"
@@ -689,7 +689,7 @@ export default function InstrumentPage() {
         >
           {/* gap-x는 좌우 간격, gap-y는 위아래 간격입니다. */}
           <div className="flex flex-wrap justify-center gap-x-3 gap-y-2 md:gap-x-0 md:gap-y-3 lg:gap-y-[24px] max-w-[920px] mx-auto px-4 md:px-0">
-            
+
             {/* 첫 번째 줄 (1~7번 버튼) - 모바일에서는 원래대로 자연스럽게 이어짐 */}
             <div className="contents md:flex md:justify-center md:gap-x-[16px] lg:gap-x-[24px] md:w-full">
               {[...Array(7)].map((_, i) => {
@@ -699,12 +699,17 @@ export default function InstrumentPage() {
                     key={i}
                     onClick={() => handleButtonClick(i)}
                     className={cn(
-                      "w-11 h-11 md:w-[52px] md:h-[52px] lg:w-16 lg:h-16 wide:w-[72px] wide:h-[72px] shrink-0 rounded-full border bg-background transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative",
-                      isActive 
-                        ? "border-foreground/20 text-foreground scale-110" 
-                        : "border-foreground/20 text-foreground/50 hover:bg-foreground/5 hover:border-foreground/40"
+                      "w-11 h-11 md:w-[52px] md:h-[52px] lg:w-16 lg:h-16 wide:w-[72px] wide:h-[72px] shrink-0 rounded-full bg-white/30 backdrop-blur-md transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative shadow-sm",
+                      isActive
+                        ? "text-foreground scale-110 opacity-100 bg-white/0"
+                        : "text-foreground/50 hover:bg-white/50"
                     )}
-                    style={isActive ? { boxShadow: `0 0 20px ${INSTRUMENT_SHADOW_COLORS[i]}` } : undefined}
+                    style={{
+                      background: isActive ? INSTRUMENT_SHADOW_COLORS[i].replace(/[\d.]+\)$/, '0.1)') : undefined,
+                      boxShadow: isActive
+                        ? `inset 0 6px 10px rgba(255, 255, 255, 1.0), inset 0 2px 4px rgba(255, 255, 255, 0.8), inset 0 -3px 8px rgba(255, 255, 255, 0.65), 0 0 16px ${INSTRUMENT_SHADOW_COLORS[i]}`
+                        : undefined
+                    }}
                     aria-label={`Instrument button: ${instrumentNames[i]}`}
                   >
                     <span className="relative z-10 text-xs tracking-tighter whitespace-nowrap font-sans translate-y-[2px]">{instrumentNames[i]}</span>
@@ -723,12 +728,17 @@ export default function InstrumentPage() {
                     key={index}
                     onClick={() => handleButtonClick(index)}
                     className={cn(
-                      "w-11 h-11 md:w-[52px] md:h-[52px] lg:w-16 lg:h-16 wide:w-[72px] wide:h-[72px] shrink-0 rounded-full border bg-background transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative",
-                      isActive 
-                        ? "border-foreground/20 text-foreground scale-110" 
-                        : "border-foreground/20 text-foreground/50 hover:bg-foreground/5 hover:border-foreground/40"
+                      "w-11 h-11 md:w-[52px] md:h-[52px] lg:w-16 lg:h-16 wide:w-[72px] wide:h-[72px] shrink-0 rounded-full bg-white/30 backdrop-blur-md transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative shadow-sm",
+                      isActive
+                        ? "text-foreground scale-110 opacity-100 bg-white/0"
+                        : "text-foreground/50 hover:bg-white/50"
                     )}
-                    style={isActive ? { boxShadow: `0 0 20px ${INSTRUMENT_SHADOW_COLORS[index]}` } : undefined}
+                    style={{
+                      background: isActive ? INSTRUMENT_SHADOW_COLORS[index].replace(/[\d.]+\)$/, '0.3)') : undefined,
+                      boxShadow: isActive
+                        ? `inset 0 6px 10px rgba(255, 255, 255, 1.0), inset 0 2px 4px rgba(255, 255, 255, 0.8), inset 0 -3px 8px rgba(255, 255, 255, 0.65), 0 0 16px ${INSTRUMENT_SHADOW_COLORS[index]}`
+                        : undefined
+                    }}
                     aria-label={`Instrument button: ${instrumentNames[index]}`}
                   >
                     <span className="relative z-10 text-xs tracking-tighter whitespace-nowrap font-sans translate-y-[2px]">{instrumentNames[index]}</span>

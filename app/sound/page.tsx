@@ -231,10 +231,10 @@ function CarouselCard({
               {activeRightImage && (
                 <motion.div
                   key={activeRightImage}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 0 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ duration: 0.4 }}
+                  exit={{ opacity: 0, y: 0 }}
+                  transition={{ duration: 0.3 }}
                   className="relative w-full overflow-hidden flex-grow flex items-end justify-center min-h-[120px] max-h-[180px] md:max-h-[none] mt-4"
                 >
                   <div className="absolute top-0 inset-x-0 h-8 bg-gradient-to-b from-[#ffffff] via-[#ffffff]/50 to-transparent pointer-events-none z-10" />
