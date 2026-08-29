@@ -184,8 +184,8 @@ function CarouselCard({
       className={cn(
         "h-[72vh] md:h-[650px] shrink-0 rounded-[24px] border border-foreground/10 bg-background/90 backdrop-blur-md overflow-hidden flex flex-col md:flex-row transition-shadow duration-500",
         currentIndex === slideIdx
-          ? "shadow-[0_20px_50px_rgba(76,72,59,0.1)]"
-          : "shadow-[0_10px_40px_rgba(76,72,59,0.04)]"
+          ? "shadow-[0_20px_50px_rgba(76,72,59,0.18)]"
+          : "shadow-[0_10px_40px_rgba(76,72,59,0.08)]"
       )}
     >
       {/* Left: Device SVG */}

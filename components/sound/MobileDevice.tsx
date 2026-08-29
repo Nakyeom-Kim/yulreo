@@ -118,7 +118,7 @@ export default function MobileDevice({
                         : "rgba(255, 255, 255, 0.30)",
                       boxShadow: isActive
                         ? "inset 0 6px 10px rgba(255,255,255,1.0), inset 0 2px 4px rgba(255,255,255,0.8), inset 0 -3px 8px rgba(255,255,255,0.65), 0 0 16px rgba(0,0,0,0.7)"
-                        : "0 2px 8px rgba(76,72,59,0.10)",
+                        : "0 4px 12px rgba(76,72,59,0.22)",
                     }}
                   >
                     <Icon size={24} color={isActive ? "white" : "#4c483b"} strokeWidth={1.8} />

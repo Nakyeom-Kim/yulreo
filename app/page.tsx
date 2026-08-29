@@ -699,7 +699,7 @@ export default function InstrumentPage() {
                     key={i}
                     onClick={() => handleButtonClick(i)}
                     className={cn(
-                      "w-11 h-11 md:w-[52px] md:h-[52px] lg:w-16 lg:h-16 wide:w-[72px] wide:h-[72px] shrink-0 rounded-full bg-white/30 backdrop-blur-md transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative shadow-sm",
+                      "w-11 h-11 md:w-[52px] md:h-[52px] lg:w-16 lg:h-16 wide:w-[72px] wide:h-[72px] shrink-0 rounded-full bg-white/30 backdrop-blur-md transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative shadow-md shadow-foreground/15",
                       isActive
                         ? "text-foreground scale-110 opacity-100 bg-white/0"
                         : "text-foreground/50 hover:bg-white/50"
@@ -728,7 +728,7 @@ export default function InstrumentPage() {
                     key={index}
                     onClick={() => handleButtonClick(index)}
                     className={cn(
-                      "w-11 h-11 md:w-[52px] md:h-[52px] lg:w-16 lg:h-16 wide:w-[72px] wide:h-[72px] shrink-0 rounded-full bg-white/30 backdrop-blur-md transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative shadow-sm",
+                      "w-11 h-11 md:w-[52px] md:h-[52px] lg:w-16 lg:h-16 wide:w-[72px] wide:h-[72px] shrink-0 rounded-full bg-white/30 backdrop-blur-md transition-all duration-500 hover:scale-115 active:scale-95 flex items-center justify-center relative shadow-md shadow-foreground/15",
                       isActive
                         ? "text-foreground scale-110 opacity-100 bg-white/0"
                         : "text-foreground/50 hover:bg-white/50"
