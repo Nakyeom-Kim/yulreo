@@ -43,8 +43,8 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
     isFadingOut, elapsedFade, time, jwagoState, refs
   } = ctx;
 
-  // 'Bak', 'Eo', 'Buk', 'Jwago', 'Janggu', 'Gayageum', 'Geomungo', 'Daegeum'는 영상 재생 방식으로 대체되어 모든 스케일/진동 모션 비활성화 (페이드아웃 투명도만 적용)
-  if (["Bak", "Eo", "Buk", "Jwago", "Janggu", "Gayageum", "Geomungo", "Daegeum"].includes(instrument)) {
+  // 'Bak', 'Eo', 'Buk', 'Jwago', 'Janggu', 'Gayageum', 'Geomungo', 'Daegeum', 'Hun', 'Pyeonjong', 'Pyeongyeong', 'Taepyeongso', 'Haegeum'는 영상 재생 방식으로 대체되어 모든 스케일/진동 모션 비활성화 (페이드아웃 투명도만 적용)
+  if (["Bak", "Eo", "Buk", "Jwago", "Janggu", "Gayageum", "Geomungo", "Daegeum", "Hun", "Pyeonjong", "Pyeongyeong", "Taepyeongso", "Haegeum"].includes(instrument)) {
     return {
       transform: "scale(1)",
       opacity: isFadingOut ? Math.max(0, 1.0 - elapsedFade) : 1.0,
@@ -92,7 +92,7 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
       const growthFactor = 1.0 + (startProgress + elapsedFade * 0.4) * 1.5;
       scale = baseScale * growthFactor;
       transformStr = `scale(${scale})`;
-    } else if (instrument === "Gayageum" || instrument === "Geomungo") {
+    } else if (instrument === "Geomungo") {
       const gScale = ctx.disableBaseScale ? 1.0 : 1.7;
       transformStr = `scale(${baseScale * gScale})`;
     } else if (instrument === "Daegeum") {
@@ -412,14 +412,6 @@ export function getInstrumentMotionStyle(ctx: MotionContext): MotionResult {
       transformStr = `scale(${baseScale * gScale}) translate(${trembleX}px, ${bounceY + trembleY}px)`;
     }
 
-    if (instrument === "Gayageum") {
-      // 거문고와 유사하지만 위로 튕기도록 -Y translation 적용
-      const bounceY = -intensity * 75;
-      const trembleX = (Math.random() - 0.5) * intensity * 30; 
-      const trembleY = (Math.random() - 0.5) * intensity * 30;
-      const gScale = ctx.disableBaseScale ? 1.0 : 1.7;
-      transformStr = `scale(${baseScale * gScale}) translate(${trembleX}px, ${bounceY + trembleY}px)`;
-    }
     
     if (instrument === "Taepyeongso") {
       const taepyeongsoMultiplier = 8;

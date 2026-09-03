@@ -125,6 +125,7 @@ export default function InstrumentPage() {
       // 1번 버튼: 훈
       audioSrc = "/sound/instrument/hun01.mp3";
       imgSrc = "/img/hun.png";
+      videoSrc = "/mov/hun.mp4";
       instrumentName = { ko: "훈", en: "Hun", desc: "한국의 오카리나" };
       minBin = 10;
       maxBin = 50;
@@ -132,6 +133,7 @@ export default function InstrumentPage() {
       // 2번 버튼: 편종
       audioSrc = "/sound/instrument/pyeonjong01.mp3";
       imgSrc = "/img/pyeonjong.png";
+      videoSrc = "/mov/pyeonjong.mp4";
       instrumentName = { ko: "편종", en: "Pyeonjong", desc: "한국의 실로폰" };
       minBin = 30;
       maxBin = 100;
@@ -139,6 +141,7 @@ export default function InstrumentPage() {
       // 3번 버튼: 편경
       audioSrc = "/sound/instrument/pyeongyeong01.mp3";
       imgSrc = "/img/pyeongyeong.png";
+      videoSrc = "/mov/pyeongyeong.mp4";
       instrumentName = { ko: "편경", en: "Pyeongyeong", desc: "한국의 실로폰" };
       minBin = 30;
       maxBin = 100;
@@ -154,6 +157,7 @@ export default function InstrumentPage() {
       // 5번 버튼: 태평소
       audioSrc = "/sound/instrument/taepyeongso01.mp3";
       imgSrc = "/img/taepyeongso.png";
+      videoSrc = "/mov/taepyeongso.mp4";
       instrumentName = { ko: "태평소", en: "Taepyeongso", desc: "한국의 나팔" };
       minBin = 30;
       maxBin = 100;
@@ -161,6 +165,7 @@ export default function InstrumentPage() {
       // 6번 버튼: 피리
       audioSrc = "/sound/instrument/piri01.mp3";
       imgSrc = "/img/piri.png";
+      videoSrc = "/mov/piri.mp4";
       instrumentName = { ko: "피리", en: "Piri", desc: "한국의 피리" };
       minBin = 40;
       maxBin = 120;
@@ -168,7 +173,7 @@ export default function InstrumentPage() {
       // 7번 버튼: 생황
       audioSrc = "/sound/instrument/saenghwang01.mp3";
       imgSrc = "/img/saenghwang.png";
-      instrumentName = { ko: "생황", en: "Saenghwang", desc: "한국의 아코디언" };
+      instrumentName = { ko: "생황", en: "Saenghwang", desc: "한국의 하모니카" };
       minBin = 30;
       maxBin = 100;
     } else if (index === 7) {
@@ -290,6 +295,7 @@ export default function InstrumentPage() {
       audioSrc = haegeumSounds[haegeumIndexRef.current];
       haegeumIndexRef.current = (haegeumIndexRef.current + 1) % haegeumSounds.length;
       imgSrc = "/img/haegeum.png";
+      videoSrc = "/mov/haegeum.mp4";
       instrumentName = { ko: "해금", en: "Haegeum", desc: "한국의 바이올린" };
       minBin = 30;
       maxBin = 100;
@@ -317,195 +323,143 @@ export default function InstrumentPage() {
       clearTimeout(hideTimerRef.current);
     }
 
-    // Audio Context 초기화
-    if (!audioCtxRef.current) {
-      audioCtxRef.current = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    }
-    const ctx = audioCtxRef.current;
-    if (ctx.state === "suspended") ctx.resume();
-
-    if (!analyserRef.current) {
-      analyserRef.current = ctx.createAnalyser();
-      analyserRef.current.fftSize = 2048;
-    }
-
-    if (!gainNodeRef.current) {
-      gainNodeRef.current = ctx.createGain();
-
-      // 최초 생성 시 연결 해두기
-      analyserRef.current.connect(gainNodeRef.current);
-      gainNodeRef.current.connect(ctx.destination);
-    }
-
-    // 북(Buk) 및 좌고(Jwago) 소리는 저음이라 잘 안 들리므로 게인을 2.5배로 증폭하고, 다른 악기들은 기본 0.95 유지
-    const volumeVal = (instrumentName.en === "Buk" || instrumentName.en === "Jwago") ? 2.5 : 0.95;
-    gainNodeRef.current.gain.setValueAtTime(volumeVal, ctx.currentTime);
-
-    // 새 Audio 객체 생성하여 재사용 버그 및 오디오 무음 현상 방지
-    const audio = new Audio();
-    activeAudioRef.current = audio;
-
-    // 새 MediaElementAudioSourceNode 생성 후 연결
-    sourceRef.current = ctx.createMediaElementSource(audio);
-    sourceRef.current.connect(analyserRef.current);
-
-    audio.src = audioSrc;
-
-    // let 선언을 audio.play() 앞으로 이동 — catch 클로저에서 TDZ 오류 방지
-    let isFadingOut = false;
-    let fadeOutStart = 0;
-    let fadeOutStartCurrentTime = 0;
-
-    audio.play().catch(e => {
-      console.error("Audio play failed:", e);
-      // 재생 실패/중단 시 이미지 고정 방지용 fallback 타이머
-      if (clickId === currentClickIdRef.current) {
-        hideTimerRef.current = setTimeout(() => {
-          if (clickId === currentClickIdRef.current) {
-            isFadingOut = true;
-            fadeOutStart = performance.now();
-            fadeOutStartCurrentTime = 0;
-          }
-        }, 2000);
-      }
-    });
     setActiveImage(imgSrc);
     setActiveVideo(videoSrc || null);
     setActiveInstrument(instrumentName);
     setActiveButtonIndex(index);
-    let smoothedIntensity = 0; // 진동(떨림) 현상을 방지하기 위한 부드러운 오디오 봉투(Envelope) 값
-    let smoothedPitch = 0.5; // 해금 등에서 사용할 부드러운 피치(주파수 고저) 추적 변수
 
-    const updateLoop = () => {
-      if (clickId !== currentClickIdRef.current) return;
-      if (!analyserRef.current) return;
-      const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-      analyserRef.current.getByteFrequencyData(dataArray);
-
-      // 악기 특성에 맞는 주파수 대역의 평균 및 최대 피치(고저)를 구함
-      let sum = 0;
-      let maxVal = 0;
-      let peakBin = minBin;
-
-      for (let i = minBin; i < maxBin; i++) {
-        const val = dataArray[i];
-        sum += val;
-        if (val > maxVal) {
-          maxVal = val;
-          peakBin = i;
-        }
+    // 동영상 MP4 파일이 없는 악기(피리, 생황 등)에 한해 MP3 재생 및 Web Audio API 비주얼 애니메이션 구동
+    if (!videoSrc) {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
       }
-      const avg = sum / (maxBin - minBin); // 0 ~ 255
+      const ctx = audioCtxRef.current;
+      if (ctx.state === "suspended") ctx.resume();
 
-      // 피치(고저) 계산: 피크 주파수의 위치를 0.0(저음) ~ 1.0(고음) 범위로 정규화
-      const pitchRatio = maxVal > 30 ? (peakBin - minBin) / (maxBin - minBin) : 0.5;
-      smoothedPitch = smoothedPitch + (pitchRatio - smoothedPitch) * 0.15; // 부드럽게 피치 추적
-      const intensity = Math.pow(avg / 255, 1.5); // 지수 함수를 사용해 큰 소리일 때 더 극적으로 변화하도록 설정
-
-      // 즉각적인 타격감은 살리면서 잔향이 끊기거나 떨리는 현상(Jitter)을 방지하는 스무딩(Envelope Follower)
-      if (intensity > smoothedIntensity) {
-        smoothedIntensity = smoothedIntensity + (intensity - smoothedIntensity) * 0.8;
-      } else {
-        smoothedIntensity = smoothedIntensity + (intensity - smoothedIntensity) * 0.25;
+      if (!analyserRef.current) {
+        analyserRef.current = ctx.createAnalyser();
+        analyserRef.current.fftSize = 2048;
       }
 
-      // 소리 재생이 시작된 후, 분석된 강도가 극도로 낮아지면(잔향이 끝남) 이미지 페이드아웃 처리
-      const minPlayTime = (
-        instrumentName.en === "Piri" ||
-        instrumentName.en === "Saenghwang" ||
-        instrumentName.en === "Haegeum" ||
-        instrumentName.en === "Daegeum" ||
-        instrumentName.en === "Taepyeongso" ||
-        instrumentName.en === "Hun"
-      ) ? 1.2 : 0.6;
-
-      if (audio.currentTime > minPlayTime && smoothedIntensity < 0.003 && !isFadingOut) {
-        isFadingOut = true;
-        fadeOutStart = performance.now();
-        fadeOutStartCurrentTime = audio.currentTime;
+      if (!gainNodeRef.current) {
+        gainNodeRef.current = ctx.createGain();
+        analyserRef.current.connect(gainNodeRef.current);
+        gainNodeRef.current.connect(ctx.destination);
       }
 
-      if (imgWrapperRef.current) {
-        const motionResult = getInstrumentMotionStyle({
-          instrument: instrumentName.en,
-          audio,
-          intensity,
-          smoothedIntensity,
-          smoothedPitch,
-          isFadingOut,
-          elapsedFade: isFadingOut ? (performance.now() - fadeOutStart) / 1000 : 0,
-          time: performance.now(),
-          frozenTime: isFadingOut ? fadeOutStartCurrentTime : undefined,
-          jwagoState: {
-            // getter를 사용해 updateState 호출 즉시 최신 값 반영 (같은 프레임 내 동기화)
-            get direction() { return jwagoDirectionRef.current; },
-            get lastIntensity() { return jwagoLastIntensityRef.current; },
-            get beatCooldown() { return jwagoBeatCooldownRef.current; },
-            get beatCount() { return jwagoBeatsRef.current; },
-            updateState: (newDir: number, newCooldown: number, newBeatCount: number) => {
-              jwagoDirectionRef.current = newDir;
-              jwagoBeatCooldownRef.current = newCooldown;
-              jwagoBeatsRef.current = newBeatCount;
+      gainNodeRef.current.gain.setValueAtTime(0.95, ctx.currentTime);
+
+      const audio = new Audio();
+      activeAudioRef.current = audio;
+
+      sourceRef.current = ctx.createMediaElementSource(audio);
+      sourceRef.current.connect(analyserRef.current);
+
+      audio.src = audioSrc;
+
+      let isFadingOut = false;
+      let fadeOutStart = 0;
+      let fadeOutStartCurrentTime = 0;
+
+      audio.play().catch(e => {
+        console.error("Audio play failed:", e);
+        if (clickId === currentClickIdRef.current) {
+          hideTimerRef.current = setTimeout(() => {
+            if (clickId === currentClickIdRef.current) {
+              isFadingOut = true;
+              fadeOutStart = performance.now();
+              fadeOutStartCurrentTime = 0;
             }
-          },
-          refs: {
-            wrapper: imgWrapperRef.current,
-            mainImg: mainImgRef.current,
-            rippleLeft: rippleLeftRef.current,
-            rippleRight: rippleRightRef.current,
+          }, 2000);
+        }
+      });
+
+      let smoothedIntensity = 0;
+      let smoothedPitch = 0.5;
+
+      const updateLoop = () => {
+        if (clickId !== currentClickIdRef.current) return;
+        if (!analyserRef.current) return;
+        const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+        analyserRef.current.getByteFrequencyData(dataArray);
+
+        let sum = 0;
+        let maxVal = 0;
+        let peakBin = minBin;
+
+        for (let i = minBin; i < maxBin; i++) {
+          const val = dataArray[i];
+          sum += val;
+          if (val > maxVal) {
+            maxVal = val;
+            peakBin = i;
           }
-        });
+        }
+        const avg = sum / (maxBin - minBin);
 
-        jwagoLastIntensityRef.current = smoothedIntensity;
+        const pitchRatio = maxVal > 30 ? (peakBin - minBin) / (maxBin - minBin) : 0.5;
+        smoothedPitch = smoothedPitch + (pitchRatio - smoothedPitch) * 0.15;
+        const intensity = Math.pow(avg / 255, 1.5);
 
-        if (isFadingOut && motionResult.opacity <= 0) {
-          audio.pause();
-          audio.currentTime = 0;
-          if (reqRef.current) cancelAnimationFrame(reqRef.current);
-          setActiveImage(null);
-          setActiveVideo(null);
-          setActiveInstrument(null);
-          setActiveButtonIndex(null);
-          return;
+        if (intensity > smoothedIntensity) {
+          smoothedIntensity = smoothedIntensity + (intensity - smoothedIntensity) * 0.8;
+        } else {
+          smoothedIntensity = smoothedIntensity + (intensity - smoothedIntensity) * 0.25;
         }
 
-        imgWrapperRef.current.style.transform = motionResult.transform;
-        imgWrapperRef.current.style.opacity = String(motionResult.opacity);
-        imgWrapperRef.current.style.filter = motionResult.filter;
-      }
+        const minPlayTime = 1.2;
+
+        if (audio.currentTime > minPlayTime && smoothedIntensity < 0.003 && !isFadingOut) {
+          isFadingOut = true;
+          fadeOutStart = performance.now();
+          fadeOutStartCurrentTime = audio.currentTime;
+        }
+
+        if (imgWrapperRef.current) {
+          const motionResult = getInstrumentMotionStyle({
+            instrument: instrumentName.en,
+            audio,
+            intensity,
+            smoothedIntensity,
+            smoothedPitch,
+            isFadingOut,
+            elapsedFade: isFadingOut ? (performance.now() - fadeOutStart) / 1000 : 0,
+            time: performance.now(),
+            frozenTime: isFadingOut ? fadeOutStartCurrentTime : undefined,
+            refs: {
+              wrapper: imgWrapperRef.current,
+              mainImg: mainImgRef.current,
+            }
+          });
+
+          if (isFadingOut && motionResult.opacity <= 0) {
+            audio.pause();
+            audio.currentTime = 0;
+            if (reqRef.current) cancelAnimationFrame(reqRef.current);
+            setActiveImage(null);
+            setActiveVideo(null);
+            setActiveInstrument(null);
+            setActiveButtonIndex(null);
+            return;
+          }
+
+          imgWrapperRef.current.style.transform = motionResult.transform;
+          imgWrapperRef.current.style.opacity = String(motionResult.opacity);
+          imgWrapperRef.current.style.filter = motionResult.filter;
+        }
+
+        reqRef.current = requestAnimationFrame(updateLoop);
+      };
 
       reqRef.current = requestAnimationFrame(updateLoop);
-    };
 
-    // 루프 시작
-    reqRef.current = requestAnimationFrame(updateLoop);
-
-    // 소리가 완전히 끝나면 즉시 정리 (편종, 편경, 대금, 어는 재생 종료 시점에 즉시 제거)
-    audio.onended = () => {
-      if (clickId !== currentClickIdRef.current) return;
-      if (
-        instrumentName.en === "Pyeonjong" ||
-        instrumentName.en === "Pyeongyeong" ||
-        instrumentName.en === "Daegeum" ||
-        instrumentName.en === "Eo" ||
-        instrumentName.en === "Bak" ||
-        instrumentName.en === "Buk" ||
-        instrumentName.en === "Jwago" ||
-        instrumentName.en === "Janggu" ||
-        instrumentName.en === "Gayageum" ||
-        instrumentName.en === "Geomungo"
-      ) {
-        setActiveImage(null);
-        setActiveVideo(null);
-        setActiveInstrument(null);
-        setActiveButtonIndex(null);
-        if (reqRef.current) cancelAnimationFrame(reqRef.current);
-      } else {
+      audio.onended = () => {
+        if (clickId !== currentClickIdRef.current) return;
         isFadingOut = true;
         fadeOutStart = performance.now();
         fadeOutStartCurrentTime = audio.duration || 4.0;
-      }
-    };
+      };
+    }
   };
 
   return (
@@ -577,7 +531,26 @@ export default function InstrumentPage() {
                     />
                   </>
                 )}
-                {(activeInstrument?.en === "Pyeonjong" || activeInstrument?.en === "Pyeongyeong") ? (
+                {activeVideo ? (
+                  <video
+                    key={activeVideo + currentClickIdRef.current}
+                    src={activeVideo}
+                    autoPlay
+                    playsInline
+                    onEnded={() => {
+                      setActiveImage(null);
+                      setActiveVideo(null);
+                      setActiveInstrument(null);
+                      setActiveButtonIndex(null);
+                    }}
+                    className={cn(
+                      "aspect-[16/9] object-contain relative z-10",
+                      activeInstrument?.en === "Janggu"
+                        ? "w-[64vw] max-w-[1440px] max-h-[41vh] md:w-auto md:h-[58.5vh] md:max-h-[60vh] md:max-w-none"
+                        : "w-[85vw] max-w-[1920px] max-h-[55vh] md:w-auto md:h-[78vh] md:max-h-[80vh] md:max-w-none"
+                    )}
+                  />
+                ) : (activeInstrument?.en === "Pyeonjong" || activeInstrument?.en === "Pyeongyeong") ? (
                   <div className="grid grid-cols-4 gap-3 md:gap-4 lg:gap-5">
                     {[...Array(8)].map((_, i) => (
                       <img
@@ -607,20 +580,6 @@ export default function InstrumentPage() {
                       style={{ maskImage: "radial-gradient(circle, transparent 0%, transparent 100%)", WebkitMaskImage: "radial-gradient(circle, transparent 0%, transparent 100%)" }}
                     />
                   </>
-                ) : activeVideo ? (
-                  <video
-                    src={activeVideo}
-                    autoPlay
-                    muted
-                    playsInline
-                    loop
-                    className={cn(
-                      "aspect-[16/9] object-contain relative z-10",
-                      activeInstrument?.en === "Janggu"
-                        ? "w-[64vw] max-w-[1440px] max-h-[41vh] md:w-auto md:h-[58.5vh] md:max-h-[60vh] md:max-w-none"
-                        : "w-[85vw] max-w-[1920px] max-h-[55vh] md:w-auto md:h-[78vh] md:max-h-[80vh] md:max-w-none"
-                    )}
-                  />
                 ) : (
                   <img
                     ref={(el) => { if (el) mainImgRef.current = el; }}
