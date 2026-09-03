@@ -494,7 +494,10 @@ export default function SoundPage() {
       </button>
 
       {/* Carousel Container */}
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.2, ease: [0.21, 0.47, 0.32, 0.98] }}
         className="relative w-full flex-grow overflow-visible flex items-center justify-start z-10 touch-pan-y"
         style={{
           paddingLeft: `calc(50vw - ${cardWidth / 2}px)`
@@ -546,10 +549,15 @@ export default function SoundPage() {
             />
           ))}
         </motion.div>
-      </div>
+      </motion.div>
 
       {/* Page Indicators (Bottom) */}
-      <div className="flex justify-center items-center gap-3 mt-4 z-20 shrink-0">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.4, ease: [0.21, 0.47, 0.32, 0.98] }}
+        className="flex justify-center items-center gap-3 mt-4 z-20 shrink-0"
+      >
         {[0, 1, 2].map((idx) => {
           const isIndicatorActive = getRealIndex(currentIndex) === idx;
           return (
@@ -572,7 +580,7 @@ export default function SoundPage() {
             />
           );
         })}
-      </div>
+      </motion.div>
 
     </div>
   );

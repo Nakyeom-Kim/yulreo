@@ -30,7 +30,7 @@ export default function Header() {
           className="pointer-events-auto transition-opacity hover:opacity-70 flex items-center z-50"
         >
           <Image 
-            src="/logo2.png" 
+            src="/yulreo-logo.svg" 
             alt="Yul-reo Logo" 
             width={160} 
             height={60} 
