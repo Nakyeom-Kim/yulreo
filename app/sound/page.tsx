@@ -1,18 +1,15 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+import { useState, useRef, useEffect, useSyncExternalStore } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate, MotionValue } from "framer-motion";
 import { cn } from "@/utils/cn";
 import MobileDevice from "@/components/sound/MobileDevice";
 import TrafficDevice from "@/components/sound/TrafficDevice";
 import HomeDevice from "@/components/sound/HomeDevice";
 
-// Sound mapping config
-interface SoundItem {
-  id: string;
-  name: string;
-  audioUrl: string;
+const emptySubscribe = () => () => {};
+function useIsMounted() {
+  return useSyncExternalStore(emptySubscribe, () => true, () => false);
 }
 
 // Reusable Right Column Image mapping template
@@ -131,11 +128,7 @@ function CarouselCard({
   alarmDragX,
   isPlayingInCard,
 }: CarouselCardProps) {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = useIsMounted();
 
   const centerPosition = -slideIdx * stepWidth;
 
@@ -259,8 +252,8 @@ function CarouselCard({
             </div>
             <div className="w-full flex items-end justify-end mt-4 opacity-10 min-h-[100px]">
               <img
-                src="/logo2.png"
-                alt=""
+                src="/yulreo-logo.svg"
+                alt="Yulreo Logo"
                 className="w-24 md:w-36 h-auto object-contain grayscale filter invert brightness-50"
               />
             </div>
@@ -464,6 +457,7 @@ export default function SoundPage() {
     return () => {
       stopSound();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

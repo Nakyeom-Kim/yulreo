@@ -533,7 +533,7 @@ export default function InstrumentPage() {
                 )}
                 {activeVideo ? (
                   <video
-                    key={activeVideo + currentClickIdRef.current}
+                    key={activeVideo}
                     src={activeVideo}
                     autoPlay
                     playsInline
@@ -542,6 +542,10 @@ export default function InstrumentPage() {
                       setActiveVideo(null);
                       setActiveInstrument(null);
                       setActiveButtonIndex(null);
+                    }}
+                    style={{
+                      WebkitMaskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 95%)",
+                      maskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 95%)"
                     }}
                     className={cn(
                       "aspect-[16/9] object-contain relative z-10",

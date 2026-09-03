@@ -35,7 +35,7 @@ export default function SplashScreen() {
           className="fixed inset-0 z-[100] flex items-center justify-center bg-background pointer-events-none"
         >
           <Image
-            src="/logo2.png"
+            src="/yulreo-logo.svg"
             alt="Yulreo Logo"
             width={300}
             height={150}

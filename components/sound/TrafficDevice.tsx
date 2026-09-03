@@ -13,6 +13,12 @@ export default function TrafficDevice({ playingId, playSound }: TrafficDevicePro
       viewBox="177.15 50 1043.8 1030" 
       className="w-full h-full max-h-full object-contain pointer-events-auto"
     >
+      <defs>
+        <filter id="tf-shadow" x="-60%" y="-60%" width="220%" height="220%">
+          <feDropShadow dx="0" dy="4" stdDeviation="7" floodColor="#4c483b" floodOpacity="0.28" />
+        </filter>
+      </defs>
+
       {/* Bus Front Body */}
       <path 
         stroke="rgba(76, 72, 59, 0.18)"
@@ -32,7 +38,7 @@ export default function TrafficDevice({ playingId, playSound }: TrafficDevicePro
       {/* Pedestrian Signal Light (Blinker Component - Toggles between State 1 & State 2) */}
       {playingId === "pedestrian" ? (
         /* Active State (sound-traffic-blinker-2.svg) */
-        <g transform="translate(341.69, 117.74)" style={{ filter: "drop-shadow(0px 4px 14px rgba(76, 72, 59, 0.25))" }}>
+        <g transform="translate(341.69, 117.74)" filter="url(#tf-shadow)" style={{ filter: "drop-shadow(0px 4px 14px rgba(76, 72, 59, 0.25))", WebkitFilter: "drop-shadow(0px 4px 14px rgba(76, 72, 59, 0.25))" }}>
           {/* Brackets */}
           <polygon fill="#ffffff" points="90.48 288.51 -54.47 293.52 -54.47 283.24 -126.12 283.24 -126.12 308.36 -54.47 308.36 -54.47 298.2 90.64 293.19 90.48 288.51"/>
           <polygon fill="#ffffff" points="-54.47 -3.94 90.48 1.08 90.64 -3.6 -54.47 -8.62 -54.47 -18.84 -126.12 -18.84 -126.12 6.28 -54.47 6.28 -54.47 -3.94"/>
@@ -66,10 +72,11 @@ export default function TrafficDevice({ playingId, playSound }: TrafficDevicePro
           <motion.g 
             onClick={() => playSound("pedestrian", "/sound/sound/traffic_crosswalk_signal.mp3")}
             className="cursor-pointer"
-            style={{ transformOrigin: "72.4px 144.8px" }}
+            filter="url(#tf-shadow)"
+            style={{ transformOrigin: "72.4px 144.8px", WebkitFilter: "drop-shadow(0px 4px 14px rgba(76, 72, 59, 0.25))" }}
             initial={{ filter: "drop-shadow(0px 4px 14px rgba(76, 72, 59, 0.25))" }}
-            whileHover={{ scale: 1.08, filter: "drop-shadow(0px 14px 28px rgba(76, 72, 59, 0.38))" }}
-            whileTap={{ scale: 0.94, filter: "drop-shadow(0px 2px 6px rgba(76, 72, 59, 0.20))" }}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.94 }}
           >
             {/* Brackets */}
             <polygon fill="#ffffff" points="90.48 288.51 -54.47 293.52 -54.47 283.24 -126.12 283.24 -126.12 308.36 -54.47 308.36 -54.47 298.2 90.64 293.19 90.48 288.51"/>
@@ -102,7 +109,7 @@ export default function TrafficDevice({ playingId, playSound }: TrafficDevicePro
       {/* Bus Headlights (Toggles between State 1 & State 2) */}
       {playingId === "headlight" ? (
         /* Active Flashing State (sound-traffic-button-2.svg) */
-        <g transform="translate(486.68, 605.4)" style={{ filter: "drop-shadow(0px 4px 14px rgba(76, 72, 59, 0.25))" }}>
+        <g transform="translate(486.68, 605.4)" filter="url(#tf-shadow)" style={{ filter: "drop-shadow(0px 4px 14px rgba(76, 72, 59, 0.25))", WebkitFilter: "drop-shadow(0px 4px 14px rgba(76, 72, 59, 0.25))" }}>
           <path fill="#4c483b" d="M0,10.59h12.13c13.05,0,23.65,10.6,23.65,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65H0V10.59h0Z"/>
           <path fill="#4c483b" d="M558.31,10.59h12.13c13.05,0,23.65,10.6,23.65,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65h-12.13V10.59h0Z" transform="translate(1152.3868 108.4808) rotate(-180)"/>
           <g stroke="#4c483b" strokeLinecap="round" strokeMiterlimit={10} strokeWidth="5px">
@@ -120,10 +127,11 @@ export default function TrafficDevice({ playingId, playSound }: TrafficDevicePro
           <motion.g 
             onClick={() => playSound("headlight", "/sound/sound/traffic_stop_bell.mp3")}
             className="cursor-pointer"
-            style={{ transformOrigin: "297px 43.6px" }}
+            filter="url(#tf-shadow)"
+            style={{ transformOrigin: "297px 43.6px", WebkitFilter: "drop-shadow(0px 4px 14px rgba(76, 72, 59, 0.25))" }}
             initial={{ filter: "drop-shadow(0px 4px 14px rgba(76, 72, 59, 0.25))" }}
-            whileHover={{ scale: 1.08, filter: "drop-shadow(0px 14px 28px rgba(76, 72, 59, 0.38))" }}
-            whileTap={{ scale: 0.94, filter: "drop-shadow(0px 2px 6px rgba(76, 72, 59, 0.20))" }}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.94 }}
           >
             <path fill="#4c483b" d="M0,0h12.13c13.05,0,23.65,10.6,23.65,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65H0V0h0Z"/>
             <path fill="#4c483b" d="M558.31,0h12.13C583.48,0,594.08,10.6,594.08,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65h-12.13V0h0Z" transform="translate(1152.3868 87.2918) rotate(-180)"/>
@@ -134,7 +142,7 @@ export default function TrafficDevice({ playingId, playSound }: TrafficDevicePro
       {/* Bus Card Tag / Reader Terminal (Interactive Button - Toggles between State 1 & State 2) */}
       {playingId === "card" ? (
         /* Active Tags State (sound-traffic-card-2.svg) */
-        <g transform="translate(652.74, 776.19)" style={{ filter: "drop-shadow(0px 4px 14px rgba(76, 72, 59, 0.25))" }}>
+        <g transform="translate(652.74, 776.19)" filter="url(#tf-shadow)" style={{ filter: "drop-shadow(0px 4px 14px rgba(76, 72, 59, 0.25))", WebkitFilter: "drop-shadow(0px 4px 14px rgba(76, 72, 59, 0.25))" }}>
           <path 
             fill="#4c483b"
             fillRule="evenodd"
@@ -154,10 +162,11 @@ export default function TrafficDevice({ playingId, playSound }: TrafficDevicePro
           <motion.g 
             onClick={() => playSound("card", "/sound/sound/transit_card.mp3")}
             className="cursor-pointer"
-            style={{ transformOrigin: "79.8px 60.9px" }}
+            filter="url(#tf-shadow)"
+            style={{ transformOrigin: "79.8px 60.9px", WebkitFilter: "drop-shadow(0px 4px 14px rgba(76, 72, 59, 0.25))" }}
             initial={{ filter: "drop-shadow(0px 4px 14px rgba(76, 72, 59, 0.25))" }}
-            whileHover={{ scale: 1.08, filter: "drop-shadow(0px 14px 28px rgba(76, 72, 59, 0.38))" }}
-            whileTap={{ scale: 0.94, filter: "drop-shadow(0px 2px 6px rgba(76, 72, 59, 0.20))" }}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.94 }}
           >
             <path 
               fill="#ffffff"

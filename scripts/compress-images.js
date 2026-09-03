@@ -1,3 +1,4 @@
+/* eslint-disable */
 const sharp = require('../node_modules/sharp');
 const fs = require('fs');
 const path = require('path');

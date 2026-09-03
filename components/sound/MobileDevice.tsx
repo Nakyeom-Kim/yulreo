@@ -13,10 +13,10 @@ interface MobileDeviceProps {
 }
 
 const BUTTONS = [
-  { id: "emergency", label: "재난문자", url: "/sound/sound/mobile_emergency_alert.mp3", delay: 0, Icon: AlertTriangle },
-  { id: "alarm", label: "알람", url: "/sound/sound/mobile_notification.mp3", delay: 0.2, Icon: Bell },
-  { id: "message", label: "문자", url: "/sound/sound/mobile_message.mp3", delay: 0.4, Icon: MessageSquare },
-  { id: "call", label: "전화", url: "/sound/sound/mobile_ringtone.mp3", delay: 0.6, Icon: Phone },
+  { id: "emergency", label: "재난문자", url: "/sound/sound/mobile_emergency_alert.mp3", Icon: AlertTriangle },
+  { id: "alarm", label: "알람", url: "/sound/sound/mobile_notification.mp3", Icon: Bell },
+  { id: "message", label: "문자", url: "/sound/sound/mobile_message.mp3", Icon: MessageSquare },
+  { id: "call", label: "전화", url: "/sound/sound/mobile_ringtone.mp3", Icon: Phone },
 ] as const;
 
 const HANDLE_SIZE = 52;
@@ -94,7 +94,7 @@ export default function MobileDevice({
         <div className="absolute inset-0 pt-7 px-3.5 pb-4 flex flex-col">
           {/* 4 App Buttons */}
           <div className="grid grid-cols-4" style={{ gap: "8px", paddingTop: "38px" }}>
-            {BUTTONS.map(({ id, label, url, delay, Icon }) => {
+            {BUTTONS.map(({ id, label, url, Icon }) => {
               const isActive = playingId === id;
               return (
                 <motion.div
