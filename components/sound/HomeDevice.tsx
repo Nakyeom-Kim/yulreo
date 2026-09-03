@@ -15,7 +15,7 @@ export default function HomeDevice({ playingId, playSound }: HomeDeviceProps) {
     >
       <defs>
         <filter id="home-shadow" filterUnits="userSpaceOnUse" x="-200" y="-200" width="1500" height="1500">
-          <feDropShadow dx="0" dy="5" stdDeviation="6" floodColor="#4c483b" floodOpacity="0.22" />
+          <feDropShadow dx="0" dy="5" stdDeviation="12" floodColor="#4c483b" floodOpacity="0.22" />
         </filter>
       </defs>
 
@@ -57,7 +57,7 @@ export default function HomeDevice({ playingId, playSound }: HomeDeviceProps) {
         {playingId === "intercom" ? (
           <g filter="url(#home-shadow)">
             {/* Physical Shadow Layer for iPad/Safari */}
-            <rect fill="rgba(76, 72, 59, 0.22)" x="0" y="5" width="128.81" height="177.45" rx="4.9" ry="4.9"/>
+            <rect fill="rgba(76, 72, 59, 0.14)" x="0" y="5" width="128.81" height="177.45" rx="4.9" ry="4.9"/>
             <rect fill="#4c483b" width="128.81" height="177.45" rx="4.9" ry="4.9"/>
             <rect fill="#ffffff" x="9.87" y="10.72" width="109.07" height="77.07" rx="2.47" ry="2.47"/>
             <circle fill="#ffffff" cx="64.41" cy="150.38" r="16.19"/>
@@ -74,7 +74,7 @@ export default function HomeDevice({ playingId, playSound }: HomeDeviceProps) {
             whileTap={{ scale: 0.94 }}
           >
             {/* Physical Shadow Layer for iPad/Safari */}
-            <rect fill="rgba(76, 72, 59, 0.22)" x="0" y="5" width="128.81" height="177.45" rx="4.9" ry="4.9"/>
+            <rect fill="rgba(76, 72, 59, 0.14)" x="0" y="5" width="128.81" height="177.45" rx="4.9" ry="4.9"/>
             <rect fill="#ffffff" width="128.81" height="177.45" rx="4.9" ry="4.9"/>
             <rect fill="rgba(76, 72, 59, 0.08)" x="9.87" y="10.72" width="109.07" height="77.07" rx="2.47" ry="2.47"/>
             <circle fill="#4c483b" cx="64.41" cy="150.38" r="16.19"/>
@@ -93,7 +93,7 @@ export default function HomeDevice({ playingId, playSound }: HomeDeviceProps) {
           whileTap={{ scale: 0.94 }}
         >
           {/* Physical Shadow Layer for iPad/Safari */}
-          <rect fill="rgba(76, 72, 59, 0.22)" x="369.53" y="176.73" width="212.62" height="366.61" rx="5.47" ry="5.47" transform="translate(115.81 840.88) rotate(-90)"/>
+          <rect fill="rgba(76, 72, 59, 0.14)" x="369.53" y="176.73" width="212.62" height="366.61" rx="5.47" ry="5.47" transform="translate(115.81 840.88) rotate(-90)"/>
           {/* TV 켜짐: 프레임 검정, 안쪽 화면 흰색 */}
           <rect fill="#4c483b" x="369.53" y="176.73" width="212.62" height="366.61" rx="5.47" ry="5.47" transform="translate(115.81 835.88) rotate(-90)"/>
           <rect fill="#ffffff" x="379.53" y="186.73" width="192.62" height="346.61" transform="translate(835.88 -115.81) rotate(90)"/>
@@ -108,7 +108,7 @@ export default function HomeDevice({ playingId, playSound }: HomeDeviceProps) {
           whileTap={{ scale: 0.94 }}
         >
           {/* Physical Shadow Layer for iPad/Safari */}
-          <rect fill="rgba(76, 72, 59, 0.22)" x="369.53" y="176.73" width="212.62" height="366.61" rx="5.47" ry="5.47" transform="translate(115.81 840.88) rotate(-90)"/>
+          <rect fill="rgba(76, 72, 59, 0.14)" x="369.53" y="176.73" width="212.62" height="366.61" rx="5.47" ry="5.47" transform="translate(115.81 840.88) rotate(-90)"/>
           {/* TV 꺼짐: 프레임 흰색, 안쪽 화면 검정 */}
           <rect fill="#ffffff" x="369.53" y="176.73" width="212.62" height="366.61" rx="5.47" ry="5.47" transform="translate(115.81 835.88) rotate(-90)"/>
           <rect fill="#4c483b" x="379.53" y="186.73" width="192.62" height="346.61" transform="translate(835.88 -115.81) rotate(90)"/>
@@ -120,7 +120,7 @@ export default function HomeDevice({ playingId, playSound }: HomeDeviceProps) {
         {playingId === "washer" ? (
           <g filter="url(#home-shadow)">
             {/* Physical Shadow Layer for iPad/Safari */}
-            <rect fill="rgba(76, 72, 59, 0.22)" x="0" y="5" width="252.44" height="337.77" rx="5.72" ry="5.72"/>
+            <rect fill="rgba(76, 72, 59, 0.14)" x="0" y="5" width="252.44" height="337.77" rx="5.72" ry="5.72"/>
             <rect fill="#4c483b" width="252.44" height="337.77" rx="5.72" ry="5.72"/>
             <circle fill="#ffffff" cx="126.22" cy="208.65" r="104.99"/>
             <line stroke="#ffffff" strokeLinecap="round" strokeMiterlimit={10} strokeWidth={1} x1="8.73" y1="38.64" x2="243.71" y2="38.64"/>
