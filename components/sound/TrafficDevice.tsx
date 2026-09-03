@@ -15,7 +15,7 @@ export default function TrafficDevice({ playingId, playSound }: TrafficDevicePro
     >
       <defs>
         <filter id="tf-shadow" filterUnits="userSpaceOnUse" x="-200" y="-200" width="1500" height="1500">
-          <feDropShadow dx="0" dy="6" stdDeviation="10" floodColor="#4c483b" floodOpacity="0.32" />
+          <feDropShadow dx="0" dy="5" stdDeviation="6" floodColor="#4c483b" floodOpacity="0.22" />
         </filter>
       </defs>
 
@@ -40,7 +40,7 @@ export default function TrafficDevice({ playingId, playSound }: TrafficDevicePro
         /* Active State (sound-traffic-blinker-2.svg) */
         <g transform="translate(341.69, 117.74)" filter="url(#tf-shadow)">
           {/* Physical Shadow Layer for iPad/Safari */}
-          <path fill="rgba(76, 72, 59, 0.22)" transform="translate(0, 6)" d="M144.79,135.48V9.31c0-5.14-4.17-9.31-9.31-9.31H9.31C4.17,0,0,4.17,0,9.31v126.18c0,5.14,4.17,9.31,9.31,9.31-5.14,0-9.31,4.17-9.31,9.31v126.18c0,5.14,4.17,9.31,9.31,9.31h126.18c5.14,0,9.31-4.17,9.31-9.31v-126.18c0-5.14-4.17-9.31-9.31-9.31,5.14,0,9.31-4.17,9.31-9.31Z"/>
+          <path fill="rgba(76, 72, 59, 0.22)" transform="translate(0, 5)" d="M144.79,135.48V9.31c0-5.14-4.17-9.31-9.31-9.31H9.31C4.17,0,0,4.17,0,9.31v126.18c0,5.14,4.17,9.31,9.31,9.31-5.14,0-9.31,4.17-9.31,9.31v126.18c0,5.14,4.17,9.31,9.31,9.31h126.18c5.14,0,9.31-4.17,9.31-9.31v-126.18c0-5.14-4.17-9.31-9.31-9.31,5.14,0,9.31-4.17,9.31-9.31Z"/>
           {/* Brackets */}
           <polygon fill="#ffffff" points="90.48 288.51 -54.47 293.52 -54.47 283.24 -126.12 283.24 -126.12 308.36 -54.47 308.36 -54.47 298.2 90.64 293.19 90.48 288.51"/>
           <polygon fill="#ffffff" points="-54.47 -3.94 90.48 1.08 90.64 -3.6 -54.47 -8.62 -54.47 -18.84 -126.12 -18.84 -126.12 6.28 -54.47 6.28 -54.47 -3.94"/>
@@ -80,7 +80,7 @@ export default function TrafficDevice({ playingId, playSound }: TrafficDevicePro
             whileTap={{ scale: 0.94 }}
           >
             {/* Physical Shadow Layer for iPad/Safari */}
-            <path fill="rgba(76, 72, 59, 0.22)" transform="translate(0, 6)" d="M144.79,135.48V9.31c0-5.14-4.17-9.31-9.31-9.31H9.31C4.17,0,0,4.17,0,9.31v126.18c0,5.14,4.17,9.31,9.31,9.31-5.14,0-9.31,4.17-9.31,9.31v126.18c0,5.14,4.17,9.31,9.31,9.31h126.18c5.14,0,9.31-4.17,9.31-9.31v-126.18c0-5.14-4.17-9.31-9.31-9.31,5.14,0,9.31-4.17,9.31-9.31Z"/>
+            <path fill="rgba(76, 72, 59, 0.22)" transform="translate(0, 5)" d="M144.79,135.48V9.31c0-5.14-4.17-9.31-9.31-9.31H9.31C4.17,0,0,4.17,0,9.31v126.18c0,5.14,4.17,9.31,9.31,9.31-5.14,0-9.31,4.17-9.31,9.31v126.18c0,5.14,4.17,9.31,9.31,9.31h126.18c5.14,0,9.31-4.17,9.31-9.31v-126.18c0-5.14-4.17-9.31-9.31-9.31,5.14,0,9.31-4.17,9.31-9.31Z"/>
             {/* Brackets */}
             <polygon fill="#ffffff" points="90.48 288.51 -54.47 293.52 -54.47 283.24 -126.12 283.24 -126.12 308.36 -54.47 308.36 -54.47 298.2 90.64 293.19 90.48 288.51"/>
             <polygon fill="#ffffff" points="-54.47 -3.94 90.48 1.08 90.64 -3.6 -54.47 -8.62 -54.47 -18.84 -126.12 -18.84 -126.12 6.28 -54.47 6.28 -54.47 -3.94"/>
@@ -113,9 +113,10 @@ export default function TrafficDevice({ playingId, playSound }: TrafficDevicePro
       {playingId === "headlight" ? (
         /* Active Flashing State (sound-traffic-button-2.svg) */
         <g transform="translate(486.68, 605.4)" filter="url(#tf-shadow)">
-          {/* Physical Shadow Layer */}
+          {/* Physical Shadow Layer for Left Button */}
           <path fill="rgba(76, 72, 59, 0.22)" transform="translate(0, 5)" d="M0,10.59h12.13c13.05,0,23.65,10.6,23.65,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65H0V10.59h0Z"/>
-          <path fill="rgba(76, 72, 59, 0.22)" transform="translate(0, 5)" d="M558.31,10.59h12.13c13.05,0,23.65,10.6,23.65,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65h-12.13V10.59h0Z"/>
+          {/* Physical Shadow Layer for Right Button (Correctly rotated -180 and shifted +5px down) */}
+          <path fill="rgba(76, 72, 59, 0.22)" d="M558.31,10.59h12.13c13.05,0,23.65,10.6,23.65,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65h-12.13V10.59h0Z" transform="translate(1152.3868 113.4808) rotate(-180)"/>
           <path fill="#4c483b" d="M0,10.59h12.13c13.05,0,23.65,10.6,23.65,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65H0V10.59h0Z"/>
           <path fill="#4c483b" d="M558.31,10.59h12.13c13.05,0,23.65,10.6,23.65,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65h-12.13V10.59h0Z" transform="translate(1152.3868 108.4808) rotate(-180)"/>
           <g stroke="#4c483b" strokeLinecap="round" strokeMiterlimit={10} strokeWidth="5px">
@@ -138,9 +139,10 @@ export default function TrafficDevice({ playingId, playSound }: TrafficDevicePro
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.94 }}
           >
-            {/* Physical Shadow Layer */}
+            {/* Physical Shadow Layer for Left Button */}
             <path fill="rgba(76, 72, 59, 0.22)" transform="translate(0, 5)" d="M0,0h12.13c13.05,0,23.65,10.6,23.65,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65H0V0h0Z"/>
-            <path fill="rgba(76, 72, 59, 0.22)" transform="translate(0, 5)" d="M558.31,0h12.13C583.48,0,594.08,10.6,594.08,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65h-12.13V0h0Z"/>
+            {/* Physical Shadow Layer for Right Button (Correctly rotated -180 and shifted +5px down) */}
+            <path fill="rgba(76, 72, 59, 0.22)" d="M558.31,0h12.13C583.48,0,594.08,10.6,594.08,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65h-12.13V0h0Z" transform="translate(1152.3868 92.2918) rotate(-180)"/>
             <path fill="#4c483b" d="M0,0h12.13c13.05,0,23.65,10.6,23.65,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65H0V0h0Z"/>
             <path fill="#4c483b" d="M558.31,0h12.13C583.48,0,594.08,10.6,594.08,23.65v39.99c0,13.05-10.6,23.65-23.65,23.65h-12.13V0h0Z" transform="translate(1152.3868 87.2918) rotate(-180)"/>
           </motion.g>
