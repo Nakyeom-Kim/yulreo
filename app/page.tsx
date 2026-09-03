@@ -609,7 +609,7 @@ export default function InstrumentPage() {
               className="absolute flex items-center justify-center pointer-events-none z-0"
             >
               <p className="text-sm md:text-base tracking-[0.2em] text-foreground/40 font-light font-sans">
-                Click the button
+                아래 버튼을 눌러보세요
               </p>
             </motion.div>
           )}
