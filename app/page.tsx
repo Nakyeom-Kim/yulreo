@@ -149,7 +149,7 @@ export default function InstrumentPage() {
       // 4번 버튼: 대금
       audioSrc = "/sound/instrument/deageum01.mp3";
       imgSrc = "/img/daegeum.png";
-      videoSrc = "/mov/daegeum.mp4";
+      videoSrc = "/mov/daegeum_single.mp4";
       instrumentName = { ko: "대금", en: "Daegeum", desc: "한국의 플루트" };
       minBin = 20;
       maxBin = 60;
@@ -165,7 +165,7 @@ export default function InstrumentPage() {
       // 6번 버튼: 피리
       audioSrc = "/sound/instrument/piri01.mp3";
       imgSrc = "/img/piri.png";
-      videoSrc = "/mov/piri.mp4";
+      videoSrc = "/mov/piri_single.mp4";
       instrumentName = { ko: "피리", en: "Piri", desc: "한국의 피리" };
       minBin = 40;
       maxBin = 120;
