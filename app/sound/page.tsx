@@ -383,21 +383,13 @@ export default function SoundPage() {
         console.error("Audio play failed:", err);
       });
     } else if (id === "washer") {
-      const WASHER_SOUNDS = [
-        "/sound/sound/home_washing_machine_daegeum.wav",
-        "/sound/sound/home_washing_machine_geomungo.wav"
-      ];
-      WASHER_SOUNDS.forEach((soundUrl, idx) => {
-        const audio = new Audio(soundUrl);
-        activeAudiosRef.current.push(audio);
-        if (idx === 0) {
-          audio.onended = () => {
-            stopSound();
-          };
-        }
-        audio.play().catch((err) => {
-          console.error("Audio play failed:", err);
-        });
+      const audio = new Audio("/sound/sound/home_washing_machine.mp3");
+      activeAudiosRef.current.push(audio);
+      audio.onended = () => {
+        stopSound();
+      };
+      audio.play().catch((err) => {
+        console.error("Audio play failed:", err);
       });
     } else if (url) {
       const audio = new Audio(url);

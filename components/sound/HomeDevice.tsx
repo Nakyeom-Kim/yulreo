@@ -140,7 +140,7 @@ export default function HomeDevice({ playingId, playSound }: HomeDeviceProps) {
           </g>
         ) : (
           <motion.g 
-            onClick={() => playSound("washer", "/sound/sound/home_washing_machine_daegeum.wav")}
+            onClick={() => playSound("washer", "/sound/sound/home_washing_machine.mp3")}
             className="cursor-pointer"
             filter="url(#home-shadow)"
             style={{ transformOrigin: "126.2px 168.9px" }}
