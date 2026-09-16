@@ -145,29 +145,19 @@ function CarouselCard({
     [0.94, 1, 0.94]
   );
 
-  const blurRadius = useTransform(
-    dragX,
-    [centerPosition - stepWidth, centerPosition, centerPosition + stepWidth],
-    [1.5, 0, 1.5]
-  );
-  const filter = useTransform(blurRadius, (r) => `blur(${r}px)`);
-
   const pointerEvents = (currentIndex === slideIdx ? "auto" : "none") as "auto" | "none";
 
-  // Use dynamic motion values only on client-side to prevent SSR hydration mismatch and initial load blur issues
   const dynamicStyle = isMounted
     ? {
       width: `${cardWidth}px`,
       opacity,
       scale,
-      filter,
       pointerEvents,
     }
     : {
       width: `${cardWidth}px`,
       opacity: slideIdx === currentIndex ? 1 : 0.35,
       scale: slideIdx === currentIndex ? 1 : 0.94,
-      filter: slideIdx === currentIndex ? "none" : "blur(1.5px)",
       pointerEvents,
     };
 
@@ -175,14 +165,14 @@ function CarouselCard({
     <motion.div
       style={dynamicStyle}
       className={cn(
-        "h-[72vh] md:h-[650px] shrink-0 rounded-[24px] border border-foreground/10 bg-background/90 backdrop-blur-md overflow-hidden flex flex-col md:flex-row transition-shadow duration-500",
+        "h-[68dvh] sm:h-[72dvh] md:h-[650px] max-h-[660px] min-h-[460px] shrink-0 rounded-[20px] sm:rounded-[24px] border border-foreground/10 bg-background/90 backdrop-blur-md overflow-hidden flex flex-col md:flex-row transition-shadow duration-500",
         currentIndex === slideIdx
           ? "shadow-[0_20px_50px_rgba(76,72,59,0.18)]"
           : "shadow-[0_10px_40px_rgba(76,72,59,0.08)]"
       )}
     >
-      {/* Left: Device SVG */}
-      <div className="w-full md:w-[58%] h-[55%] md:h-full flex items-center justify-center p-4 md:p-8 relative border-b md:border-b-0 md:border-r border-foreground/5 bg-foreground/[0.005]">
+      {/* Left: Device SVG (Graphic Area) */}
+      <div className="w-full md:w-[56%] h-[72%] md:h-full flex items-center justify-center p-2 sm:p-4 md:p-8 relative border-b md:border-b-0 md:border-r border-foreground/5 bg-foreground/[0.005] overflow-hidden">
         {cardIdx === 0 && (
           <MobileDevice
             playingId={playingId}
@@ -206,55 +196,55 @@ function CarouselCard({
         )}
       </div>
 
-      {/* Right: Info Panel */}
-      <div className="w-full md:w-[42%] h-[45%] md:h-full flex flex-col justify-between p-6 md:p-8 bg-foreground/[0.01] relative overflow-hidden select-text border-t md:border-t-0 md:border-l border-foreground/5">
+      {/* Right: Info Panel (Text Area) */}
+      <div className="w-full md:w-[44%] h-[28%] md:h-full flex flex-col justify-center md:justify-between px-5 py-3 sm:p-6 md:p-8 bg-foreground/[0.01] relative overflow-hidden select-text border-t md:border-t-0 md:border-l border-foreground/5">
         {isPlayingInCard(cardIdx, playingId) && playingId && BUTTON_TEXTS[playingId] ? (
-          <div className="w-full relative z-20 flex-grow flex flex-col justify-between h-full">
-            <div className="w-full">
-              <p className="text-base md:text-lg font-semibold text-[#4c483b] leading-relaxed whitespace-pre-line font-sans">
+          <div className="w-full relative z-20 flex-grow flex flex-col justify-center md:justify-between h-full">
+            <div className="w-full my-auto md:my-0">
+              <p className="text-sm sm:text-base md:text-lg font-semibold text-[#4c483b] leading-snug sm:leading-relaxed whitespace-pre-line font-sans">
                 {BUTTON_TEXTS[playingId].description}
               </p>
               {BUTTON_TEXTS[playingId].subDescription && (
-                <p className="text-xs md:text-sm text-[#4c483b]/60 mt-2 font-normal tracking-wide leading-relaxed whitespace-pre-line">
+                <p className="text-xs sm:text-xs md:text-sm text-[#4c483b]/60 mt-1 sm:mt-2 font-normal tracking-wide leading-relaxed whitespace-pre-line">
                   {BUTTON_TEXTS[playingId].subDescription}
                 </p>
               )}
             </div>
             <AnimatePresence mode="wait">
-              {activeRightImage && (
+              {activeRightImage ? (
                 <motion.div
                   key={activeRightImage}
                   initial={{ opacity: 0, y: 0 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="relative w-full overflow-hidden flex-grow flex items-end justify-center min-h-[120px] max-h-[180px] md:max-h-[none] mt-4"
+                  className="hidden md:flex relative w-full overflow-hidden flex-grow items-end justify-center min-h-[70px] max-h-[130px] sm:max-h-[160px] md:max-h-[none] mt-2 sm:mt-4"
                 >
-                  <div className="absolute top-0 inset-x-0 h-8 bg-gradient-to-b from-[#ffffff] via-[#ffffff]/50 to-transparent pointer-events-none z-10" />
+                  <div className="absolute top-0 inset-x-0 h-6 sm:h-8 bg-gradient-to-b from-[#ffffff] via-[#ffffff]/50 to-transparent pointer-events-none z-10" />
                   <img
                     src={activeRightImage}
                     alt="Active device graphic"
                     className="w-full h-full object-cover object-bottom relative z-0"
                   />
                 </motion.div>
-              )}
+              ) : null}
             </AnimatePresence>
           </div>
         ) : (
-          <div className="w-full relative z-20 h-full flex flex-col justify-between flex-grow">
-            <div className="w-full">
-              <h3 className="text-base md:text-lg font-semibold text-[#4c483b] tracking-wide mb-3">
+          <div className="w-full relative z-20 h-full flex flex-col justify-center md:justify-between flex-grow">
+            <div className="w-full my-auto md:my-0">
+              <h3 className="text-sm sm:text-base md:text-lg font-semibold text-[#4c483b] tracking-wide mb-1 sm:mb-2">
                 {CARD_DEFAULT_INFOS[cardIdx].title}
               </h3>
-              <p className="text-xs md:text-sm text-[#4c483b]/65 leading-relaxed font-light whitespace-pre-line">
+              <p className="text-xs sm:text-sm text-[#4c483b]/65 leading-relaxed font-light whitespace-pre-line">
                 {CARD_DEFAULT_INFOS[cardIdx].description}
               </p>
             </div>
-            <div className="w-full flex items-end justify-end mt-4 opacity-10 min-h-[100px]">
+            <div className="w-full hidden md:flex items-end justify-end mt-2 sm:mt-4 opacity-10 min-h-[40px] sm:min-h-[80px]">
               <img
                 src="/yulreo-logo.svg"
                 alt="Yulreo Logo"
-                className="w-24 md:w-36 h-auto object-contain grayscale filter invert brightness-50"
+                className="w-20 sm:w-24 md:w-36 h-auto object-contain grayscale filter invert brightness-50"
               />
             </div>
           </div>
@@ -278,9 +268,9 @@ export default function SoundPage() {
       const w = window.innerWidth;
       if (w < 640) {
         // Mobile Layout
-        const targetWidth = w - 40; // paddings
+        const targetWidth = Math.min(w - 28, 380);
         setCardWidth(targetWidth);
-        setStepWidth(targetWidth + 16); // smaller gap
+        setStepWidth(targetWidth + 16);
       } else if (w < 1024) {
         // Tablet Layout
         setCardWidth(680);
@@ -314,8 +304,8 @@ export default function SoundPage() {
   const alarmDragX = useMotionValue(0);
   const callDragX = useMotionValue(0);
 
-  // Main Carousel motion value
-  const dragX = useMotionValue(0);
+  // Main Carousel motion value (initialized to -882 for starting card at index 1)
+  const dragX = useMotionValue(-882);
 
   // Sync dragX on stepWidth or currentIndex changes
   useEffect(() => {
@@ -461,10 +451,10 @@ export default function SoundPage() {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-background overflow-hidden select-none flex flex-col justify-between py-12 md:py-16">
+    <div className="relative min-h-[100dvh] bg-background overflow-hidden select-none flex flex-col justify-between pt-14 pb-4 sm:py-8 md:py-12">
 
       {/* Background/Header spacer spacing */}
-      <div className="h-12 shrink-0" />
+      <div className="h-6 sm:h-10 md:h-12 shrink-0" />
 
       {/* Navigation Arrows */}
       <button
@@ -521,7 +511,7 @@ export default function SoundPage() {
             stopSound();
             snapTo(nextIndex);
           }}
-          className="flex gap-8 cursor-grab active:cursor-grabbing items-center h-full py-4 select-none"
+          className="flex gap-4 sm:gap-6 md:gap-8 cursor-grab active:cursor-grabbing items-center h-full py-2 sm:py-4 select-none"
         >
           {/* Card slide array: [2, 0, 1, 2, 0] */}
           {[2, 0, 1, 2, 0].map((cardIdx, slideIdx) => (
@@ -550,7 +540,7 @@ export default function SoundPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.4, ease: [0.21, 0.47, 0.32, 0.98] }}
-        className="flex justify-center items-center gap-3 mt-4 z-20 shrink-0"
+        className="flex justify-center items-center gap-3 mt-2 sm:mt-4 z-20 shrink-0"
       >
         {[0, 1, 2].map((idx) => {
           const isIndicatorActive = getRealIndex(currentIndex) === idx;

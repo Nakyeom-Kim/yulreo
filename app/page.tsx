@@ -149,7 +149,7 @@ export default function InstrumentPage() {
       // 4번 버튼: 대금
       audioSrc = "/sound/instrument/deageum01.mp3";
       imgSrc = "/img/daegeum.png";
-      videoSrc = "/mov/daegeum_single.mp4";
+      videoSrc = "/mov/daegeum2.mp4";
       instrumentName = { ko: "대금", en: "Daegeum", desc: "한국의 플루트" };
       minBin = 20;
       maxBin = 60;
@@ -165,7 +165,7 @@ export default function InstrumentPage() {
       // 6번 버튼: 피리
       audioSrc = "/sound/instrument/piri01.mp3";
       imgSrc = "/img/piri.png";
-      videoSrc = "/mov/piri_single.mp4";
+      videoSrc = "/mov/piri2.mp4";
       instrumentName = { ko: "피리", en: "Piri", desc: "한국의 피리" };
       minBin = 40;
       maxBin = 120;
@@ -548,7 +548,7 @@ export default function InstrumentPage() {
                       maskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 95%)"
                     }}
                     className={cn(
-                      "aspect-[16/9] object-contain relative z-10",
+                      "aspect-[16/9] object-contain relative z-10 scale-[1.5] md:scale-100 origin-center transition-transform duration-300",
                       activeInstrument?.en === "Janggu"
                         ? "w-[64vw] max-w-[1440px] max-h-[41vh] md:w-auto md:h-[58.5vh] md:max-h-[60vh] md:max-w-none"
                         : "w-[85vw] max-w-[1920px] max-h-[55vh] md:w-auto md:h-[78vh] md:max-h-[80vh] md:max-w-none"

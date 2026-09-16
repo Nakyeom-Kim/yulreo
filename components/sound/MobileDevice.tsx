@@ -19,7 +19,7 @@ const BUTTONS = [
   { id: "call", label: "전화", url: "/sound/sound/mobile_ringtone.mp3", Icon: Phone },
 ] as const;
 
-const HANDLE_SIZE = 52;
+const HANDLE_SIZE = 42;
 
 export default function MobileDevice({
   playingId,
@@ -28,7 +28,7 @@ export default function MobileDevice({
   callDragX,
   alarmDragX,
 }: MobileDeviceProps) {
-  const [trackWidth, setTrackWidth] = useState(180);
+  const [trackWidth, setTrackWidth] = useState(160);
   const callTrackRef = useRef<HTMLDivElement>(null);
   const alarmTrackRef = useRef<HTMLDivElement>(null);
 
@@ -45,7 +45,7 @@ export default function MobileDevice({
     return () => window.removeEventListener("resize", measure);
   }, [playingId]);
 
-  const maxDrag = Math.max(0, trackWidth - HANDLE_SIZE - 16);
+  const maxDrag = Math.max(0, trackWidth - HANDLE_SIZE - 12);
 
   const callTextOpacity = useTransform(callDragX, [0, maxDrag * 0.6], [1, 0]);
   const alarmTextOpacity = useTransform(alarmDragX, [0, maxDrag * 0.6], [1, 0]);
@@ -61,14 +61,12 @@ export default function MobileDevice({
   };
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center select-none">
+    <div className="relative w-full h-full flex items-center justify-center select-none p-1 sm:p-2">
       {/* Phone Shell */}
       <div
-        className="relative overflow-hidden"
+        className="relative overflow-hidden w-[185px] sm:w-[220px] md:w-[270px] aspect-[9/17.5] sm:aspect-[9/18] max-h-[95%]"
         style={{
-          width: "min(300px, 85%)",
-          aspectRatio: "9 / 18",
-          borderRadius: "36px",
+          borderRadius: "28px",
           background: "rgba(255,255,255,0.12)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
@@ -81,8 +79,8 @@ export default function MobileDevice({
           className="absolute top-0 left-1/2 -translate-x-1/2 z-10"
           style={{
             width: "38%",
-            height: "16px",
-            borderRadius: "0 0 12px 12px",
+            height: "14px",
+            borderRadius: "0 0 10px 10px",
             background: "var(--background, #f5f3ef)",
             borderBottom: "1.5px solid rgba(76,72,59,0.12)",
             borderLeft: "1.5px solid rgba(76,72,59,0.12)",
@@ -91,17 +89,16 @@ export default function MobileDevice({
         />
 
         {/* Screen content */}
-        <div className="absolute inset-0 pt-7 px-3.5 pb-4 flex flex-col">
+        <div className="absolute inset-0 pt-5 sm:pt-7 px-2.5 sm:px-3.5 pb-3 sm:pb-4 flex flex-col">
           {/* 4 App Buttons */}
-          <div className="grid grid-cols-4" style={{ gap: "8px", paddingTop: "38px" }}>
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-6 sm:pt-8 md:pt-9">
             {BUTTONS.map(({ id, label, url, Icon }) => {
               const isActive = playingId === id;
               return (
                 <motion.div
                   key={id}
                   onClick={() => playSound(id, url)}
-                  className="flex flex-col items-center cursor-pointer"
-                  style={{ gap: "6px" }}
+                  className="flex flex-col items-center cursor-pointer gap-1 sm:gap-1.5"
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.94 }}
                 >
@@ -121,12 +118,12 @@ export default function MobileDevice({
                         : "0 4px 12px rgba(76,72,59,0.22)",
                     }}
                   >
-                    <Icon size={24} color={isActive ? "white" : "#4c483b"} strokeWidth={1.8} />
+                    <Icon size={20} color={isActive ? "white" : "#4c483b"} strokeWidth={1.8} className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
                   </div>
                   {/* Label */}
                   <span
                     style={{
-                      fontSize: "clamp(7px, 1.9vw, 10px)",
+                      fontSize: "clamp(7.5px, 2vw, 10px)",
                       color: "#4c483b",
                       fontFamily: "Pretendard, sans-serif",
                       fontWeight: 400,
@@ -155,18 +152,18 @@ export default function MobileDevice({
               exit={{ opacity: 0 }}
               className="absolute inset-0 z-20 flex flex-col items-center justify-between"
               style={{
-                padding: "50px 8% 8%",
+                padding: "32px 8% 8%",
                 background: "#4c483b",
               }}
             >
-              <p style={{ color: "white", fontSize: "clamp(16px, 4.5vw, 26px)", fontFamily: "Pretendard, sans-serif", fontWeight: 500 }}>
+              <p style={{ color: "white", fontSize: "clamp(15px, 4vw, 24px)", fontFamily: "Pretendard, sans-serif", fontWeight: 500 }}>
                 율려
               </p>
               {/* Slide-to-answer track */}
               <div
                 ref={callTrackRef}
                 className="relative w-full flex items-center"
-                style={{ height: `${HANDLE_SIZE + 8}px`, borderRadius: "999px", background: "rgba(255,255,255,0.28)", padding: "4px" }}
+                style={{ height: `${HANDLE_SIZE + 6}px`, borderRadius: "999px", background: "rgba(255,255,255,0.28)", padding: "3px" }}
                 onPointerDown={(e) => e.stopPropagation()}
               >
                 <motion.div
@@ -178,11 +175,11 @@ export default function MobileDevice({
                   onDragEnd={() => handleSliderEnd(callDragX)}
                   className="cursor-grab active:cursor-grabbing"
                 >
-                  <Phone size={18} color="white" fill="white" strokeWidth={0} />
+                  <Phone size={16} color="white" fill="white" strokeWidth={0} />
                 </motion.div>
                 <motion.span
                   className="absolute left-1/2 -translate-x-1/2 pointer-events-none whitespace-nowrap"
-                  style={{ opacity: callTextOpacity, color: "rgba(76,72,59,0.85)", fontSize: "clamp(9px, 2.5vw, 13px)", fontFamily: "Pretendard, sans-serif", fontWeight: 500 }}
+                  style={{ opacity: callTextOpacity, color: "rgba(76,72,59,0.85)", fontSize: "clamp(8.5px, 2.3vw, 12px)", fontFamily: "Pretendard, sans-serif", fontWeight: 500 }}
                 >
                   밀어서 통화하기
                 </motion.span>
@@ -201,18 +198,18 @@ export default function MobileDevice({
               exit={{ opacity: 0 }}
               className="absolute inset-0 z-20 flex flex-col items-center justify-between"
               style={{
-                padding: "50px 8% 8%",
+                padding: "32px 8% 8%",
                 background: "#4c483b",
               }}
             >
-              <p style={{ color: "white", fontSize: "clamp(16px, 4.5vw, 26px)", fontFamily: "Pretendard, sans-serif", fontWeight: 500 }}>
+              <p style={{ color: "white", fontSize: "clamp(15px, 4vw, 24px)", fontFamily: "Pretendard, sans-serif", fontWeight: 500 }}>
                 율려
               </p>
               {/* Slide-to-stop track */}
               <div
                 ref={alarmTrackRef}
                 className="relative w-full flex items-center"
-                style={{ height: `${HANDLE_SIZE + 8}px`, borderRadius: "999px", background: "rgba(76,72,59,0.35)", border: "1.5px solid rgba(255,255,255,0.22)", padding: "4px" }}
+                style={{ height: `${HANDLE_SIZE + 6}px`, borderRadius: "999px", background: "rgba(76,72,59,0.35)", border: "1.5px solid rgba(255,255,255,0.22)", padding: "3px" }}
                 onPointerDown={(e) => e.stopPropagation()}
               >
                 <motion.div
@@ -224,11 +221,11 @@ export default function MobileDevice({
                   onDragEnd={() => handleSliderEnd(alarmDragX)}
                   className="cursor-grab active:cursor-grabbing"
                 >
-                  <div style={{ width: 14, height: 14, background: "#4c483b", borderRadius: 2 }} />
+                  <div style={{ width: 12, height: 12, background: "#4c483b", borderRadius: 2 }} />
                 </motion.div>
                 <motion.span
                   className="absolute left-1/2 -translate-x-1/2 pointer-events-none whitespace-nowrap"
-                  style={{ opacity: alarmTextOpacity, color: "white", fontSize: "clamp(9px, 2.5vw, 13px)", fontFamily: "Pretendard, sans-serif", fontWeight: 500 }}
+                  style={{ opacity: alarmTextOpacity, color: "white", fontSize: "clamp(8.5px, 2.3vw, 12px)", fontFamily: "Pretendard, sans-serif", fontWeight: 500 }}
                 >
                   밀어서 중단
                 </motion.span>
