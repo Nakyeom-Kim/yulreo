@@ -11,11 +11,10 @@ import { Menu, X } from "lucide-react";
 export default function Header() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [hoveredHref, setHoveredHref] = useState<string | null>(null);
 
   const links = [
-    { href: "/", labelEn: "Instrument", labelKo: "악기" },
-    { href: "/sound", labelEn: "Sound", labelKo: "사운드" },
+    { href: "/", label: "악기" },
+    { href: "/sound", label: "사운드" },
   ];
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -43,19 +42,16 @@ export default function Header() {
         <nav className="hidden md:flex gap-4 md:gap-6 lg:gap-8 pointer-events-auto text-foreground">
           {links.map((link) => {
             const isActive = pathname === link.href;
-            const isHovered = hoveredHref === link.href;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                onMouseEnter={() => setHoveredHref(link.href)}
-                onMouseLeave={() => setHoveredHref(null)}
                 className={cn(
-                  "text-xs md:text-sm lg:text-base font-normal tracking-wider transition-all duration-300 hover:opacity-100 w-[5rem] text-center inline-block",
-                  isActive || isHovered ? "opacity-100" : "opacity-30"
+                  "text-xs md:text-sm lg:text-base font-normal tracking-wider transition-all duration-300 hover:opacity-100 text-center inline-block",
+                  isActive ? "opacity-100 font-medium" : "opacity-40 hover:opacity-80"
                 )}
               >
-                {isActive || isHovered ? link.labelKo : link.labelEn}
+                {link.label}
               </Link>
             );
           })}
@@ -79,31 +75,29 @@ export default function Header() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="fixed inset-0 z-40 bg-background/95 backdrop-blur-lg flex flex-col items-center justify-center gap-8 md:hidden cursor-pointer"
+            className="fixed inset-0 z-40 bg-background/95 backdrop-blur-lg flex flex-col items-center justify-center md:hidden cursor-pointer"
             onClick={closeMenu}
           >
-            <nav className="flex flex-col items-center gap-8 cursor-default" onClick={(e) => e.stopPropagation()}>
+            <nav className="flex flex-col items-center justify-center gap-8 cursor-default w-full px-6" onClick={(e) => e.stopPropagation()}>
               {links.map((link, idx) => {
                 const isActive = pathname === link.href;
-                const isHovered = hoveredHref === link.href;
                 return (
                   <motion.div
                     key={link.href}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 * (idx + 1) }}
+                    className="w-full flex justify-center text-center"
                   >
                     <Link
                       href={link.href}
                       onClick={closeMenu}
-                      onMouseEnter={() => setHoveredHref(link.href)}
-                      onMouseLeave={() => setHoveredHref(null)}
                       className={cn(
-                        "text-xl font-light tracking-widest transition-all duration-300 text-center block w-[8rem]",
-                        isActive || isHovered ? "text-foreground" : "text-foreground/30"
+                        "text-lg font-light tracking-wider transition-all duration-300 text-center inline-block",
+                        isActive ? "text-foreground font-normal opacity-100" : "text-foreground/40 hover:text-foreground/80"
                       )}
                     >
-                      {isActive || isHovered ? link.labelKo : link.labelEn}
+                      {link.label}
                     </Link>
                   </motion.div>
                 );
@@ -114,14 +108,14 @@ export default function Header() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 * (links.length + 1) }}
-                className="mt-12"
+                className="mt-8 w-full flex justify-center text-center"
               >
                 <a
                   href="https://www.gugak.go.kr/site/main/index001"
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={closeMenu}
-                  className="text-xs font-light tracking-wider text-foreground/50 hover:text-foreground/90 transition-colors duration-300 whitespace-nowrap"
+                  className="text-xs font-light tracking-wider text-foreground/50 hover:text-foreground/90 transition-colors duration-300 whitespace-nowrap inline-block text-center"
                 >
                   더 알아보기 &gt;
                 </a>

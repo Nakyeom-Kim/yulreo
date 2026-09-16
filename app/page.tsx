@@ -500,7 +500,10 @@ export default function InstrumentPage() {
               {/* transform에 CSS transition-duration이 걸려 있으면 60fps 고주파 떨림이 뭉개지므로 opacity, filter만 트랜지션 적용 */}
               <div
                 ref={(el) => { if (el) imgWrapperRef.current = el; }}
-                className="transition-[opacity,filter] duration-300 ease-in-out origin-center relative flex items-center justify-center after:content-[''] after:absolute after:inset-x-0 after:top-0 after:h-12 after:bg-gradient-to-b after:from-[#ffffff] after:to-transparent after:pointer-events-none after:z-30"
+                className={cn(
+                  "transition-[opacity,filter] duration-300 ease-in-out origin-center relative flex items-center justify-center",
+                  !activeVideo && "after:content-[''] after:absolute after:inset-x-0 after:top-0 after:h-12 after:bg-gradient-to-b after:from-[#ffffff] after:to-transparent after:pointer-events-none after:z-30"
+                )}
               >
                 {/* 좌고(Jwago) 전용 흐릿하고 큰 배경(고스트) 이미지 - 좌/우 반갈라서 독립 제어 */}
                 {activeInstrument?.en === "Jwago" && !activeVideo && (
@@ -603,9 +606,8 @@ export default function InstrumentPage() {
           {!activeImage && (
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.8 }}
+              animate={{ opacity: 1, transition: { duration: 0.6 } }}
+              exit={{ opacity: 0, transition: { duration: 0 } }}
               className="absolute flex items-center justify-center pointer-events-none z-0"
             >
               <p className="text-sm md:text-base tracking-[0.2em] text-foreground/40 font-light font-sans">
