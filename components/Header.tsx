@@ -26,14 +26,23 @@ export default function Header() {
         <Link 
           href="/" 
           onClick={closeMenu}
-          className="pointer-events-auto transition-opacity hover:opacity-70 flex items-center z-50"
+          className="pointer-events-auto group relative flex items-center z-50 h-8 md:h-8 lg:h-10"
+          aria-label="Yul-reo Home"
         >
+          <Image 
+            src="/symbol.svg" 
+            alt="Yul-reo Symbol" 
+            width={40} 
+            height={40} 
+            className="h-8 md:h-8 lg:h-10 w-auto object-contain block group-hover:hidden transition-all duration-300" 
+            priority 
+          />
           <Image 
             src="/yulreo-logo.svg" 
             alt="Yul-reo Logo" 
             width={160} 
             height={60} 
-            className="h-8 md:h-8 lg:h-10 w-auto object-contain" 
+            className="h-8 md:h-8 lg:h-10 w-auto object-contain hidden group-hover:block transition-all duration-300" 
             priority 
           />
         </Link>

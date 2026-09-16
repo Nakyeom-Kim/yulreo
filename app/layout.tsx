@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "율려 (Yul-reo)",
+  title: "율려",
   description: "차분하고 감각적인 브랜드 율려",
+  icons: {
+    icon: "/symbol.svg",
+  },
 };
 
 import Header from "@/components/Header";
