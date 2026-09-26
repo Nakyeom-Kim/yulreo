@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "율려",
   description: "차분하고 감각적인 브랜드 율려",
   icons: {
-    icon: "/symbol.svg",
+    icon: "/symbol2.svg",
   },
 };
 

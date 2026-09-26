@@ -30,7 +30,7 @@ export default function Header() {
           aria-label="Yul-reo Home"
         >
           <Image 
-            src="/symbol.svg" 
+            src="/symbol2.svg" 
             alt="Yul-reo Symbol" 
             width={40} 
             height={40} 
