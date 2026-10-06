@@ -12,6 +12,35 @@ interface MobileDeviceProps {
   alarmDragX: MotionValue<number>;
 }
 
+// Yulreo 브랜드 컬러 기반 버튼별 색상 정의
+// 재난문자: 나무색(Wood), 알람: 대나무색(Bamboo), 문자: 가죽색(Leather), 전화: 실색(Silk/노랑)
+const BUTTON_COLORS: Record<string, { base: string; shadow: string; glow: string; iconActive: string }> = {
+  emergency: {
+    base: "rgba(170, 134, 87, 0.22)",      // Yulreo Wood
+    shadow: "rgba(170, 134, 87, 0.35)",
+    glow: "rgba(170, 134, 87, 0.55)",
+    iconActive: "#AA9067",
+  },
+  alarm: {
+    base: "rgba(169, 176, 140, 0.25)",     // Yulreo Bamboo
+    shadow: "rgba(169, 176, 140, 0.40)",
+    glow: "rgba(169, 176, 140, 0.60)",
+    iconActive: "#A9B08C",
+  },
+  message: {
+    base: "rgba(208, 156, 156, 0.22)",     // Yulreo Leather
+    shadow: "rgba(208, 156, 156, 0.38)",
+    glow: "rgba(208, 156, 156, 0.60)",
+    iconActive: "#D09C9C",
+  },
+  call: {
+    base: "rgba(236, 227, 180, 0.30)",     // Yulreo Silk
+    shadow: "rgba(236, 200, 80, 0.35)",
+    glow: "rgba(236, 200, 80, 0.55)",
+    iconActive: "#b8a940",
+  },
+};
+
 const BUTTONS = [
   { id: "emergency", label: "재난문자", url: "/sound/sound/mobile_emergency_alert.mp3", Icon: AlertTriangle },
   { id: "alarm", label: "알람", url: "/sound/sound/mobile_notification.mp3", Icon: Bell },
@@ -94,6 +123,7 @@ export default function MobileDevice({
           <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-6 sm:pt-8 md:pt-9">
             {BUTTONS.map(({ id, label, url, Icon }) => {
               const isActive = playingId === id;
+              const colors = BUTTON_COLORS[id];
               return (
                 <motion.div
                   key={id}
@@ -102,23 +132,29 @@ export default function MobileDevice({
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.94 }}
                 >
-                  {/* Icon tile — matches instrument page button style */}
+                  {/* Icon tile — 면색 원래대로, 획(border)만 브랜드 컬러 */}
                   <div
                     className="w-full aspect-square flex items-center justify-center"
                     style={{
                       borderRadius: "26%",
-                      transition: "background 0.5s, box-shadow 0.5s",
+                      transition: "background 0.5s, box-shadow 0.5s, border-color 0.5s",
                       backdropFilter: isActive ? undefined : "blur(8px)",
                       WebkitBackdropFilter: isActive ? undefined : "blur(8px)",
                       background: isActive
                         ? "rgba(0, 0, 0, 0.3)"
-                        : "rgba(255, 255, 255, 0.30)",
+                        : "rgba(250, 250, 248, 0.30)",
+                      border: isActive ? "none" : `1.5px solid ${colors.shadow}`,
                       boxShadow: isActive
                         ? "inset 0 6px 10px rgba(255,255,255,1.0), inset 0 2px 4px rgba(255,255,255,0.8), inset 0 -3px 8px rgba(255,255,255,0.65), 0 0 16px rgba(0,0,0,0.7)"
-                        : "0 4px 12px rgba(76,72,59,0.22)",
+                        : `0 4px 10px ${colors.shadow}`,
                     }}
                   >
-                    <Icon size={20} color={isActive ? "white" : "#4c483b"} strokeWidth={1.8} className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+                    <Icon
+                      size={20}
+                      color={isActive ? "white" : "#4c483b"}
+                      strokeWidth={1.8}
+                      className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"
+                    />
                   </div>
                   {/* Label */}
                   <span

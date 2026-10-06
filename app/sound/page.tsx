@@ -1,562 +1,487 @@
 "use client";
 
-import { useState, useRef, useEffect, useSyncExternalStore } from "react";
-import { motion, AnimatePresence, useMotionValue, useTransform, animate, MotionValue } from "framer-motion";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/utils/cn";
-import MobileDevice from "@/components/sound/MobileDevice";
-import TrafficDevice from "@/components/sound/TrafficDevice";
-import HomeDevice from "@/components/sound/HomeDevice";
 
-const emptySubscribe = () => () => {};
-function useIsMounted() {
-  return useSyncExternalStore(emptySubscribe, () => true, () => false);
+// 1번 이미지 하단 10개 아이콘 및 100% 선명한 브랜드 컬러 & 은은한 소프트 그림자
+interface SoundItem {
+  id: string;
+  name: string;
+  audio: string;
+  title: string;
+  instrument: string;
+  description: string;
+  brandColor100: string; // 100% 불투명도의 선명한 고유 브랜드 색상
+  glowColor: string;     // 뒤에 은은하게 퍼지는 색상 그림자
 }
 
-// Reusable Right Column Image mapping template
-const BUTTON_IMAGES: Record<string, string> = {
-  washer: "/sound-img/img/graphics-세탁기종료.webp",
-  call: "/sound-img/img/graphics-전화벨.webp",
-  emergency: "/sound-img/img/graphics-재난문자.webp",
-  unlock: "/sound-img/img/graphics-eo.webp",
-  headlight: "/sound-img/img/graphics-piri.webp",
-  pedestrian: "/sound-img/img/graphics-gayageum.webp",
-  tv: "/sound-img/img/graphics-geomungo.webp",
-  "tv-off": "/sound-img/img/graphics-geomungo.webp",
-  message: "/sound-img/img/graphics-jwago.webp",
-  card: "/sound-img/img/graphics-pyeonjong.webp",
-  alarm: "/sound-img/img/graphics-기상알람.webp",
-  intercom: "/sound-img/img/graphics-pyeongyeong.webp",
-};
-
-// Reusable Right Column Text mapping template
-const BUTTON_TEXTS: Record<string, { description: string; subDescription?: string }> = {
-  washer: {
-    description: "대금 • 가야금",
-    subDescription: "세탁이 끝났다는 알림음"
-  },
-  call: {
-    description: "장구 • 거문고 • 대금",
-    subDescription: "핸드폰 전화벨소리"
-  },
-  emergency: {
-    description: "북 • 박",
-    subDescription: "재난문자 알림 소리"
-  },
-  unlock: {
-    description: "어",
-    subDescription: "핸드폰 잠금 해제 소리"
-  },
-  headlight: {
-    description: "피리",
-    subDescription: "버스 하차벨 누르는 소리"
-  },
-  pedestrian: {
-    description: "가야금",
-    subDescription: "횡단보도 보행자 신호 소리"
-  },
-  tv: {
-    description: "거문고",
-    subDescription: "티비 켜진 소리"
-  },
-  "tv-off": {
-    description: "거문고",
-    subDescription: "티비 꺼진 소리"
-  },
-  message: {
-    description: "좌고",
-    subDescription: "문자 알림 소리"
-  },
-  card: {
-    description: "편종",
-    subDescription: "버스 카드 찍는 소리"
-  },
-  alarm: {
-    description: "가야금 • 해금 • 대금",
-    subDescription: "핸드폰 알람 소리"
-  },
-  intercom: {
-    description: "편경",
-    subDescription: "초인종 누르는 소리"
-  },
-};
-
-// Default text when no sound is playing in each card
-const CARD_DEFAULT_INFOS = [
+const BASE_SOUND_ITEMS: SoundItem[] = [
   {
-    title: "일상 속 알림 소리",
-    description: "스마트폰에서 나는 소리들.\n재난문자, 문자 알림, 통화 벨소리."
+    id: "message",
+    name: "문자 알림",
+    audio: "/sound/sound/mobile_message.mp3",
+    title: "문자\n알림",
+    instrument: "좌고",
+    description: "새로운 메시지가 도착했습니다",
+    brandColor100: "#D09C9C", // 가죽색 (Leather)
+    glowColor: "rgba(208, 156, 156, 0.50)",
   },
   {
-    title: "거리의 신호 소리",
-    description: "대중교통에서 마주치는 소리들.\n횡단보도 신호음, 버스카드 태그음, 하차벨."
+    id: "call",
+    name: "전화 벨소리",
+    audio: "/sound/sound/mobile_ringtone.mp3",
+    title: "전화\n벨소리",
+    instrument: "장구 • 거문고 • 대금",
+    description: "전화 왔어요, 받아보세요",
+    brandColor100: "#ECC850", // 노란색 (Silk)
+    glowColor: "rgba(236, 200, 80, 0.50)",
   },
   {
-    title: "머무는 공간의 소리",
-    description: "집 안에서 들리는 알림음들.\n세탁 완료음, 초인종, TV를 켜고 끄는 소리."
-  }
+    id: "alarm",
+    name: "기상 알람",
+    audio: "/sound/sound/mobile_notification.mp3",
+    title: "기상\n알람",
+    instrument: "가야금 • 해금 • 대금",
+    description: "오늘 하루를 시작할 시간입니다",
+    brandColor100: "#A9B08C", // 초록색 (Bamboo)
+    glowColor: "rgba(169, 176, 140, 0.50)",
+  },
+  {
+    id: "emergency",
+    name: "재난문자",
+    audio: "/sound/sound/mobile_emergency_alert.mp3",
+    title: "재난\n문자",
+    instrument: "북 • 박",
+    description: "긴급 재난 상황을 알려드립니다",
+    brandColor100: "#AA8657", // 나무색 (Wood)
+    glowColor: "rgba(170, 134, 87, 0.50)",
+  },
+  {
+    id: "intercom",
+    name: "현관 초인종",
+    audio: "/sound/sound/home_ring.mp3",
+    title: "현관\n초인종",
+    instrument: "편경",
+    description: "딩동, 손님이 찾아왔습니다",
+    brandColor100: "#8F93A9", // 편경색 (Rock)
+    glowColor: "rgba(143, 147, 169, 0.50)",
+  },
+  {
+    id: "card",
+    name: "교통카드",
+    audio: "/sound/sound/transit_card.mp3",
+    title: "교통카드\n태그",
+    instrument: "편종",
+    description: "승차/하차가 처리되었습니다",
+    brandColor100: "#BDCCD2", // 편종색 (Metal)
+    glowColor: "rgba(189, 204, 210, 0.55)",
+  },
+  {
+    id: "stop",
+    name: "버스 하차벨",
+    audio: "/sound/sound/traffic_stop_bell.mp3",
+    title: "버스\n하차벨",
+    instrument: "피리",
+    description: "기사님 저 내릴게요",
+    brandColor100: "#A9B08C", // 초록색 (Bamboo)
+    glowColor: "rgba(169, 176, 140, 0.50)",
+  },
+  {
+    id: "blinker",
+    name: "보행자 신호등",
+    audio: "/sound/sound/traffic_crosswalk_signal.mp3",
+    title: "보행자\n신호음",
+    instrument: "가야금",
+    description: "초록불이 켜졌습니다",
+    brandColor100: "#ECC850", // 노란색 (Silk)
+    glowColor: "rgba(236, 200, 80, 0.50)",
+  },
+  {
+    id: "tv",
+    name: "TV",
+    audio: "/sound/sound/home_tv_on.mp3",
+    title: "TV 켜짐\n소리",
+    instrument: "거문고",
+    description: "텔레비전 전원이 켜졌습니다",
+    brandColor100: "#ECC850", // 노란색 (Silk)
+    glowColor: "rgba(236, 200, 80, 0.50)",
+  },
+  {
+    id: "washing",
+    name: "세탁기",
+    audio: "/sound/sound/home_washing_machine.mp3",
+    title: "세탁 완료\n알림음",
+    instrument: "대금 • 가야금",
+    description: "세탁 코스가 모두 완료되었습니다",
+    brandColor100: "#A9B08C", // 초록색 (Bamboo)
+    glowColor: "rgba(169, 176, 140, 0.50)",
+  },
 ];
 
-// Carousel Card Component that responds in real-time to drag position
-interface CarouselCardProps {
-  slideIdx: number;
-  cardIdx: number;
-  currentIndex: number;
-  stepWidth: number;
-  cardWidth: number;
-  dragX: MotionValue<number>;
-  playingId: string | null;
-  activeRightImage: string | null;
-  playSound: (id: string, url: string) => void;
-  stopSound: () => void;
-  callDragX: MotionValue<number>;
-  alarmDragX: MotionValue<number>;
-  isPlayingInCard: (cardIdx: number, pId: string | null) => boolean;
+// 각 아이콘별 SVG 렌더러 (날렵한 전화기 아이콘 및 100% 브랜드 컬러 적용)
+function DynamicSoundIcon({ id, isSelected, brandColor100 }: { id: string; isSelected: boolean; brandColor100: string }) {
+  const fillColor = isSelected ? brandColor100 : "#3f3a2e";
+
+  switch (id) {
+    case "message":
+      return (
+        <svg viewBox="0 0 100 100" className="w-full h-full">
+          <rect fill={fillColor} x="10" y="10" width="80" height="80" rx="20" ry="20" />
+          <path fill="#fff" d="M30 32h40c3.3 0 6 2.7 6 6v22c0 3.3-2.7 6-6 6H44l-12 10V66h-2c-3.3 0-6-2.7-6-6V38c0-3.3 2.7-6 6-6z" />
+        </svg>
+      );
+    case "call":
+      return (
+        <svg viewBox="0 0 100 100" className="w-full h-full">
+          <rect fill={fillColor} x="10" y="10" width="80" height="80" rx="20" ry="20" />
+          <path
+            fill="#fff"
+            d="M60.5 54.5c-2.3 0-4.5-.4-6.6-1.1-1.3-.4-2.7-.1-3.7.9l-4 4c-5.4-2.8-9.8-7.2-12.6-12.6l4-4c1-.9 1.3-2.4.9-3.7-.7-2.1-1.1-4.3-1.1-6.6 0-1.7-1.4-3-3-3h-7.6c-1.7 0-3 1.4-3 3 0 21.8 17.7 39.5 39.5 39.5 1.7 0 3-1.4 3-3v-7.4c0-1.7-1.3-3-2.9-3z"
+          />
+        </svg>
+      );
+    case "alarm":
+      return (
+        <svg viewBox="0 0 100 100" className="w-full h-full">
+          <rect fill={fillColor} x="10" y="10" width="80" height="80" rx="20" ry="20" />
+          <path fill="#fff" d="M50 28c-1.7 0-3 1.3-3 3v1.1C41.3 33.6 37 38.8 37 45v11l-4 4v3h34v-3l-4-4V45c0-6.2-4.3-11.4-10-12.9V31c0-1.7-1.3-3-3-3zm-6 38c0 3.3 2.7 6 6 6s6-2.7 6-6h-12z" />
+        </svg>
+      );
+    case "emergency":
+      return (
+        <svg viewBox="0 0 100 100" className="w-full h-full">
+          <rect fill={fillColor} x="10" y="10" width="80" height="80" rx="20" ry="20" />
+          <path fill="#fff" d="M30 32h40c3.3 0 6 2.7 6 6v22c0 3.3-2.7 6-6 6H44l-12 10V66h-2c-3.3 0-6-2.7-6-6V38c0-3.3 2.7-6 6-6z" />
+          <path fill={fillColor} d="M50 40c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2s2-.9 2-2v-8c0-1.1-.9-2-2-2zm0 15c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+        </svg>
+      );
+    case "intercom":
+      return (
+        <svg viewBox="0 0 128.81 177.45" className="w-full h-full">
+          <rect fill={fillColor} width="128.81" height="177.45" rx="4.9" ry="4.9" />
+          <rect fill="#fff" x="9.87" y="10.72" width="109.07" height="77.07" rx="2.47" ry="2.47" />
+          <circle fill="#fff" cx="64.41" cy="150.38" r="16.19" />
+        </svg>
+      );
+    case "card":
+      return (
+        <svg viewBox="0 0 159.71 121.86" className="w-full h-full">
+          <path fill={fillColor} d="M144.84,0H14.87C6.66,0,0,6.66,0,14.87v63.35c0,8.21,6.66,14.87,14.87,14.87h49.62v28.78h30.74v-28.78h49.62c8.21,0,14.87-6.66,14.87-14.87V14.87c0-8.21-6.66-14.87-14.87-14.87ZM152.71,78.22c0,4.34-3.53,7.87-7.87,7.87H14.87c-4.34,0-7.87-3.53-7.87-7.87V14.87c0-4.34,3.53-7.87,7.87-7.87h129.97c4.34,0,7.87,3.53,7.87,7.87v63.35Z" />
+          <path fill={fillColor} d="M102.39,30.37l-.71-2.74c-.45-1.71-2.19-2.74-3.9-2.29l-43.74,11.4c-1.71.45-2.74,2.19-2.29,3.9l.71,2.74,49.93-13.01Z" />
+          <path fill={fillColor} d="M53.82,48.6l4.22,16.2c.45,1.71,2.19,2.74,3.9,2.29l43.74-11.4c1.71-.45,2.74-2.19,2.29-3.9l-4.22-16.2-49.93,13.01Z" />
+        </svg>
+      );
+    case "stop":
+      return (
+        <svg viewBox="0 0 487.94 493.04" className="w-full h-full">
+          <circle fill={fillColor} cx="243.97" cy="246.52" r="189.87" />
+          <g>
+            <path fill="#fff" d="M164.94,297.58c-19.96,0-23.11-13.67-23.11-30.35h13.95c0,10.25.41,19.69,9.02,19.69,6.84,0,9.16-5.33,9.16-13.94,0-4.92-1.09-9.43-6.84-14.9l-12.71-12.03c-9.57-9.02-11.62-15.18-11.62-26.8,0-15.72,8.61-23.79,22.97-23.79,18.73,0,22.15,12.85,22.15,28.3h-13.67c0-12.03-1.78-17.64-8.75-17.64-6.56,0-9.02,4.65-9.02,13.12,0,6.15,1.37,10.39,7.79,16.82l15.45,15.31c6.43,6.29,8.2,12.58,8.2,21.74,0,14.63-5.74,24.47-22.97,24.47Z"/>
+            <path fill="#fff" d="M220.59,208.58v87.36h-13.67v-87.36h-16.41v-11.48h46.48v11.48h-16.41Z"/>
+            <path fill="#fff" d="M263.93,297.58c-24.47,0-24.47-19.41-24.47-51.54,0-26.93.27-50.58,24.75-50.58s24.2,20.37,24.2,50.58c0,32.26,0,51.54-24.47,51.54ZM263.93,206.12c-10.25,0-10.25,16.13-10.25,39.92,0,28.57,0,40.88,10.25,40.88s10.25-14.77,10.25-40.88-.14-39.92-10.25-39.92Z"/>
+            <path fill="#fff" d="M322.99,252.88h-10.53v43.06h-13.67v-98.84h24.06c16.27,0,23.24,6.56,23.24,28.16s-5.74,27.62-23.11,27.62ZM321.49,208.58h-9.02v32.81h9.16c7.93,0,10.53-4.38,10.53-16.13,0-13.94-3.56-16.68-10.67-16.68Z"/>
+          </g>
+        </svg>
+      );
+    case "blinker":
+      return (
+        <svg viewBox="0 0 144.79 289.59" className="w-full h-full">
+          <path fill={fillColor} d="M144.79,135.48V9.31c0-5.14-4.17-9.31-9.31-9.31H9.31C4.17,0,0,4.17,0,9.31v126.18c0,5.14,4.17,9.31,9.31,9.31-5.14,0-9.31,4.17-9.31,9.31v126.18c0,5.14,4.17,9.31,9.31,9.31h126.18c5.14,0,9.31-4.17,9.31-9.31v-126.18c0-5.14-4.17-9.31-9.31-9.31,5.14,0,9.31-4.17,9.31-9.31Z" />
+          <path fill={fillColor} stroke="#fff" strokeMiterlimit="10" d="M24.6,8.8h100.8c7.33,0,13.28,5.95,13.28,13.28v95.42c0,8.63-7.01,15.63-15.63,15.63H26.95c-8.63,0-15.63-7.01-15.63-15.63V22.09c0-7.33,5.95-13.28,13.28-13.28Z" />
+          <path fill="#fff" d="M119.33,14.19H30.67c-4.83,0-8.84,3.71-9.22,8.51l-7.55,96.15c-.6,7.71,5.5,14.29,13.24,14.29h95.71c7.74,0,13.85-6.59,13.24-14.29l-7.55-96.15c-.38-4.8-4.39-8.51-9.22-8.51Z" />
+          <path fill={fillColor} stroke="#fff" strokeMiterlimit="10" d="M24.6,153.45h100.8c7.33,0,13.28,5.95,13.28,13.28v95.42c0,8.63-7.01,15.63-15.63,15.63H26.95c-8.63,0-15.63-7.01-15.63-15.63v-95.42c0-7.33,5.95-13.28,13.28-13.28Z" />
+          <path fill="#fff" d="M119.33,158.84H30.67c-4.83,0-8.84,3.71-9.22,8.51l-7.55,96.15c-.6,7.71,5.5,14.29,13.24,14.29h95.71c7.74,0,13.85-6.59,13.24-14.29l-7.55-96.15c-.38-4.8-4.39-8.51-9.22-8.51Z" />
+          <path fill={fillColor} d="M86.16,76.03l1-26.16c0-2.51-2.03-4.54-4.54-4.54h-15.24c-2.51,0-4.54,2.03-4.54,4.54l1,26.16-3.19,44.01h8.74l5.62-37.5,5.62,37.5h8.74l-3.19-44.01Z" />
+          <circle fill={fillColor} cx="75" cy="33.03" r="9.98" />
+        </svg>
+      );
+    case "tv":
+      return (
+        <svg viewBox="0 0 366.61 212.62" className="w-full h-full">
+          <rect fill={fillColor} x="76.99" y="-76.99" width="212.62" height="366.61" rx="5.47" ry="5.47" transform="translate(76.99 289.62) rotate(-90)" />
+          <rect fill={fillColor} stroke="#fff" strokeWidth="6" strokeMiterlimit="10" x="86.99" y="-66.99" width="192.62" height="346.61" transform="translate(289.62 -76.99) rotate(90)" />
+        </svg>
+      );
+    case "washing":
+      return (
+        <svg viewBox="0 0 252.44 337.77" className="w-full h-full">
+          <rect fill={fillColor} width="252.44" height="337.77" rx="5.72" ry="5.72" />
+          <circle fill={fillColor} stroke="#fff" strokeWidth="4" strokeMiterlimit="10" cx="126.22" cy="208.65" r="104.99" />
+          <circle fill="#fff" cx="126.22" cy="208.65" r="86.63" />
+          <line stroke="#fff" strokeWidth="3" strokeMiterlimit="10" strokeLinecap="round" x1="8.73" y1="38.64" x2="243.71" y2="38.64" />
+          <circle fill="#fff" cx="231.21" cy="19.19" r="11.14" />
+          <circle fill="#fff" cx="204.86" cy="19.19" r="4.74" />
+          <circle fill="#fff" cx="192.43" cy="19.19" r="4.74" />
+          <rect fill="#fff" x="8.73" y="42.87" width="18.94" height="11.33" rx=".72" ry=".72" />
+        </svg>
+      );
+    default:
+      return null;
+  }
 }
 
-function CarouselCard({
-  slideIdx,
-  cardIdx,
-  currentIndex,
-  stepWidth,
-  cardWidth,
-  dragX,
-  playingId,
-  activeRightImage,
-  playSound,
-  stopSound,
-  callDragX,
-  alarmDragX,
-  isPlayingInCard,
-}: CarouselCardProps) {
-  const isMounted = useIsMounted();
-
-  const centerPosition = -slideIdx * stepWidth;
-
-  // Real-time animation mapping linked directly to dragX motion value
-  const opacity = useTransform(
-    dragX,
-    [centerPosition - stepWidth, centerPosition, centerPosition + stepWidth],
-    [0.35, 1, 0.35]
-  );
-
-  const scale = useTransform(
-    dragX,
-    [centerPosition - stepWidth, centerPosition, centerPosition + stepWidth],
-    [0.94, 1, 0.94]
-  );
-
-  const pointerEvents = (currentIndex === slideIdx ? "auto" : "none") as "auto" | "none";
-
-  const dynamicStyle = isMounted
-    ? {
-      width: `${cardWidth}px`,
-      opacity,
-      scale,
-      pointerEvents,
-    }
-    : {
-      width: `${cardWidth}px`,
-      opacity: slideIdx === currentIndex ? 1 : 0.35,
-      scale: slideIdx === currentIndex ? 1 : 0.94,
-      pointerEvents,
-    };
-
-  return (
-    <motion.div
-      style={dynamicStyle}
-      className={cn(
-        "h-[68dvh] sm:h-[72dvh] md:h-[650px] max-h-[660px] min-h-[460px] shrink-0 rounded-[20px] sm:rounded-[24px] border border-foreground/10 bg-background/90 backdrop-blur-md overflow-hidden flex flex-col md:flex-row transition-shadow duration-500",
-        currentIndex === slideIdx
-          ? "shadow-[0_20px_50px_rgba(76,72,59,0.18)]"
-          : "shadow-[0_10px_40px_rgba(76,72,59,0.08)]"
-      )}
-    >
-      {/* Left: Device SVG (Graphic Area) */}
-      <div className="w-full md:w-[56%] h-[72%] md:h-full flex items-center justify-center p-2 sm:p-4 md:p-8 relative border-b md:border-b-0 md:border-r border-foreground/5 bg-foreground/[0.005] overflow-hidden">
-        {cardIdx === 0 && (
-          <MobileDevice
-            playingId={playingId}
-            playSound={playSound}
-            stopSound={stopSound}
-            callDragX={callDragX}
-            alarmDragX={alarmDragX}
-          />
-        )}
-        {cardIdx === 1 && (
-          <TrafficDevice
-            playingId={playingId}
-            playSound={playSound}
-          />
-        )}
-        {cardIdx === 2 && (
-          <HomeDevice
-            playingId={playingId}
-            playSound={playSound}
-          />
-        )}
-      </div>
-
-      {/* Right: Info Panel (Text Area) */}
-      <div className="w-full md:w-[44%] h-[28%] md:h-full flex flex-col justify-center md:justify-between px-5 py-3 sm:p-6 md:p-8 bg-foreground/[0.01] relative overflow-hidden select-text border-t md:border-t-0 md:border-l border-foreground/5">
-        {isPlayingInCard(cardIdx, playingId) && playingId && BUTTON_TEXTS[playingId] ? (
-          <div className="w-full relative z-20 flex-grow flex flex-col justify-center md:justify-between h-full">
-            <div className="w-full my-auto md:my-0">
-              <p className="text-sm sm:text-base md:text-lg font-semibold text-[#4c483b] leading-snug sm:leading-relaxed whitespace-pre-line font-sans">
-                {BUTTON_TEXTS[playingId].description}
-              </p>
-              {BUTTON_TEXTS[playingId].subDescription && (
-                <p className="text-xs sm:text-xs md:text-sm text-[#4c483b]/60 mt-1 sm:mt-2 font-normal tracking-wide leading-relaxed whitespace-pre-line">
-                  {BUTTON_TEXTS[playingId].subDescription}
-                </p>
-              )}
-            </div>
-            <AnimatePresence mode="wait">
-              {activeRightImage ? (
-                <motion.div
-                  key={activeRightImage}
-                  initial={{ opacity: 0, y: 0 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="hidden md:flex relative w-full overflow-hidden flex-grow items-end justify-center min-h-[70px] max-h-[130px] sm:max-h-[160px] md:max-h-[none] mt-2 sm:mt-4"
-                >
-                  <div className="absolute top-0 inset-x-0 h-6 sm:h-8 bg-gradient-to-b from-[#ffffff] via-[#ffffff]/50 to-transparent pointer-events-none z-10" />
-                  <img
-                    src={activeRightImage}
-                    alt="Active device graphic"
-                    className="w-full h-full object-cover object-bottom relative z-0"
-                  />
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-          </div>
-        ) : (
-          <div className="w-full relative z-20 h-full flex flex-col justify-center md:justify-between flex-grow">
-            <div className="w-full my-auto md:my-0">
-              <h3 className="text-sm sm:text-base md:text-lg font-semibold text-[#4c483b] tracking-wide mb-1 sm:mb-2">
-                {CARD_DEFAULT_INFOS[cardIdx].title}
-              </h3>
-              <p className="text-xs sm:text-sm text-[#4c483b]/65 leading-relaxed font-light whitespace-pre-line">
-                {CARD_DEFAULT_INFOS[cardIdx].description}
-              </p>
-            </div>
-            <div className="w-full hidden md:flex items-end justify-end mt-2 sm:mt-4 opacity-10 min-h-[40px] sm:min-h-[80px]">
-              <img
-                src="/yulreo-logo.svg"
-                alt="Yulreo Logo"
-                className="w-20 sm:w-24 md:w-36 h-auto object-contain grayscale filter invert brightness-50"
-              />
-            </div>
-          </div>
-        )}
-      </div>
-    </motion.div>
-  );
-}
+// 무한 루프 스크롤을 위해 5벌 복제
+const REPEAT_COUNT = 5;
+const INFINITE_SOUND_ITEMS: (SoundItem & { uniqueKey: string; originalIndex: number })[] = Array.from(
+  { length: REPEAT_COUNT },
+  (_, setIndex) =>
+    BASE_SOUND_ITEMS.map((item, itemIndex) => ({
+      ...item,
+      uniqueKey: `${item.id}-${setIndex}-${itemIndex}`,
+      originalIndex: itemIndex,
+    }))
+).flat();
 
 export default function SoundPage() {
-  const [currentIndex, setCurrentIndex] = useState(1); // Start at index 1 (which represents Card0)
-  const [playingId, setPlayingId] = useState<string | null>(null);
-  const [activeRightImage, setActiveRightImage] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string>("stop");
+  const selectedItem = BASE_SOUND_ITEMS.find((item) => item.id === selectedId) || BASE_SOUND_ITEMS[6];
 
-  // Responsive Carousel Width Config
-  const [cardWidth, setCardWidth] = useState(850);
-  const [stepWidth, setStepWidth] = useState(882); // cardWidth + gap (32)
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
 
-  useEffect(() => {
-    const handleResize = () => {
-      const w = window.innerWidth;
-      if (w < 640) {
-        // Mobile Layout
-        const targetWidth = Math.min(w - 28, 380);
-        setCardWidth(targetWidth);
-        setStepWidth(targetWidth + 16);
-      } else if (w < 1024) {
-        // Tablet Layout
-        setCardWidth(680);
-        setStepWidth(712);
-      } else {
-        // Desktop Layout
-        setCardWidth(850);
-        setStepWidth(882);
-      }
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+  // 누르는 즉시 사운드 재생 및 선택 아이템을 화면 가운데로 스크롤
+  const handleSelect = useCallback((item: SoundItem, elementKey?: string) => {
+    setSelectedId(item.id);
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = item.audio;
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(() => {});
+    }
+
+    const targetKey = elementKey || `${item.id}-2-${BASE_SOUND_ITEMS.findIndex((i) => i.id === item.id)}`;
+    const targetEl = itemRefs.current.get(targetKey);
+    const container = scrollContainerRef.current;
+
+    if (targetEl && container) {
+      const containerWidth = container.offsetWidth;
+      const targetLeft = targetEl.offsetLeft;
+      const targetWidth = targetEl.offsetWidth;
+      const scrollPos = targetLeft - containerWidth / 2 + targetWidth / 2;
+
+      container.scrollTo({
+        left: scrollPos,
+        behavior: "smooth",
+      });
+    }
   }, []);
 
-  // Preload all right-column images on mount for instant display
   useEffect(() => {
-    const imageSrcs = Object.values(BUTTON_IMAGES);
-    const unique = [...new Set(imageSrcs)];
-    unique.forEach((src) => {
-      const img = new window.Image();
-      img.src = src;
-    });
-  }, []);
+    const audio = new Audio();
+    audioRef.current = audio;
 
-  // Audio state
-  const activeAudiosRef = useRef<HTMLAudioElement[]>([]);
-  const autoCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Draggable slider states for Alarm and Call (Inside Mobile Card)
-  const alarmDragX = useMotionValue(0);
-  const callDragX = useMotionValue(0);
-
-  // Main Carousel motion value (initialized to -882 for starting card at index 1)
-  const dragX = useMotionValue(-882);
-
-  // Sync dragX on stepWidth or currentIndex changes
-  useEffect(() => {
-    dragX.set(-currentIndex * stepWidth);
-  }, [stepWidth, currentIndex, dragX]);
-
-  // Maps slide index [0, 1, 2, 3, 4] to actual card index [2, 0, 1, 2, 0]
-  const getRealIndex = (idx: number) => {
-    if (idx === 0) return 2;
-    if (idx === 1) return 0;
-    if (idx === 2) return 1;
-    if (idx === 3) return 2;
-    if (idx === 4) return 0;
-    return 0;
-  };
-
-  const snapTo = (targetIndex: number) => {
-    animate(dragX, -targetIndex * stepWidth, {
-      type: "spring",
-      stiffness: 220,
-      damping: 26,
-      onComplete: () => {
-        // Infinite Loop teleportation logic (teleports instantly without animation)
-        if (targetIndex === 0) {
-          dragX.set(-3 * stepWidth);
-          setCurrentIndex(3);
-        } else if (targetIndex === 4) {
-          dragX.set(-1 * stepWidth);
-          setCurrentIndex(1);
-        } else {
-          setCurrentIndex(targetIndex);
-        }
-      }
-    });
-  };
-
-  const handlePrevPage = () => {
-    stopSound();
-    snapTo(currentIndex - 1);
-  };
-
-  const handleNextPage = () => {
-    stopSound();
-    snapTo(currentIndex + 1);
-  };
-
-  const stopSound = () => {
-    if (autoCloseTimerRef.current) {
-      clearTimeout(autoCloseTimerRef.current);
-      autoCloseTimerRef.current = null;
-    }
-    activeAudiosRef.current.forEach((audio) => {
-      audio.pause();
-    });
-    activeAudiosRef.current = [];
-    setPlayingId(null);
-    setActiveRightImage(null);
-    alarmDragX.set(0);
-    callDragX.set(0);
-  };
-
-  const playSound = (id: string, url: string) => {
-    stopSound();
-    setPlayingId(id);
-
-    if (BUTTON_IMAGES[id]) {
-      setActiveRightImage(BUTTON_IMAGES[id]);
-    }
-
-    if (id === "call") {
-      const audio = new Audio("/sound/sound/mobile_ringtone.mp3");
-      audio.loop = true;
-      activeAudiosRef.current.push(audio);
-      audio.play().catch((err) => {
-        console.error("Audio play failed:", err);
-      });
-    } else if (id === "washer") {
-      const audio = new Audio("/sound/sound/home_washing_machine.mp3");
-      activeAudiosRef.current.push(audio);
-      audio.onended = () => {
-        stopSound();
-      };
-      audio.play().catch((err) => {
-        console.error("Audio play failed:", err);
-      });
-    } else if (url) {
-      const audio = new Audio(url);
-      activeAudiosRef.current.push(audio);
-
-      if (id === "emergency" || id === "unlock" || id === "pedestrian" || id === "headlight" || id === "tv-off" || id === "alarm" || id === "card" || id === "message" || id === "intercom") {
-        let isMinDurationEnforced = false;
-
-        audio.addEventListener("loadedmetadata", () => {
-          const duration = audio.duration;
-          if (!isNaN(duration) && duration < 2.0) {
-            isMinDurationEnforced = true;
-            autoCloseTimerRef.current = setTimeout(() => {
-              stopSound();
-            }, 2000);
-          }
-        });
-
-        audio.onended = () => {
-          if (!isMinDurationEnforced) {
-            stopSound();
-          }
-        };
-      }
-
-      audio.play().catch((err) => {
-        console.error("Audio play failed:", err);
-      });
-    }
-  };
-
-  // Check if active playingId belongs to the current card index
-  const isPlayingInCard = (cardIdx: number, pId: string | null): boolean => {
-    if (!pId) return false;
-    if (cardIdx === 0) {
-      return ["call", "alarm", "message", "emergency", "unlock"].includes(pId);
-    } else if (cardIdx === 1) {
-      return ["pedestrian", "headlight", "card"].includes(pId);
-    } else if (cardIdx === 2) {
-      return ["intercom", "tv", "tv-off", "washer"].includes(pId);
-    }
-    return false;
-  };
-
-  // Cleanup on unmount
-  useEffect(() => {
     return () => {
-      stopSound();
+      audio.pause();
+      audio.src = "";
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 초기 로드 시 중앙 세트의 기본 선택 아이템(하차벨)을 화면 정중앙에 위치
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const targetKey = `stop-2-6`;
+      const targetEl = itemRefs.current.get(targetKey);
+      const container = scrollContainerRef.current;
+      if (targetEl && container) {
+        const containerWidth = container.offsetWidth;
+        const targetLeft = targetEl.offsetLeft;
+        const targetWidth = targetEl.offsetWidth;
+        container.scrollLeft = targetLeft - containerWidth / 2 + targetWidth / 2;
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // 무한 루프 스크롤 보정
+  const handleScroll = () => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const singleSetWidth = container.scrollWidth / REPEAT_COUNT;
+    const currentScrollLeft = container.scrollLeft;
+
+    if (currentScrollLeft < singleSetWidth * 0.8) {
+      container.scrollLeft = currentScrollLeft + singleSetWidth * 2;
+    } else if (currentScrollLeft > singleSetWidth * 3.2) {
+      container.scrollLeft = currentScrollLeft - singleSetWidth * 2;
+    }
+  };
 
   return (
-    <div className="relative min-h-[100dvh] bg-background overflow-hidden select-none flex flex-col justify-between pt-14 pb-4 sm:py-8 md:py-12">
+    <div className="flex flex-col min-h-[100dvh] pt-14 md:pt-18 lg:pt-20 pb-4 dynamic-bottom-padding px-4 md:px-8 lg:px-12 bg-background relative overflow-hidden select-none justify-between">
+      
+      {/* 중앙 메인 콘텐츠 영역 */}
+      <div className="flex-grow flex flex-col items-center justify-center w-full max-w-[1180px] mx-auto py-2">
+        
+        {/* 상단: [왼쪽 사각형 2] : [오른쪽 설명 1] 완벽한 2:1 비율 레이아웃 */}
+        <div className="w-full flex flex-col md:flex-row items-stretch justify-center gap-[3%]">
+          
+          {/* 왼쪽 검은 사각형 (비율 2, aspect-[4/3]) */}
+          <div 
+            className="flex-[2] aspect-[4/3] bg-[#37332b] shrink-0 rounded-none shadow-sm relative overflow-hidden"
+          >
+            {/* 가로형 이미지는 추후 전달 시 삽입 */}
+          </div>
 
-      {/* Background/Header spacer spacing */}
-      <div className="h-6 sm:h-10 md:h-12 shrink-0" />
+          {/* 오른쪽 텍스트/선 영역 (비율 1, 세로 간격은 원본의 단정한 비율 유지) */}
+          <div 
+            className="flex-[1] flex flex-col justify-between min-w-[240px] mt-4 md:mt-0"
+          >
+            {/* 상단 텍스트 및 선 콤팩트 그룹 */}
+            <div className="flex flex-col">
+              {/* 1번 선: 전체 너비 100% */}
+              <div className="w-full bg-[#37332b]/40" style={{ height: "0.3px" }} />
 
-      {/* Navigation Arrows */}
-      <button
-        onClick={handlePrevPage}
-        className="absolute left-[2vw] md:left-[4vw] top-1/2 -translate-y-1/2 z-30 p-2 group cursor-pointer focus:outline-none hidden sm:block"
-        aria-label="Previous page"
+              {/* 제목 + 우측 서브카피 */}
+              <div className="w-full flex justify-between items-start pt-[14px] pb-[14px] md:pt-[18px] md:pb-[18px]">
+                <AnimatePresence mode="wait">
+                  <motion.h2 
+                    key={selectedItem.id}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-[clamp(24px,2.4vw,34px)] font-black text-[#37332b] leading-[1.10] whitespace-pre-line tracking-tight"
+                    style={{ 
+                      fontFamily: "'onul-heukdan', 'Batang', 'Nanum Myeongjo', serif",
+                      fontWeight: 900,
+                      WebkitTextStroke: "0.4px #37332b"
+                    }}
+                  >
+                    {selectedItem.title}
+                  </motion.h2>
+                </AnimatePresence>
+
+                <span 
+                  className="text-[clamp(10px,0.85vw,12px)] font-medium text-[#37332b] tracking-tight pt-[2px] whitespace-nowrap pl-2"
+                  style={{ fontFamily: "'Pretendard Variable', -apple-system, sans-serif" }}
+                >
+                  일상의 소리를 국악으로
+                </span>
+              </div>
+
+              {/* 2번 선 */}
+              <div className="w-full bg-[#37332b]/40" style={{ height: "0.3px" }} />
+
+              {/* 악기 이름: 윤고딕 240 계열 (간격 40px) */}
+              <div className="w-full h-[36px] md:h-[40px] flex items-center">
+                <AnimatePresence mode="wait">
+                  <motion.span 
+                    key={selectedItem.id}
+                    initial={{ opacity: 0, x: 4 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -4 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-[clamp(11px,0.9vw,13px)] text-[#37332b] tracking-tight"
+                    style={{ fontFamily: "'Pretendard Variable', -apple-system, sans-serif", fontWeight: 600 }}
+                  >
+                    {selectedItem.instrument}
+                  </motion.span>
+                </AnimatePresence>
+              </div>
+
+              {/* 3번 선 */}
+              <div className="w-full bg-[#37332b]/40" style={{ height: "0.3px" }} />
+
+              {/* 본문: 윤고딕 220 계열 (간격 40px) */}
+              <div className="w-full h-[36px] md:h-[40px] flex items-center">
+                <AnimatePresence mode="wait">
+                  <motion.span 
+                    key={selectedItem.id}
+                    initial={{ opacity: 0, x: 4 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -4 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-[clamp(11px,0.9vw,13px)] text-[#37332b]/85 tracking-tight"
+                    style={{ fontFamily: "'Pretendard Variable', -apple-system, sans-serif", fontWeight: 300 }}
+                  >
+                    {selectedItem.description}
+                  </motion.span>
+                </AnimatePresence>
+              </div>
+
+              {/* 4번 선 */}
+              <div className="w-full bg-[#37332b]/40" style={{ height: "0.3px" }} />
+            </div>
+
+            {/* 하단 끝 얇은 선 (왼쪽 사각형의 바닥 라인과 정렬) */}
+            <div className="w-full bg-[#37332b]/20 mt-auto" style={{ height: "0.3px" }} />
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* 하단 아이콘 구역 (세로 높이를 넉넉하게 확장) */}
+      <div 
+        className="w-full relative mt-auto"
+        style={{ marginTop: "clamp(24px, 5vh, 60px)" }}
       >
-        <svg className="w-12 h-12 md:w-16 md:h-16 text-[#4c483b]/60 hover:text-[#4c483b] transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
+        {/* 좌측 화이트 그라디언트 페이드 */}
+        <div 
+          className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-24 md:w-36 lg:w-48 bg-gradient-to-r from-background via-background/80 to-transparent z-40" 
+        />
 
-      <button
-        onClick={handleNextPage}
-        className="absolute right-[2vw] md:right-[4vw] top-1/2 -translate-y-1/2 z-30 p-2 group cursor-pointer focus:outline-none hidden sm:block"
-        aria-label="Next page"
-      >
-        <svg className="w-12 h-12 md:w-16 md:h-16 text-[#4c483b]/60 hover:text-[#4c483b] transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
+        {/* 우측 화이트 그라디언트 페이드 */}
+        <div 
+          className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-24 md:w-36 lg:w-48 bg-gradient-to-l from-background via-background/80 to-transparent z-40" 
+        />
 
-      {/* Carousel Container */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.2, ease: [0.21, 0.47, 0.32, 0.98] }}
-        className="relative w-full flex-grow overflow-visible flex items-center justify-start z-10 touch-pan-y"
-        style={{
-          paddingLeft: `calc(50vw - ${cardWidth / 2}px)`
-        }}
-      >
-        <motion.div
-          drag="x"
-          dragConstraints={{
-            left: -4 * stepWidth,
-            right: 0
+        {/* 가로 무한 스크롤 컨테이너 (세로 높이를 시원하게 높임: py-16 md:py-20, min-h-[240px]) */}
+        <div
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          className="w-full min-h-[220px] md:min-h-[260px] overflow-x-auto overflow-y-visible py-16 md:py-20 flex items-center scrollbar-none"
+          style={{
+            gap: "80px",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
           }}
-          dragElastic={0.15}
-          style={{ x: dragX }}
-          onDragEnd={(e, info) => {
-            const swipeThreshold = 80;
-            const swipeVelocityThreshold = 150;
-            const offset = info.offset.x;
-            const velocity = info.velocity.x;
-
-            let nextIndex = currentIndex;
-            if (offset < -swipeThreshold || velocity < -swipeVelocityThreshold) {
-              nextIndex = currentIndex + 1; // Slide forward (up to 4)
-            } else if (offset > swipeThreshold || velocity > swipeVelocityThreshold) {
-              nextIndex = currentIndex - 1; // Slide backward (down to 0)
-            }
-
-            stopSound();
-            snapTo(nextIndex);
-          }}
-          className="flex gap-4 sm:gap-6 md:gap-8 cursor-grab active:cursor-grabbing items-center h-full py-2 sm:py-4 select-none"
         >
-          {/* Card slide array: [2, 0, 1, 2, 0] */}
-          {[2, 0, 1, 2, 0].map((cardIdx, slideIdx) => (
-            <CarouselCard
-              key={slideIdx}
-              slideIdx={slideIdx}
-              cardIdx={cardIdx}
-              currentIndex={currentIndex}
-              stepWidth={stepWidth}
-              cardWidth={cardWidth}
-              dragX={dragX}
-              playingId={playingId}
-              activeRightImage={activeRightImage}
-              playSound={playSound}
-              stopSound={stopSound}
-              callDragX={callDragX}
-              alarmDragX={alarmDragX}
-              isPlayingInCard={isPlayingInCard}
-            />
-          ))}
-        </motion.div>
-      </motion.div>
+          {INFINITE_SOUND_ITEMS.map((item) => {
+            const isSelected = selectedId === item.id;
 
-      {/* Page Indicators (Bottom) */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.4, ease: [0.21, 0.47, 0.32, 0.98] }}
-        className="flex justify-center items-center gap-3 mt-2 sm:mt-4 z-20 shrink-0"
-      >
-        {[0, 1, 2].map((idx) => {
-          const isIndicatorActive = getRealIndex(currentIndex) === idx;
-          return (
-            <button
-              key={idx}
-              onClick={() => {
-                if (getRealIndex(currentIndex) !== idx) {
-                  stopSound();
-                  const targetIndex = idx === 0 ? 1 : idx === 1 ? 2 : 3;
-                  snapTo(targetIndex);
-                }
-              }}
-              className={cn(
-                "w-2.5 h-2.5 rounded-full transition-all duration-300 cursor-pointer",
-                isIndicatorActive
-                  ? "bg-[#4c483b] scale-120"
-                  : "bg-[#4c483b]/20 hover:bg-[#4c483b]/40"
-              )}
-              aria-label={`Go to slide ${idx + 1}`}
-            />
-          );
-        })}
-      </motion.div>
+            return (
+              <button
+                key={item.uniqueKey}
+                ref={(el) => {
+                  if (el) itemRefs.current.set(item.uniqueKey, el);
+                  else itemRefs.current.delete(item.uniqueKey);
+                }}
+                onPointerDown={() => handleSelect(item, item.uniqueKey)}
+                onClick={() => handleSelect(item, item.uniqueKey)}
+                aria-label={item.name}
+                className={cn(
+                  "w-[100px] h-[100px] shrink-0 flex items-center justify-center relative cursor-pointer select-none bg-transparent border-none outline-none transition-transform duration-300 ease-out",
+                  isSelected
+                    ? "scale-[2.0] opacity-100 z-30"
+                    : "scale-100 opacity-20 hover:opacity-50 hover:scale-105 z-10"
+                )}
+              >
+                {/* 선택 시 사방으로 4~8px 정도만 은은하게 퍼지는 색상 그림자 */}
+                <div 
+                  className="relative w-[100px] h-[100px] flex items-center justify-center pointer-events-none transition-all duration-300"
+                  style={{
+                    filter: isSelected
+                      ? `drop-shadow(0 0 4px ${item.glowColor}) drop-shadow(0 0 8px ${item.glowColor})`
+                      : "none",
+                  }}
+                >
+                  <DynamicSoundIcon
+                    id={item.id}
+                    isSelected={isSelected}
+                    brandColor100={item.brandColor100}
+                  />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
     </div>
   );

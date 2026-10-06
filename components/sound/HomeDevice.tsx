@@ -2,6 +2,13 @@
 
 import { motion } from "framer-motion";
 
+// Yulreo 브랜드 컬러 - 획(스트로크)만 적용
+const HOME_STROKE = {
+  tv:       "rgba(236, 200, 80, 0.70)",   // Silk (노랑)
+  washer:   "rgba(169, 176, 140, 0.75)",  // Bamboo (초록)
+  intercom: "rgba(143, 147, 169, 0.75)", // Rock (편경색)
+};
+
 interface HomeDeviceProps {
   playingId: string | null;
   playSound: (id: string, url: string) => void;
@@ -59,8 +66,8 @@ export default function HomeDevice({ playingId, playSound }: HomeDeviceProps) {
             {/* Physical Shadow Layer for iPad/Safari */}
             <rect fill="rgba(76, 72, 59, 0.14)" x="0" y="5" width="128.81" height="177.45" rx="4.9" ry="4.9"/>
             <rect fill="#4c483b" width="128.81" height="177.45" rx="4.9" ry="4.9"/>
-            <rect fill="#ffffff" x="9.87" y="10.72" width="109.07" height="77.07" rx="2.47" ry="2.47"/>
-            <circle fill="#ffffff" cx="64.41" cy="150.38" r="16.19"/>
+            <rect fill="#fafaf8" x="9.87" y="10.72" width="109.07" height="77.07" rx="2.47" ry="2.47"/>
+            <circle fill="#fafaf8" cx="64.41" cy="150.38" r="16.19"/>
             <circle fill="#4c483b" cx="64.41" cy="37.36" r="18.49"/>
             <path fill="#4c483b" d="M52.81,57.11h23.19c6.75,0,12.24,5.48,12.24,12.24v16.75h-47.66v-16.75c0-6.75,5.48-12.24,12.24-12.24Z"/>
           </g>
@@ -75,7 +82,13 @@ export default function HomeDevice({ playingId, playSound }: HomeDeviceProps) {
           >
             {/* Physical Shadow Layer for iPad/Safari */}
             <rect fill="rgba(76, 72, 59, 0.14)" x="0" y="5" width="128.81" height="177.45" rx="4.9" ry="4.9"/>
-            <rect fill="#ffffff" width="128.81" height="177.45" rx="4.9" ry="4.9"/>
+            {/* 초인종 - 면: #fafaf8, 획: 편경색 적용 */}
+            <rect
+              fill="#fafaf8"
+              stroke={HOME_STROKE.intercom}
+              strokeWidth="2"
+              width="128.81" height="177.45" rx="4.9" ry="4.9"
+            />
             <rect fill="rgba(76, 72, 59, 0.08)" x="9.87" y="10.72" width="109.07" height="77.07" rx="2.47" ry="2.47"/>
             <circle fill="#4c483b" cx="64.41" cy="150.38" r="16.19"/>
           </motion.g>
@@ -94,9 +107,9 @@ export default function HomeDevice({ playingId, playSound }: HomeDeviceProps) {
         >
           {/* Physical Shadow Layer for iPad/Safari */}
           <rect fill="rgba(76, 72, 59, 0.14)" x="369.53" y="176.73" width="212.62" height="366.61" rx="5.47" ry="5.47" transform="translate(115.81 840.88) rotate(-90)"/>
-          {/* TV 켜짐: 프레임 검정, 안쪽 화면 흰색 */}
+          {/* TV 켜짐: 프레임 검정, 안쪽 화면 희색 */}
           <rect fill="#4c483b" x="369.53" y="176.73" width="212.62" height="366.61" rx="5.47" ry="5.47" transform="translate(115.81 835.88) rotate(-90)"/>
-          <rect fill="#ffffff" x="379.53" y="186.73" width="192.62" height="346.61" transform="translate(835.88 -115.81) rotate(90)"/>
+          <rect fill="#fafaf8" x="379.53" y="186.73" width="192.62" height="346.61" transform="translate(835.88 -115.81) rotate(90)"/>
         </motion.g>
       ) : (
         <motion.g 
@@ -109,8 +122,14 @@ export default function HomeDevice({ playingId, playSound }: HomeDeviceProps) {
         >
           {/* Physical Shadow Layer for iPad/Safari */}
           <rect fill="rgba(76, 72, 59, 0.14)" x="369.53" y="176.73" width="212.62" height="366.61" rx="5.47" ry="5.47" transform="translate(115.81 840.88) rotate(-90)"/>
-          {/* TV 꺼짐: 프레임 흰색, 안쪽 화면 검정 */}
-          <rect fill="#ffffff" x="369.53" y="176.73" width="212.62" height="366.61" rx="5.47" ry="5.47" transform="translate(115.81 835.88) rotate(-90)"/>
+          {/* TV 꺼짐 - 면: #fafaf8, 획: Silk 노란색 적용 */}
+          <rect
+            fill="#fafaf8"
+            stroke={HOME_STROKE.tv}
+            strokeWidth="2"
+            x="369.53" y="176.73" width="212.62" height="366.61" rx="5.47" ry="5.47"
+            transform="translate(115.81 835.88) rotate(-90)"
+          />
           <rect fill="#4c483b" x="379.53" y="186.73" width="192.62" height="346.61" transform="translate(835.88 -115.81) rotate(90)"/>
         </motion.g>
       )}
@@ -148,7 +167,13 @@ export default function HomeDevice({ playingId, playSound }: HomeDeviceProps) {
             whileTap={{ scale: 0.94 }}
           >
             <rect fill="rgba(76, 72, 59, 0.22)" x="0" y="6" width="252.44" height="337.77" rx="5.72" ry="5.72"/>
-            <rect fill="#ffffff" width="252.44" height="337.77" rx="5.72" ry="5.72"/>
+            {/* 세탁기 - 면: #fafaf8, 획: Bamboo 초록색 적용 */}
+            <rect
+              fill="#fafaf8"
+              stroke={HOME_STROKE.washer}
+              strokeWidth="2"
+              width="252.44" height="337.77" rx="5.72" ry="5.72"
+            />
             <circle fill="rgba(76, 72, 59, 0.08)" cx="126.22" cy="208.65" r="104.99"/>
             <circle fill="#4c483b" cx="126.22" cy="208.65" r="86.63"/>
             <line stroke="rgba(76, 72, 59, 0.18)" strokeLinecap="round" strokeMiterlimit={10} strokeWidth={1.5} x1="8.73" y1="38.64" x2="243.71" y2="38.64"/>
