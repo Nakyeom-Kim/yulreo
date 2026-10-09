@@ -339,11 +339,11 @@ export default function SoundPage() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-[100dvh] pt-14 md:pt-18 lg:pt-20 pb-4 dynamic-bottom-padding px-4 md:px-8 lg:px-12 bg-background relative overflow-hidden select-none justify-between">
+    <div className="flex flex-col min-h-[100dvh] pt-14 md:pt-18 lg:pt-20 pb-4 dynamic-bottom-padding px-4 md:px-8 lg:px-12 bg-background relative select-none justify-between">
       
       {/* 상단 메인 콘텐츠 영역: [왼쪽 4:3 사각형 (2)] : [오른쪽 설명 구역 (1)] */}
       <div className="flex-grow flex flex-col items-center justify-center w-full max-w-[1180px] mx-auto py-0 sm:py-1">
-        <div className="w-full flex flex-col md:flex-row items-center md:items-stretch justify-center gap-3 md:gap-[3%]" style={{ maxHeight: "clamp(180px, 38vh, 480px)" }}>
+        <div className="w-full flex flex-col md:flex-row items-center md:items-stretch justify-center gap-5 md:gap-[3%]" style={{ maxHeight: "clamp(180px, 38vh, 480px)" }}>
           
           {/* 왼쪽 검은 사각형 (2 비율, 4:3 종횡비, 모바일/아이패드 최적화) */}
           <div className="w-full max-w-[380px] md:max-w-none md:flex-[2] aspect-[4/3] bg-[#37332b] shrink-0 rounded-none shadow-sm relative overflow-hidden" style={{ maxHeight: "clamp(135px, 28.5vh, 360px)" }}>
@@ -363,7 +363,7 @@ export default function SoundPage() {
           </div>
 
           {/* 오른쪽 텍스트 및 선 영역 (1 비율, 콤팩트한 단정 세로 간격) */}
-          <div className="w-full max-w-[420px] md:max-w-none md:flex-[1] flex flex-col justify-between min-w-[200px] md:min-w-[240px]">
+          <div className="w-full max-w-[420px] md:max-w-none md:flex-[1] flex flex-col justify-between min-w-[200px] md:min-w-[240px] mt-1 md:mt-0">
             <div className="flex flex-col">
               {/* 1번 선 */}
               <div className="w-full bg-[#37332b]/40" style={{ height: "0.3px" }} />
@@ -445,20 +445,22 @@ export default function SoundPage() {
       </div>
 
       {/* 하단 아이콘 무한 스크롤 구역 (모바일/아이패드/데스크톱 반응형 여백) */}
-      <div className="w-full relative mt-auto" style={{ marginTop: "clamp(12px, 3vh, 48px)" }}>
-        {/* 좌우 화이트 그라디언트 페이드 */}
+      {/* overflow-x: clip만 사용해 가로는 잘리지만 세로(확대 아이콘)는 보이게 처리 */}
+      <div className="w-full relative mt-auto" style={{ marginTop: "clamp(12px, 3vh, 48px)", overflowX: "clip", overflowY: "visible" }}>
+        {/* 좌우 화이트 그라디언트 페이드 — 스크롤 컨테이너와 같은 레벨로 z-index 분리 */}
         <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 md:w-32 lg:w-48 bg-gradient-to-r from-background via-background/80 to-transparent z-40" />
         <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 md:w-32 lg:w-48 bg-gradient-to-l from-background via-background/80 to-transparent z-40" />
 
-        {/* 무한 가로 스크롤 컨테이너 (디바이스별 최적화된 패딩 & 간격) */}
+        {/* 무한 가로 스크롤 컨테이너 */}
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="w-full overflow-x-auto overflow-y-visible flex items-center scrollbar-none touch-pan-x gap-[28px] sm:gap-[36px] md:gap-[44px] lg:gap-[60px]"
+          className="w-full overflow-x-auto flex items-center scrollbar-none touch-pan-x gap-[28px] sm:gap-[36px] md:gap-[44px] lg:gap-[60px]"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
-            paddingTop: "clamp(20px, 4vh, 56px)",
+            overflowY: "visible",
+            paddingTop: "clamp(24px, 5vh, 60px)",
             paddingBottom: "clamp(20px, 4vh, 56px)",
             minHeight: "clamp(100px, 18vh, 220px)",
           }}
