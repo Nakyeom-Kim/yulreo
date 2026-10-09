@@ -345,7 +345,7 @@ export default function SoundPage() {
         <div className="w-full flex flex-col md:flex-row items-center md:items-stretch justify-center gap-5 md:gap-[3%]" style={{ maxHeight: "clamp(180px, 48vh, 560px)" }}>
           
           {/* 왼쪽 검은 사각형 (2 비율, 4:3 종횡비, 45vh 비율 적용: 최대 560px) */}
-          <div className="w-full max-w-[380px] md:max-w-none md:flex-[2] aspect-[4/3] bg-[#37332b] shrink-0 rounded-none shadow-sm relative overflow-hidden" style={{ maxHeight: "clamp(135px, 45vh, 560px)" }}>
+          <div className="w-full max-w-[380px] md:max-w-none md:flex-[2] aspect-[4/3] bg-[#37332b] shrink-0 rounded-none relative overflow-hidden" style={{ maxHeight: "clamp(135px, 45vh, 560px)" }}>
             <img
               src={selectedItem.image}
               alt={selectedItem.name}
@@ -363,7 +363,7 @@ export default function SoundPage() {
               {/* 제목 + 서브카피 */}
               <div className="w-full flex justify-between items-start pt-[10px] pb-[10px] sm:pt-[14px] sm:pb-[14px] md:pt-[18px] md:pb-[18px]">
                 <h2 
-                  className="text-[20px] sm:text-[24px] md:text-[clamp(24px,2.4vw,34px)] font-black text-[#37332b] leading-[1.10] whitespace-pre-line tracking-tight"
+                  className="text-[20px] sm:text-[24px] md:text-[clamp(24px,2.4vw,34px)] font-black text-[#37332b] leading-[1.10] whitespace-pre-line tracking-tight -translate-x-[2px]"
                   style={{ 
                     fontFamily: "'onul-heukdan', 'Batang', 'Nanum Myeongjo', serif",
                     fontWeight: 900,
@@ -407,9 +407,6 @@ export default function SoundPage() {
               {/* 4번 선 */}
               <div className="w-full h-[1px] bg-[#37332b]/35" />
             </div>
-
-            {/* 하단 끝 얇은 선 (모바일에서는 삭제, 아이패드 및 PC에서만 바닥 정렬용 표시) */}
-            <div className="hidden md:block w-full h-[1px] bg-[#37332b]/20 mt-auto" />
           </div>
 
         </div>
@@ -457,7 +454,7 @@ export default function SoundPage() {
                 className={cn(
                   "shrink-0 flex items-center justify-center relative cursor-pointer select-none bg-transparent border-none outline-none transition-transform duration-300 ease-out",
                   isSelected
-                    ? "scale-[1.65] opacity-100 z-30"
+                    ? "scale-[1.85] opacity-100 z-30"
                     : "scale-100 opacity-20 hover:opacity-50 hover:scale-105 z-10"
                 )}
               >
