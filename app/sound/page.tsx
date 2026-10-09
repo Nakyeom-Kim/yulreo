@@ -9,6 +9,7 @@ export interface SoundItem {
   id: string;
   name: string;
   audio: string;
+  image: string;         // 왼쪽 사각형에 표시할 이미지
   title: string;
   instrument: string;
   description: string;
@@ -21,100 +22,110 @@ export const SOUND_ITEMS: SoundItem[] = [
     id: "message",
     name: "문자 알림",
     audio: "/sound/sound/mobile_message.mp3",
+    image: "/sound-img/sound-mobile-message-img.jpg",
     title: "문자\n알림",
     instrument: "좌고",
     description: "새로운 메시지가 도착했습니다",
-    brandColor100: "#D09C9C", // 가죽색 (Leather)
+    brandColor100: "#D09C9C",
     glowColor: "rgba(208, 156, 156, 0.50)",
   },
   {
     id: "call",
     name: "전화 벨소리",
     audio: "/sound/sound/mobile_ringtone.mp3",
+    image: "/sound-img/sound-mobile-call-img.jpg",
     title: "전화\n벨소리",
     instrument: "장구 • 거문고 • 대금",
     description: "전화 왔어요, 받아보세요",
-    brandColor100: "#ECC850", // 노란색 (Silk)
+    brandColor100: "#ECC850",
     glowColor: "rgba(236, 200, 80, 0.50)",
   },
   {
     id: "alarm",
     name: "기상 알람",
     audio: "/sound/sound/mobile_notification.mp3",
+    image: "/sound-img/sound-mobile-alarm-img.jpg",
     title: "기상\n알람",
     instrument: "가야금 • 해금 • 대금",
     description: "오늘 하루를 시작할 시간입니다",
-    brandColor100: "#A9B08C", // 초록색 (Bamboo)
+    brandColor100: "#A9B08C",
     glowColor: "rgba(169, 176, 140, 0.50)",
   },
   {
     id: "emergency",
     name: "재난문자",
     audio: "/sound/sound/mobile_emergency_alert.mp3",
+    image: "/sound-img/sound-mobile-emergency-img.jpg",
     title: "재난\n문자",
     instrument: "북 • 박",
     description: "긴급 재난 상황을 알려드립니다",
-    brandColor100: "#AA8657", // 나무색 (Wood)
+    brandColor100: "#AA8657",
     glowColor: "rgba(170, 134, 87, 0.50)",
   },
   {
     id: "intercom",
     name: "현관 초인종",
     audio: "/sound/sound/home_ring.mp3",
+    image: "/sound-img/sound-home-Intercom-img.jpg",
     title: "현관\n초인종",
     instrument: "편경",
     description: "딩동, 손님이 찾아왔습니다",
-    brandColor100: "#8F93A9", // 편경색 (Rock)
+    brandColor100: "#8F93A9",
     glowColor: "rgba(143, 147, 169, 0.50)",
   },
   {
     id: "card",
     name: "교통카드",
     audio: "/sound/sound/transit_card.mp3",
+    image: "/sound-img/sound-traffic-card-img.jpg",
     title: "교통카드\n태그",
     instrument: "편종",
     description: "승차/하차가 처리되었습니다",
-    brandColor100: "#BDCCD2", // 편종색 (Metal)
+    brandColor100: "#BDCCD2",
     glowColor: "rgba(189, 204, 210, 0.55)",
   },
   {
     id: "stop",
     name: "버스 하차벨",
     audio: "/sound/sound/traffic_stop_bell.mp3",
+    image: "/sound-img/sound-traffic-stop-img.jpg",
     title: "버스\n하차벨",
     instrument: "피리",
     description: "기사님 저 내릴게요",
-    brandColor100: "#A9B08C", // 초록색 (Bamboo)
+    brandColor100: "#A9B08C",
     glowColor: "rgba(169, 176, 140, 0.50)",
   },
   {
     id: "blinker",
     name: "보행자 신호등",
     audio: "/sound/sound/traffic_crosswalk_signal.mp3",
+    image: "/sound-img/sound-traffic-blinker-img.jpg",
     title: "보행자\n신호음",
     instrument: "가야금",
     description: "초록불이 켜졌습니다",
-    brandColor100: "#ECC850", // 노란색 (Silk)
+    brandColor100: "#ECC850",
     glowColor: "rgba(236, 200, 80, 0.50)",
   },
   {
     id: "tv",
     name: "TV",
     audio: "/sound/sound/home_tv_on.mp3",
+    image: "/sound-img/sound-home-tv-img.jpg",
     title: "TV 켜짐\n소리",
     instrument: "거문고",
     description: "텔레비전 전원이 켜졌습니다",
-    brandColor100: "#ECC850", // 노란색 (Silk)
+    brandColor100: "#ECC850",
     glowColor: "rgba(236, 200, 80, 0.50)",
   },
   {
     id: "washing",
     name: "세탁기",
     audio: "/sound/sound/home_washing_machine.mp3",
+    image: "/sound-img/sound-home-washing-img.jpg",
     title: "세탁 완료\n알림음",
     instrument: "대금 • 가야금",
     description: "세탁 코스가 모두 완료되었습니다",
-    brandColor100: "#A9B08C", // 초록색 (Bamboo)
+    brandColor100: "#A9B08C",
     glowColor: "rgba(169, 176, 140, 0.50)",
   },
 ];
@@ -278,10 +289,16 @@ export default function SoundPage() {
     }
   }, []);
 
-  // Audio 객체 초기화 및 정리
+  // Audio 객체 초기화 및 이미지 프리로드
   useEffect(() => {
     const audio = new Audio();
     audioRef.current = audio;
+
+    // 모든 사운드 아이템 이미지 사전 로딩 (버튼 클릭 시 즉시 표시)
+    SOUND_ITEMS.forEach((item) => {
+      const img = new window.Image();
+      img.src = item.image;
+    });
 
     return () => {
       audio.pause();
@@ -325,22 +342,34 @@ export default function SoundPage() {
     <div className="flex flex-col min-h-[100dvh] pt-14 md:pt-18 lg:pt-20 pb-4 dynamic-bottom-padding px-4 md:px-8 lg:px-12 bg-background relative overflow-hidden select-none justify-between">
       
       {/* 상단 메인 콘텐츠 영역: [왼쪽 4:3 사각형 (2)] : [오른쪽 설명 구역 (1)] */}
-      <div className="flex-grow flex flex-col items-center justify-center w-full max-w-[1180px] mx-auto py-2">
-        <div className="w-full flex flex-col md:flex-row items-stretch justify-center gap-[3%]">
+      <div className="flex-grow flex flex-col items-center justify-center w-full max-w-[1180px] mx-auto py-1 sm:py-2">
+        <div className="w-full flex flex-col md:flex-row items-center md:items-stretch justify-center gap-4 md:gap-[3%]">
           
-          {/* 왼쪽 검은 사각형 (2 비율, 4:3 종횡비) */}
-          <div className="flex-[2] aspect-[4/3] bg-[#37332b] shrink-0 rounded-none shadow-sm relative overflow-hidden">
-            {/* 가로형 이미지는 추후 전달 시 삽입 */}
+          {/* 왼쪽 검은 사각형 (2 비율, 4:3 종횡비, 모바일/아이패드 최적화) */}
+          <div className="w-full max-w-[420px] md:max-w-none md:flex-[2] aspect-[4/3] bg-[#37332b] shrink-0 rounded-none shadow-sm relative overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={selectedItem.id}
+                src={selectedItem.image}
+                alt={selectedItem.name}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="absolute inset-0 w-full h-full object-cover"
+                loading="eager"
+              />
+            </AnimatePresence>
           </div>
 
           {/* 오른쪽 텍스트 및 선 영역 (1 비율, 콤팩트한 단정 세로 간격) */}
-          <div className="flex-[1] flex flex-col justify-between min-w-[240px] mt-4 md:mt-0">
+          <div className="w-full max-w-[420px] md:max-w-none md:flex-[1] flex flex-col justify-between min-w-[200px] md:min-w-[240px]">
             <div className="flex flex-col">
               {/* 1번 선 */}
               <div className="w-full bg-[#37332b]/40" style={{ height: "0.3px" }} />
 
               {/* 제목 + 서브카피 */}
-              <div className="w-full flex justify-between items-start pt-[14px] pb-[14px] md:pt-[18px] md:pb-[18px]">
+              <div className="w-full flex justify-between items-start pt-[10px] pb-[10px] sm:pt-[14px] sm:pb-[14px] md:pt-[18px] md:pb-[18px]">
                 <AnimatePresence mode="wait">
                   <motion.h2 
                     key={selectedItem.id}
@@ -348,7 +377,7 @@ export default function SoundPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -4 }}
                     transition={{ duration: 0.2 }}
-                    className="text-[clamp(24px,2.4vw,34px)] font-black text-[#37332b] leading-[1.10] whitespace-pre-line tracking-tight"
+                    className="text-[20px] sm:text-[24px] md:text-[clamp(24px,2.4vw,34px)] font-black text-[#37332b] leading-[1.10] whitespace-pre-line tracking-tight"
                     style={{ 
                       fontFamily: "'onul-heukdan', 'Batang', 'Nanum Myeongjo', serif",
                       fontWeight: 900,
@@ -360,7 +389,7 @@ export default function SoundPage() {
                 </AnimatePresence>
 
                 <span 
-                  className="text-[clamp(10px,0.85vw,12px)] font-medium text-[#37332b] tracking-tight pt-[2px] whitespace-nowrap pl-2 font-sans"
+                  className="text-[10px] sm:text-[11px] md:text-[clamp(10px,0.85vw,12px)] font-medium text-[#37332b] tracking-tight pt-[2px] whitespace-nowrap pl-2 font-sans"
                 >
                   일상의 소리를 국악으로
                 </span>
@@ -370,7 +399,7 @@ export default function SoundPage() {
               <div className="w-full bg-[#37332b]/40" style={{ height: "0.3px" }} />
 
               {/* 악기 이름 */}
-              <div className="w-full h-[36px] md:h-[40px] flex items-center">
+              <div className="w-full h-[32px] sm:h-[36px] md:h-[40px] flex items-center">
                 <AnimatePresence mode="wait">
                   <motion.span 
                     key={selectedItem.id}
@@ -378,7 +407,7 @@ export default function SoundPage() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -4 }}
                     transition={{ duration: 0.2 }}
-                    className="text-[clamp(11px,0.9vw,13px)] text-[#37332b] tracking-tight font-semibold font-sans"
+                    className="text-[11px] sm:text-[12px] md:text-[clamp(11px,0.9vw,13px)] text-[#37332b] tracking-tight font-semibold font-sans"
                   >
                     {selectedItem.instrument}
                   </motion.span>
@@ -389,7 +418,7 @@ export default function SoundPage() {
               <div className="w-full bg-[#37332b]/40" style={{ height: "0.3px" }} />
 
               {/* 본문 설명 */}
-              <div className="w-full h-[36px] md:h-[40px] flex items-center">
+              <div className="w-full h-[32px] sm:h-[36px] md:h-[40px] flex items-center">
                 <AnimatePresence mode="wait">
                   <motion.span 
                     key={selectedItem.id}
@@ -397,7 +426,7 @@ export default function SoundPage() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -4 }}
                     transition={{ duration: 0.2 }}
-                    className="text-[clamp(11px,0.9vw,13px)] text-[#37332b]/85 tracking-tight font-light font-sans"
+                    className="text-[11px] sm:text-[12px] md:text-[clamp(11px,0.9vw,13px)] text-[#37332b]/85 tracking-tight font-light font-sans"
                   >
                     {selectedItem.description}
                   </motion.span>
@@ -409,27 +438,29 @@ export default function SoundPage() {
             </div>
 
             {/* 하단 끝 얇은 선 (왼쪽 사각형 바닥 라인 정렬) */}
-            <div className="w-full bg-[#37332b]/20 mt-auto" style={{ height: "0.3px" }} />
+            <div className="w-full bg-[#37332b]/20 mt-2 md:mt-auto" style={{ height: "0.3px" }} />
           </div>
 
         </div>
       </div>
 
-      {/* 하단 아이콘 무한 스크롤 구역 */}
-      <div className="w-full relative mt-auto" style={{ marginTop: "clamp(24px, 5vh, 60px)" }}>
+      {/* 하단 아이콘 무한 스크롤 구역 (모바일/아이패드/데스크톱 반응형 여백) */}
+      <div className="w-full relative mt-auto" style={{ marginTop: "clamp(12px, 3vh, 48px)" }}>
         {/* 좌우 화이트 그라디언트 페이드 */}
-        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-24 md:w-36 lg:w-48 bg-gradient-to-r from-background via-background/80 to-transparent z-40" />
-        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-24 md:w-36 lg:w-48 bg-gradient-to-l from-background via-background/80 to-transparent z-40" />
+        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 md:w-32 lg:w-48 bg-gradient-to-r from-background via-background/80 to-transparent z-40" />
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 md:w-32 lg:w-48 bg-gradient-to-l from-background via-background/80 to-transparent z-40" />
 
-        {/* 무한 가로 스크롤 컨테이너 */}
+        {/* 무한 가로 스크롤 컨테이너 (디바이스별 최적화된 패딩 & 간격) */}
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="w-full min-h-[220px] md:min-h-[260px] overflow-x-auto overflow-y-visible py-16 md:py-20 flex items-center scrollbar-none"
+          className="w-full overflow-x-auto overflow-y-visible flex items-center scrollbar-none touch-pan-x gap-[28px] sm:gap-[36px] md:gap-[44px] lg:gap-[60px]"
           style={{
-            gap: "80px",
             scrollbarWidth: "none",
             msOverflowStyle: "none",
+            paddingTop: "clamp(20px, 4vh, 56px)",
+            paddingBottom: "clamp(20px, 4vh, 56px)",
+            minHeight: "clamp(100px, 18vh, 220px)",
           }}
         >
           {INFINITE_SOUND_ITEMS.map((item) => {
@@ -445,16 +476,21 @@ export default function SoundPage() {
                 onPointerDown={() => handleSelect(item, item.uniqueKey)}
                 onClick={() => handleSelect(item, item.uniqueKey)}
                 aria-label={item.name}
+                style={{
+                  width: "clamp(44px, 7vw, 88px)",
+                  height: "clamp(44px, 7vw, 88px)",
+                }}
                 className={cn(
-                  "w-[100px] h-[100px] shrink-0 flex items-center justify-center relative cursor-pointer select-none bg-transparent border-none outline-none transition-transform duration-300 ease-out",
+                  "shrink-0 flex items-center justify-center relative cursor-pointer select-none bg-transparent border-none outline-none transition-transform duration-300 ease-out",
+                  // 누르면 반응형 확대
                   isSelected
-                    ? "scale-[2.0] opacity-100 z-30"
+                    ? "scale-[1.65] opacity-100 z-30"
                     : "scale-100 opacity-20 hover:opacity-50 hover:scale-105 z-10"
                 )}
               >
                 {/* 4~8px 소프트 컬러 발광 그림자 */}
                 <div 
-                  className="relative w-[100px] h-[100px] flex items-center justify-center pointer-events-none transition-all duration-300"
+                  className="relative w-full h-full flex items-center justify-center pointer-events-none transition-all duration-300"
                   style={{
                     filter: isSelected
                       ? `drop-shadow(0 0 4px ${item.glowColor}) drop-shadow(0 0 8px ${item.glowColor})`
