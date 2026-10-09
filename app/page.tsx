@@ -502,7 +502,7 @@ export default function InstrumentPage() {
                 ref={(el) => { if (el) imgWrapperRef.current = el; }}
                 className={cn(
                   "transition-[opacity,filter] duration-300 ease-in-out origin-center relative flex items-center justify-center",
-                  !activeVideo && "after:content-[''] after:absolute after:inset-x-0 after:top-0 after:h-12 after:bg-gradient-to-b after:from-[#ffffff] after:to-transparent after:pointer-events-none after:z-30"
+                  !activeVideo && "after:content-[''] after:absolute after:inset-x-0 after:top-0 after:h-12 after:bg-gradient-to-b after:from-[#fafaf8] after:to-transparent after:pointer-events-none after:z-30"
                 )}
               >
                 {/* 좌고(Jwago) 전용 흐릿하고 큰 배경(고스트) 이미지 - 좌/우 반갈라서 독립 제어 */}

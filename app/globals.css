@@ -18,7 +18,7 @@
 }
 
 :root {
-  --background: #ffffff !important;
+  --background: #fafaf8 !important;
   --foreground: #4c483b !important; /* 차분한 어두운 텍스트 */
 }
 
@@ -65,7 +65,7 @@
 }
 
 html, body {
-  background-color: #ffffff !important;
+  background-color: #fafaf8 !important;
   color: var(--foreground) !important;
   font-family: var(--font-sans);
   overflow: hidden;

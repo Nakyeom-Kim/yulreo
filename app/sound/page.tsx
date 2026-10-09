@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, memo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/utils/cn";
 
 // 사운드 아이템 타입 및 메타데이터 정의
@@ -347,19 +346,12 @@ export default function SoundPage() {
           
           {/* 왼쪽 검은 사각형 (2 비율, 4:3 종횡비, 45vh 비율 적용: 최대 560px) */}
           <div className="w-full max-w-[380px] md:max-w-none md:flex-[2] aspect-[4/3] bg-[#37332b] shrink-0 rounded-none shadow-sm relative overflow-hidden" style={{ maxHeight: "clamp(135px, 45vh, 560px)" }}>
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={selectedItem.id}
-                src={selectedItem.image}
-                alt={selectedItem.name}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.25 }}
-                className="absolute inset-0 w-full h-full object-cover"
-                loading="eager"
-              />
-            </AnimatePresence>
+            <img
+              src={selectedItem.image}
+              alt={selectedItem.name}
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="eager"
+            />
           </div>
 
           {/* 오른쪽 텍스트 및 선 영역 (1 비율, 콤팩트한 단정 세로 간격) */}
@@ -370,23 +362,16 @@ export default function SoundPage() {
 
               {/* 제목 + 서브카피 */}
               <div className="w-full flex justify-between items-start pt-[10px] pb-[10px] sm:pt-[14px] sm:pb-[14px] md:pt-[18px] md:pb-[18px]">
-                <AnimatePresence mode="wait">
-                  <motion.h2 
-                    key={selectedItem.id}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -4 }}
-                    transition={{ duration: 0.2 }}
-                    className="text-[20px] sm:text-[24px] md:text-[clamp(24px,2.4vw,34px)] font-black text-[#37332b] leading-[1.10] whitespace-pre-line tracking-tight"
-                    style={{ 
-                      fontFamily: "'onul-heukdan', 'Batang', 'Nanum Myeongjo', serif",
-                      fontWeight: 900,
-                      WebkitTextStroke: "0.4px #37332b"
-                    }}
-                  >
-                    {selectedItem.title}
-                  </motion.h2>
-                </AnimatePresence>
+                <h2 
+                  className="text-[20px] sm:text-[24px] md:text-[clamp(24px,2.4vw,34px)] font-black text-[#37332b] leading-[1.10] whitespace-pre-line tracking-tight"
+                  style={{ 
+                    fontFamily: "'onul-heukdan', 'Batang', 'Nanum Myeongjo', serif",
+                    fontWeight: 900,
+                    WebkitTextStroke: "0.4px #37332b"
+                  }}
+                >
+                  {selectedItem.title}
+                </h2>
 
                 <span 
                   className="text-[10px] sm:text-[11px] md:text-[clamp(10px,0.85vw,12px)] font-medium text-[#37332b] tracking-tight pt-[2px] whitespace-nowrap pl-2 font-sans"
@@ -400,18 +385,11 @@ export default function SoundPage() {
 
               {/* 악기 이름 */}
               <div className="w-full flex items-center" style={{ minHeight: "clamp(28px, 4.5vh, 44px)" }}>
-                <AnimatePresence mode="wait">
-                  <motion.span 
-                    key={selectedItem.id}
-                    initial={{ opacity: 0, x: 4 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -4 }}
-                    transition={{ duration: 0.2 }}
-                    className="text-[11px] sm:text-[12px] md:text-[clamp(11px,0.9vw,13px)] text-[#37332b] tracking-tight font-semibold font-sans"
-                  >
-                    {selectedItem.instrument}
-                  </motion.span>
-                </AnimatePresence>
+                <span 
+                  className="text-[11px] sm:text-[12px] md:text-[clamp(11px,0.9vw,13px)] text-[#37332b] tracking-tight font-semibold font-sans"
+                >
+                  {selectedItem.instrument}
+                </span>
               </div>
 
               {/* 3번 선 */}
@@ -419,18 +397,11 @@ export default function SoundPage() {
 
               {/* 본문 설명 */}
               <div className="w-full flex items-center" style={{ minHeight: "clamp(28px, 4.5vh, 44px)" }}>
-                <AnimatePresence mode="wait">
-                  <motion.span 
-                    key={selectedItem.id}
-                    initial={{ opacity: 0, x: 4 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -4 }}
-                    transition={{ duration: 0.2 }}
-                    className="text-[11px] sm:text-[12px] md:text-[clamp(11px,0.9vw,13px)] text-[#37332b]/85 tracking-tight font-light font-sans"
-                  >
-                    {selectedItem.description}
-                  </motion.span>
-                </AnimatePresence>
+                <span 
+                  className="text-[11px] sm:text-[12px] md:text-[clamp(11px,0.9vw,13px)] text-[#37332b]/85 tracking-tight font-light font-sans"
+                >
+                  {selectedItem.description}
+                </span>
               </div>
 
               {/* 4번 선 */}
