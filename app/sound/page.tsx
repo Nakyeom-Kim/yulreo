@@ -346,7 +346,7 @@ export default function SoundPage() {
         <div className="w-full flex flex-col md:flex-row items-center md:items-stretch justify-center gap-5 md:gap-[3%]" style={{ maxHeight: "clamp(180px, 46vh, 520px)" }}>
           
           {/* 왼쪽 검은 사각형 (2 비율, 4:3 종횡비, 모바일/아이패드 최적화) */}
-          <div className="w-full max-w-[380px] md:max-w-none md:flex-[2] aspect-[4/3] bg-[#37332b] shrink-0 rounded-none shadow-sm relative overflow-hidden" style={{ maxHeight: "clamp(135px, 36vh, 400px)" }}>
+          <div className="w-full max-w-[380px] md:max-w-none md:flex-[2] aspect-[4/3] bg-[#37332b] shrink-0 rounded-none shadow-sm relative overflow-hidden" style={{ maxHeight: "clamp(135px, 40vh, 440px)" }}>
             <AnimatePresence mode="wait">
               <motion.img
                 key={selectedItem.id}
@@ -399,7 +399,7 @@ export default function SoundPage() {
               <div className="w-full bg-[#37332b]/40" style={{ height: "0.3px" }} />
 
               {/* 악기 이름 */}
-              <div className="w-full h-[32px] sm:h-[36px] md:h-[40px] flex items-center">
+              <div className="w-full flex items-center" style={{ minHeight: "clamp(28px, 4.5vh, 44px)" }}>
                 <AnimatePresence mode="wait">
                   <motion.span 
                     key={selectedItem.id}
@@ -418,7 +418,7 @@ export default function SoundPage() {
               <div className="w-full bg-[#37332b]/40" style={{ height: "0.3px" }} />
 
               {/* 본문 설명 */}
-              <div className="w-full h-[32px] sm:h-[36px] md:h-[40px] flex items-center">
+              <div className="w-full flex items-center" style={{ minHeight: "clamp(28px, 4.5vh, 44px)" }}>
                 <AnimatePresence mode="wait">
                   <motion.span 
                     key={selectedItem.id}
