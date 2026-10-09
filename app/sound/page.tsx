@@ -444,27 +444,28 @@ export default function SoundPage() {
         </div>
       </div>
 
-      {/* 하단 아이콘 무한 스크롤 구역 (모바일/아이패드/데스크톱 반응형 여백) */}
+      {/* 하단 아이콘 무한 스크롤 구역 */}
       {/* overflow-x: clip만 사용해 가로는 잘리지만 세로(확대 아이콘)는 보이게 처리 */}
       <div className="w-full relative mt-auto" style={{ marginTop: "clamp(12px, 3vh, 48px)", overflowX: "clip", overflowY: "visible" }}>
-        {/* 좌우 화이트 그라디언트 페이드 — 스크롤 컨테이너와 같은 레벨로 z-index 분리 */}
-        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 md:w-32 lg:w-48 bg-gradient-to-r from-background via-background/80 to-transparent z-40" />
-        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 md:w-32 lg:w-48 bg-gradient-to-l from-background via-background/80 to-transparent z-40" />
 
-        {/* 무한 가로 스크롤 컨테이너 */}
+        {/* 무한 가로 스크롤 컨테이너 — relative로 그라디언트 기준점 설정 */}
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="w-full overflow-x-auto flex items-center scrollbar-none touch-pan-x gap-[28px] sm:gap-[36px] md:gap-[44px] lg:gap-[60px]"
+          className="w-full overflow-x-auto flex items-center scrollbar-none touch-pan-x gap-[28px] sm:gap-[36px] md:gap-[44px] lg:gap-[60px] relative"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
             overflowY: "visible",
-            paddingTop: "clamp(24px, 5vh, 60px)",
-            paddingBottom: "clamp(20px, 4vh, 56px)",
-            minHeight: "clamp(100px, 18vh, 220px)",
+            paddingTop: "clamp(32px, 6vh, 68px)",
+            paddingBottom: "clamp(28px, 5vh, 64px)",
+            minHeight: "clamp(130px, 24vh, 260px)",
           }}
         >
+          {/* 좌우 화이트 그라디언트 페이드 — padding 안쪽에 위치해 위아래 번짐 없음 */}
+          <div className="pointer-events-none absolute left-0 inset-y-0 w-12 sm:w-20 md:w-32 lg:w-48 bg-gradient-to-r from-background via-background/80 to-transparent z-40" />
+          <div className="pointer-events-none absolute right-0 inset-y-0 w-12 sm:w-20 md:w-32 lg:w-48 bg-gradient-to-l from-background via-background/80 to-transparent z-40" />
+
           {INFINITE_SOUND_ITEMS.map((item) => {
             const isSelected = selectedId === item.id;
 
@@ -479,18 +480,17 @@ export default function SoundPage() {
                 onClick={() => handleSelect(item, item.uniqueKey)}
                 aria-label={item.name}
                 style={{
-                  width: "clamp(36px, 5.5vw, 76px)",
-                  height: "clamp(36px, 5.5vw, 76px)",
+                  width: "clamp(44px, 5.5vw, 76px)",
+                  height: "clamp(44px, 5.5vw, 76px)",
                 }}
                 className={cn(
                   "shrink-0 flex items-center justify-center relative cursor-pointer select-none bg-transparent border-none outline-none transition-transform duration-300 ease-out",
-                  // 누르면 반응형 확대
                   isSelected
                     ? "scale-[1.65] opacity-100 z-30"
                     : "scale-100 opacity-20 hover:opacity-50 hover:scale-105 z-10"
                 )}
               >
-                {/* 4~8px 소프트 컬러 발광 그림자 */}
+                {/* 소프트 컬러 발광 그림자 */}
                 <div 
                   className="relative w-full h-full flex items-center justify-center pointer-events-none transition-all duration-300"
                   style={{
