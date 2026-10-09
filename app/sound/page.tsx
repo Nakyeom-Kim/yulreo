@@ -54,7 +54,7 @@ export const SOUND_ITEMS: SoundItem[] = [
   {
     id: "emergency",
     name: "재난문자",
-    audio: "/sound/sound/mobile_emergency_alert.mp3",
+    audio: "/sound/sound/mobile_emergency_alert_loud.mp3",
     image: "/sound-img/sound-mobile-emergency-img.jpg",
     title: "재난\n문자",
     instrument: "북 • 박",
@@ -102,7 +102,7 @@ export const SOUND_ITEMS: SoundItem[] = [
     image: "/sound-img/sound-traffic-blinker-img.jpg",
     title: "보행자\n신호음",
     instrument: "가야금",
-    description: "초록불이 켜졌습니다",
+    description: "초록불이 켜졌습니다. 건너가도 좋습니다",
     brandColor100: "#ECC850",
     glowColor: "rgba(236, 200, 80, 0.50)",
   },
@@ -113,7 +113,7 @@ export const SOUND_ITEMS: SoundItem[] = [
     image: "/sound-img/sound-home-tv-img.jpg",
     title: "TV 켜짐\n소리",
     instrument: "거문고",
-    description: "텔레비전 전원이 켜졌습니다",
+    description: "텔레비전에 내가 나왔으면 정말 좋겠네, 정말 좋겠네~",
     brandColor100: "#ECC850",
     glowColor: "rgba(236, 200, 80, 0.50)",
   },
@@ -342,11 +342,11 @@ export default function SoundPage() {
     <div className="flex flex-col min-h-[100dvh] pt-14 md:pt-18 lg:pt-20 pb-4 dynamic-bottom-padding px-4 md:px-8 lg:px-12 bg-background relative overflow-hidden select-none justify-between">
       
       {/* 상단 메인 콘텐츠 영역: [왼쪽 4:3 사각형 (2)] : [오른쪽 설명 구역 (1)] */}
-      <div className="flex-grow flex flex-col items-center justify-center w-full max-w-[1180px] mx-auto py-1 sm:py-2">
-        <div className="w-full flex flex-col md:flex-row items-center md:items-stretch justify-center gap-4 md:gap-[3%]">
+      <div className="flex-grow flex flex-col items-center justify-center w-full max-w-[1180px] mx-auto py-0 sm:py-1">
+        <div className="w-full flex flex-col md:flex-row items-center md:items-stretch justify-center gap-3 md:gap-[3%]" style={{ maxHeight: "clamp(180px, 38vh, 480px)" }}>
           
           {/* 왼쪽 검은 사각형 (2 비율, 4:3 종횡비, 모바일/아이패드 최적화) */}
-          <div className="w-full max-w-[420px] md:max-w-none md:flex-[2] aspect-[4/3] bg-[#37332b] shrink-0 rounded-none shadow-sm relative overflow-hidden">
+          <div className="w-full max-w-[380px] md:max-w-none md:flex-[2] aspect-[4/3] bg-[#37332b] shrink-0 rounded-none shadow-sm relative overflow-hidden" style={{ maxHeight: "clamp(135px, 28.5vh, 360px)" }}>
             <AnimatePresence mode="wait">
               <motion.img
                 key={selectedItem.id}
@@ -477,8 +477,8 @@ export default function SoundPage() {
                 onClick={() => handleSelect(item, item.uniqueKey)}
                 aria-label={item.name}
                 style={{
-                  width: "clamp(44px, 7vw, 88px)",
-                  height: "clamp(44px, 7vw, 88px)",
+                  width: "clamp(36px, 5.5vw, 76px)",
+                  height: "clamp(36px, 5.5vw, 76px)",
                 }}
                 className={cn(
                   "shrink-0 flex items-center justify-center relative cursor-pointer select-none bg-transparent border-none outline-none transition-transform duration-300 ease-out",
