@@ -343,10 +343,10 @@ export default function SoundPage() {
       
       {/* 상단 메인 콘텐츠 영역: [왼쪽 4:3 사각형 (2)] : [오른쪽 설명 구역 (1)] */}
       <div className="flex-grow flex flex-col items-center justify-center w-full max-w-[1180px] mx-auto py-0 sm:py-1">
-        <div className="w-full flex flex-col md:flex-row items-center md:items-stretch justify-center gap-5 md:gap-[3%]" style={{ maxHeight: "clamp(180px, 38vh, 480px)" }}>
+        <div className="w-full flex flex-col md:flex-row items-center md:items-stretch justify-center gap-5 md:gap-[3%]" style={{ maxHeight: "clamp(180px, 46vh, 520px)" }}>
           
           {/* 왼쪽 검은 사각형 (2 비율, 4:3 종횡비, 모바일/아이패드 최적화) */}
-          <div className="w-full max-w-[380px] md:max-w-none md:flex-[2] aspect-[4/3] bg-[#37332b] shrink-0 rounded-none shadow-sm relative overflow-hidden" style={{ maxHeight: "clamp(135px, 28.5vh, 360px)" }}>
+          <div className="w-full max-w-[380px] md:max-w-none md:flex-[2] aspect-[4/3] bg-[#37332b] shrink-0 rounded-none shadow-sm relative overflow-hidden" style={{ maxHeight: "clamp(135px, 36vh, 400px)" }}>
             <AnimatePresence mode="wait">
               <motion.img
                 key={selectedItem.id}
