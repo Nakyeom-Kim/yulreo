@@ -344,8 +344,8 @@ export default function SoundPage() {
       <div className="flex-grow flex flex-col items-center justify-center w-full max-w-[1180px] mx-auto py-0 sm:py-1">
         <div className="w-full flex flex-col md:flex-row items-center md:items-stretch justify-center gap-5 md:gap-[3%]" style={{ maxHeight: "clamp(180px, 48vh, 560px)" }}>
           
-          {/* 왼쪽 검은 사각형 (2 비율, 4:3 종횡비, 45vh 비율 적용: 최대 560px) */}
-          <div className="w-full max-w-[380px] md:max-w-none md:flex-[2] aspect-[4/3] bg-[#37332b] shrink-0 rounded-none relative overflow-hidden" style={{ maxHeight: "clamp(135px, 45vh, 560px)" }}>
+          {/* 왼쪽 사각형 (2 비율, 4:3 종횡비, 45vh 비율 적용: 최대 560px) */}
+          <div className="w-full max-w-[380px] md:max-w-none md:flex-[2] aspect-[4/3] shrink-0 rounded-none relative overflow-hidden" style={{ maxHeight: "clamp(135px, 45vh, 560px)" }}>
             <img
               src={selectedItem.image}
               alt={selectedItem.name}
@@ -357,7 +357,7 @@ export default function SoundPage() {
           {/* 오른쪽 텍스트 및 선 영역 (1 비율, 콤팩트한 단정 세로 간격) */}
           <div className="w-full max-w-[420px] md:max-w-none md:flex-[1] flex flex-col justify-between min-w-[200px] md:min-w-[240px] mt-1 md:mt-0">
             <div className="flex flex-col">
-              {/* 1번 선 */}
+              {/* 1번 선 - 이미지 상단과 동일한 선상 */}
               <div className="w-full h-[1px] bg-[#37332b]/35" />
 
               {/* 제목 + 서브카피 */}
@@ -407,6 +407,9 @@ export default function SoundPage() {
               {/* 4번 선 */}
               <div className="w-full h-[1px] bg-[#37332b]/35" />
             </div>
+
+            {/* 5번 선 - 모바일에서는 숨김(4개), 아이패드 및 PC에서는 이미지 하단(바닥)과 정렬(5개) */}
+            <div className="hidden md:block w-full h-[1px] bg-[#37332b]/35 mt-auto" />
           </div>
 
         </div>
