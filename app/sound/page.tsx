@@ -42,7 +42,7 @@ export const SOUND_ITEMS: SoundItem[] = [
   {
     id: "alarm",
     name: "기상 알람",
-    audio: "/sound/sound/mobile_notification.mp3",
+    audio: "/sound/sound/mobile_notification_trim.mp3",
     image: "/sound-img/sound-mobile-alarm-img.jpg",
     title: "기상\n알람",
     instrument: "가야금 • 해금 • 대금",
@@ -419,11 +419,15 @@ export default function SoundPage() {
       {/* overflow-x: clip만 사용해 가로는 잘리지만 세로(확대 아이콘)는 보이게 처리 */}
       <div className="w-full relative mt-auto" style={{ marginTop: "clamp(12px, 3vh, 48px)", overflowX: "clip", overflowY: "visible" }}>
 
-        {/* 무한 가로 스크롤 컨테이너 — relative로 그라디언트 기준점 설정 */}
+        {/* 좌우 화이트 그라디언트 페이드 — 스크롤 컨테이너 바깥에 배치해 아이콘 확대 시 잘리지 않음 */}
+        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 md:w-32 lg:w-48 bg-gradient-to-r from-background via-background/80 to-transparent z-40" />
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 md:w-32 lg:w-48 bg-gradient-to-l from-background via-background/80 to-transparent z-40" />
+
+        {/* 무한 가로 스크롤 컨테이너 */}
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="w-full overflow-x-auto flex items-center scrollbar-none touch-pan-x gap-[28px] sm:gap-[36px] md:gap-[44px] lg:gap-[60px] relative"
+          className="w-full overflow-x-auto flex items-center scrollbar-none touch-pan-x gap-[28px] sm:gap-[36px] md:gap-[44px] lg:gap-[60px]"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
@@ -433,10 +437,6 @@ export default function SoundPage() {
             minHeight: "clamp(130px, 24vh, 260px)",
           }}
         >
-          {/* 좌우 화이트 그라디언트 페이드 — padding 안쪽에 위치해 위아래 번짐 없음 */}
-          <div className="pointer-events-none absolute left-0 inset-y-0 w-12 sm:w-20 md:w-32 lg:w-48 bg-gradient-to-r from-background via-background/80 to-transparent z-40" />
-          <div className="pointer-events-none absolute right-0 inset-y-0 w-12 sm:w-20 md:w-32 lg:w-48 bg-gradient-to-l from-background via-background/80 to-transparent z-40" />
-
           {INFINITE_SOUND_ITEMS.map((item) => {
             const isSelected = selectedId === item.id;
 
@@ -480,6 +480,16 @@ export default function SoundPage() {
             );
           })}
         </div>
+
+        {/* 더 알아보기 링크 */}
+        <a
+          href="https://www.gugak.go.kr/site/main/index001"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden md:inline-block absolute bottom-0 right-0 z-50 text-[10px] md:text-xs tracking-wider text-foreground/50 hover:text-foreground/90 transition-colors duration-300 font-sans cursor-pointer whitespace-nowrap"
+        >
+          더 알아보기 &gt;
+        </a>
       </div>
 
     </div>
